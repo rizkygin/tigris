@@ -1,0 +1,35 @@
+@font-face {font-family: "Arial Narrow"; font-style: normal; font-weight: normal; src: local('Arial Narrow'), local('Arial Narrow'), url('../fonts/arial-narrow.woff') format('woff')}
+
+.body-bso {margin: 0 0 30px 0; padding: 0; font: 11px "Arial Narrow",arial,tahoma}
+
+.kop {border: 1px solid #abc4cb; background: #d2e5ea; position: absolute; top: 10px; left: 10px; width: 400px; padding: 10px 20px; font: 12px arial,tahoma; font-weight: bold}
+.standard_box {width: 150px; position: absolute; z-index: 100}
+.standard {border: 2px solid #aaa; margin-bottom: 20px; background: #fafafa; width: 120px; min-height: 175px; padding: 10px 5px; text-align: center; font-size: 13px; border-radius: 4px; -webkit-border-radius: 4px; -moz-border-radius: 4px}
+
+.khusus {position: absolute; border: 3px solid #d9bda5; background: #f3e2d4; width: 130px; padding: 10px 5px; text-align: center; font-size: 13px; border-radius: 6px; -webkit-border-radius: 6px; -moz-border-radius: 6px; z-index: 100}
+
+.boxbupati {position: absolute; border: 2px solid #aaa; background: #fafafa; width: 130px; padding: 5px 0; text-align: center; font-size: 13px; border-radius: 6px; -webkit-border-radius: 6px; -moz-border-radius: 6px; z-index: 100}
+.boxbupati h2 {padding: 5px 0; margin: 0}
+.boxbupati h2.sekat {border-top: 2px solid #aaa; padding-top: 10px}
+
+
+.vertical {position: absolute; background: #aaa; width: 4px; z-index: 20}
+.horizontal {position: absolute; background: #aaa; height: 4px; z-index: 20}
+
+.kaki_atas {width: 4px; height: 18px; background: #aaa; position: absolute; top: -18px; left: 62px}
+
+.kaki2 {position: absolute; width: 300px; height: 120px; background: url('../images/bso/kaki2.gif') no-repeat bottom; z-index: 10}
+.kaki3 {position: absolute; width: 450px; height: 120px; background: url('../images/bso/kaki3.gif') no-repeat bottom; z-index: 10}
+
+/* -- BSO -- */
+.boxwrapper { padding: 0; margin: 0; position: relative;}
+.boxstandard { width: 280px; height: 123px; position: absolute; background: #fff; border: 2px solid #000; outline: 3px solid #fff}
+	#bsocontent { width: 280px; height: 123px; position: relative;}
+		.bsoimgbox {width: 90px; height: 110px; overflow: hidden; top: 5px; left: 5px; position: absolute; border: 1px solid #000; }
+		.bsoimgbox img { max-width: 130px; max-height: 132px; margin: -5px -5px 0 0; }
+		.bsoimg {max-width: 120px; max-height: 150px; margin: auto auto; }
+		.bsotext {position: absolute; top: 60px; left: 97px; width: 165px; border-top: 1px dotted #666; padding: 8px; font: 13px "Arial Narrow",arial,tahoma }
+		.bsojudul {width: 165px; height: 40px; position: absolute; left: 97px; padding: 6px 8px ; font: 12px "Arial Narrow",arial,tahoma; line-height: 11px; text-transform: uppercase; }
+		.bsojudul-on {width: 165px; height: 40px; position: absolute; left: 97px; padding: 6px 8px ; font: 12px "Arial Narrow",arial,tahoma; line-height: 11px; text-transform: uppercase; background: #fff; font-weight: bold}
+		.box-uu {border: 2px solid #000; padding: 10px 5px; background: #CCDAEB; font: 13px "Arial Narrow",arial,tahoma; width: 450px; position: absolute; top: 20px; left: 20px; }
+		

@@ -1,0 +1,910 @@
+/*-----------------------------------------
+	1. Responsive min-width 992 max-width 1200
+------------------------------------------*/
+@media only screen and (min-width: 992px) and (max-width: 1199px) {
+    .counter-top-area .rs-counter-list {
+        padding: 40px 0;
+    }
+    .rs-about .about-des ul.servic-list li i {
+        width: 30px;
+        font-size: 20px;
+    }
+    .rs-project2 .project-item .btn-view i,
+    .rs-project2 .project-item .p-zoom i {
+        width: 40px;
+        height: 40px;
+        line-height: 38px;
+    }
+    .rs-project2 .project-item .p-zoom i {
+        margin-right: 10px;
+    }
+    .rs-project2 .project-item .p-title{
+        margin-top: 12px;
+    }
+    .rs-project2 .project-item .p-desc{
+        margin-top: 5px;
+    }
+    .rs-footer .footer-top .sitemap-widget li a:after{
+        top: 0;
+    }
+    .rs-footer .footer-top .sitemap-widget li a {
+        padding: 0px 0 4px 8px;
+        font-size: 13px;
+    }
+    .rs-services2 .services-item .image .service-des{
+        top: 112%;
+    }
+}
+
+/*-----------------------------------------
+	2. Responsive max-width 1199
+------------------------------------------*/
+@media only screen and (max-width: 1199px) {
+    .home2 .rs-video-area .rs-video-content-wrap .sl-title{
+        font-size: 45px;
+        line-height: 55px;
+        margin-bottom: 25px;
+    }
+    .home2 .rs-video-area .rs-video-content-wrap .sl-desc {
+        margin-bottom: 35px;
+    }
+    .rs-banner .content-details .sl-title,
+    #first-slider h1 {
+        font-size: 40px;
+        line-height: 50px;
+    }
+    .rs-banner .content-details .sl-title{
+        margin-bottom: 10px;
+    }
+    #rs-testimonial .rs-tst-content {
+        margin: 0px -200%;
+    }
+    .rs-home-project .portfolio-filter button {
+        padding: 12px 8px;
+    }
+    .home4 #first-slider .item p, 
+    .home1 #first-slider .item p, 
+    .home3 #first-slider .item p {
+        margin-bottom: 35px;
+    }
+    .rs-working-process.home-working {
+        margin-top: -60px;
+    }
+    .collto-action .collto-title p.collto-des{
+        font-size: 20px;
+    }
+    .rs-home-cta .cta-home-text h3{
+        font-size: 24px;
+    }
+}
+/*-----------------------------------------
+	. Responsive min-width 991
+------------------------------------------*/
+@media only screen and (min-width: 992px) {
+    .mobile-logo{
+        display: none;
+    }
+}
+
+/*-----------------------------------------
+	3. Responsive max-width 991
+------------------------------------------*/
+@media only screen and (max-width: 991px) {
+	.sec-spacer {
+	    padding: 25px 0;
+	}
+    .rs-services2{
+        padding-bottom: 50px;
+    }
+	.sec-spacer-2 {
+	    padding: 40px 0 80px;
+	}
+	.sec-spacer-3 {
+	    padding: 40px 0;
+	}
+    .rs-blog{
+        padding-bottom: 72px;
+    }
+    #rs-testimonial.clients-say{
+        padding-bottom: 70px;
+    }
+    .rs-about3 .about-right-text {
+        padding-right: 0;
+        margin-top: 50px;
+    }
+    .rs-partner {
+        padding: 80px 0;
+    }
+    .rs-about3.pt-100{
+        padding-top: 80px !important;
+    }
+    .rs-testimonial-pages,
+    .mpt-50{
+        padding-top: 50px;
+    }
+    .mpt-40{
+        padding-top: 40px;
+    }
+    .sinlge-middle-content.pb-50{
+        padding-bottom: 30px;
+    }
+    .rs-services2 .services-item,
+	.sm-mb-30{
+		margin-bottom: 30px !important;
+	}
+	.pt-30{
+	    padding-top: 25px;
+	}
+	.pt-45 {
+	    padding-top: 35px;
+	}
+	.pt-70 {
+	    padding-top: 60px;
+	}
+	.pt-50 {
+	    padding-top: 40px;
+	}
+	.pt-100 {
+	    padding-top: 80px;
+	}
+	.pb-40 {
+	    padding-bottom: 35px;
+	}
+	.pb-45 {
+	    padding-bottom: 35px;
+	}
+	.pb-70 {
+	    padding-bottom: 60px;
+	}
+    .pt-85{
+        padding-top: 65px;
+    }
+	.pb-80 {
+	    padding-bottom: 70px;
+	}
+    .rs-about,
+    .rs-blog.block-page,
+    .rs-about.pb-70,
+	.pb-100 {
+	    padding-bottom: 80px;
+	}
+    .rs-home-project.project-page {
+        padding: 65px 0;
+    }
+    .rs-services3 .sec-title,
+    .sec-title {
+        margin-bottom: 30px;
+    }
+    .rs-about .about-des ul.servic-list {
+        padding-bottom: 20px;
+    }
+    .rs-team-details .description .member-title h3,
+    .rs-about3 .about-right-text .title,
+    .rs-welcome-sec .text-side .title h3,
+    .rs-get-touch .contact-mail .text-box .title,
+    .rs-about3 .about-right-text .title,
+    #rs-testimonial .sec-title h2,
+    .sec-title h3 {
+        font-size: 24px;
+        line-height: 19px;
+    }
+    .rs-team-details .description .member-title h3{
+        line-height: normal;
+    }
+    .rs-partner .rs-vertical-middle {
+        display: -ms-block;
+        display: -webkit-block;
+        display: block;
+        align-items: center;
+    }
+    .rs-partner #testimonial-slider1{
+        margin-bottom: 55px;
+    }
+    .collto-action h3,
+    .collto-action .collto-title p.collto-des {
+        font-size: 18px;
+    }
+    .collto-action .collto-title p.collto-des{
+        line-height: 30px;
+    }
+    .rs-about .about-des ul.servic-list li i {
+        width: auto;
+        margin-top: 0;
+        display: block;
+        margin-bottom: 5px;
+        float: none;
+    }
+    .rs-working-process.home-working{
+        margin-top: 80px;
+    }
+    .white-header .menu-area .rs-menu{
+        background: #363636;
+    }
+    .navbar-toggle {
+	    float: none;
+	    padding: 10px;
+        display: block;
+        margin: 11px;
+        margin-left: 20px;
+	}
+    .rs-home-cta .cta-home-text h3{
+        font-size: 18px;
+        line-height: normal;
+    }
+    .navbar-header{
+        float: none;
+        background: #222;
+    }
+	.navbar-collapse.collapse {
+	    display: none !important;
+        border-top: 0;
+	}
+	.navbar-collapse.collapse.in {
+	    display: block !important;
+	}
+    .home4 #rs-header .middle-header-home4 .header-bottom-area .navbar ul,
+    .home4 #rs-header .middle-header-home4 .header-bottom-area .navbar ul li{
+        margin: 0;
+        display: block;
+    }
+    .rs-services3 .right-col {
+        margin-top: 30px;
+    }
+    .rs-services3 .services {
+        margin: 0 auto 20px;
+        padding: 40px 15px;
+        max-width: 400px;
+    }
+    #rs-header .menu-area .logo-area {
+        text-align: center;
+        padding: 25px 0;
+    }
+    #rs-header .menu-area .logo-area,
+    #rs-header .menu-sticky.sticky .logo-area{
+        height: auto;
+        line-height: normal;
+    }
+    .rs-services3 .right-col .services .service-icon,
+    .rs-services3 .right-col .services .text-box,
+    .rs-services3 .services .service-icon,
+    .rs-services3 .services .text-box {
+        text-align: center;
+        float: none;
+    }
+    .rs-services3 .right-col .services .service-icon{
+        padding-bottom: 10px;
+    }
+    #rs-header .menu-area > .container{
+        width: 100%;
+    }
+    #rs-header .middle-header-home4 .header-bottom-area .get-quote{
+        right: 15px !important;
+    }
+    #rs-header .middle-header-home4 .header-bottom-area{
+        position: static !important;
+    }
+    #rs-header .menu-area > .container{
+        padding-left: 0;
+        padding-right: 0;
+    }
+    .home4 #rs-header .middle-header-home4 .header-bottom-area .navbar ul li{
+        height: 60px;
+        line-height: 60px;
+        padding-left: 20px;
+    }
+    .middle-header-home4 .logo{
+        margin: 4px 0 10px;
+    }
+    .home4 #rs-header .middle-header-home4 .header-bottom-area .navbar ul li + li{
+        border-top: 1px solid #101010;
+    }
+    #rs-header .middle-header-home4{
+        padding: 0 !important;
+    }
+    #rs-header .middle-header-home4 .menu-area{
+        background: #363636 !important;
+    }
+    .menu-sticky1.sticky1 {
+        position: static !important;
+        -webkit-box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
+        box-shadow: 0 0 5px 0 rgba(0, 0, 0, 0.2);
+        -webkit-animation-duration: .0s;
+        animation-duration: .0s;
+    }
+    .middle-header-home4 > .container{
+        padding: 25px 0;
+    }
+    .menu-sticky.sticky,
+    .menu-sticky4.sticky4{
+        transition: .0s;
+        -webkit-transition: .0s;
+        -ms-transition: .0s;
+         position: static !important;
+    }
+    .rs-about3 .about-left-img {
+        float: none;
+    }
+    .home2 .rs-video-area .rs-video-content-wrap .content-details {
+        top: 50%;
+        padding: 0 30px;
+    }
+    .rs-faq .about-right-img img{
+        width: 100%;
+    }
+    .home2 #rs-header .sticky{
+        background: #fff;
+    }
+    .home2 #rs-header .rs-menu{
+        background: #363636;
+    }
+    #rs-header .menu-sticky.sticky .rs-menu ul li a,
+    .rs-menu ul li a{
+        padding: 22px 14px;
+    }
+    .home2 #rs-header.rs-header3{
+        position: static;
+    }
+    .home2 .mobile-logo{
+        text-align: center;
+        padding: 28px 0;
+    }
+    .rs-banner .content-details .slider-botton .sl-btn{
+        width: 120px;
+        height: 45px;
+        line-height: 45px;
+        font-size: 14px;
+    }
+    a.sl-btn2,
+    a.sl-btn {
+        padding: 10px 36px;
+        font-size: 14px;
+    }
+    .rs-menu-toggle:hover{
+        color: #f0ad05;
+    }
+    .rs-footer .footer-top .about-widget p{
+        margin: 0;
+    }
+    .home4 #rs-header .middle-header-home4 .header-contact-info ul,
+    .home1 #rs-header .middle-header-home4 .header-contact-info ul{
+        float: none;
+    }
+    .rs-about,
+    .rs-home-cta .cta-home-text,
+    .service-left-content,
+    .home4 #rs-header .middle-header-home4 .header-contact-info ul,
+    .home1 #rs-header .middle-header-home4 .header-contact-info ul,
+    .middle-header-home4 .logo{
+        text-align: center;
+    }
+	.rs-breadcrumbs .page-title {
+		font-size: 34px;
+	}
+	.rs-home-cta .rs-home-cta-button{
+		text-align: center;
+		margin-top: 15px;
+	}
+    .rs-faq #accordion,
+    .rs-get-touch .focuse .contact-mail,
+    .rs-welcome-sec .slider-side,
+	.rs-blog .bottom-margin{
+		margin-top: 50px;
+	}
+	.collto-action h2, .footer-collto-action h2 {
+		font-size: 25px;
+	}
+	.collto-action .get-start a, 
+    .footer-collto-action .get-start a {
+		font-size: 15px;
+        padding: 12px 26px;
+        display: inline-block;
+	}
+	p.about-desc {
+		width: 52%;
+		margin: 0 auto;
+		margin-bottom: 26px;
+	}
+	.rs-about .sec-title h3:after {
+		left: 50%;
+		-webkit-transform: translateX(-50%);
+		-moz-transform: translateX(-50%);
+		transform: translateX(-50%);
+	}
+	.about-image {
+		padding-bottom: 40px;
+	}
+	.rs-service1 {
+		padding-bottom: 50px !important;
+	}
+	.rs-pricing .style-6 .home-pricing-table .rs-pricing-table-style .middle-pricing-table{
+		transform: unset;
+	}
+	.rs-pricing .style-3 .col-md-12 .price-plan .featured{
+		padding-left: 30px;
+	}
+	.counter-top-area .rs-count .col-md-3 {
+		width: 50% !important;
+		margin: 0 auto !important;
+	}
+	.counter-top-area {
+		padding-top: 80px;
+		padding-bottom: 50px;
+	}
+	.counter-top-area .rs-counter-list {
+		margin-bottom: 30px;
+	}
+	.rs-working-process {
+		padding-bottom: 50px;
+	}
+	.rs-working-process .work-content {
+		margin-bottom: 30px;
+	}
+	.rs-working-process .center-sm {
+		margin-left: 25%;
+	}
+	.rs-project2 {
+		padding-bottom: 50px;
+	}
+    .rs-project2 .project-filter button {
+        margin-right: 0;
+    }
+    .rs-footer .footer-top .col-md-3 + .col-md-3{
+        margin-top: 40px;
+    }
+    .rs-footer .news-note,
+    .rs-footer .footer-subscribe {
+        max-width: 400px;
+    }
+    .home4 #rs-header .middle-header-home4 .header-bottom-area .get-quote a,
+    .home1 #rs-header .middle-header-home4 .header-bottom-area .get-quote a, 
+    .home3 #rs-header .middle-header-home4 .header-bottom-area .get-quote a{
+        line-height: 58px;
+        height: 58px;
+    }
+    .home4 #first-slider .item p, 
+    .home1 #first-slider .item p, 
+    .home3 #first-slider .item p {
+        margin-bottom: 40px;
+    }
+    .home4 #first-slider .item h1, 
+    .home1 #first-slider .item h1, 
+    .home3 #first-slider .item h1 {
+        margin-bottom: 10px;
+    }
+    .home2 .rs-video-area .rs-video-content-wrap .sl-desc {
+        font-size: 15px;
+    }
+    .rs-banner .content-details .sl-title,
+    .home2 .rs-video-area .rs-video-content-wrap .sl-title,
+    #first-slider h1 {
+        font-size: 40px;
+        line-height: 55px;
+    }
+    .home2 .rs-video-area .rs-video-content-wrap .slider-botton ul li:last-child {
+        margin-left: 15px;
+    }
+    a.sl-btn2, 
+    a.sl-btn {
+        padding: 6px 25px;
+        font-size: 14px;
+    }
+    .service-details-section .services-left-sidebar .sinlge-middle-content ul li{
+        position: relative;
+        padding-left: 15px;
+    }
+    .service-details-section .services-left-sidebar .sinlge-middle-content ul li:before{
+        position: absolute;
+        left: 0;
+        z-index: 11;
+    }
+    .sec-title.left h3:after {
+        left: 50%;
+        transform: translateX(-50%);
+        -webkit-transform: translateX(-50%);
+        -ms-transform: translateX(-50%);
+    }
+    .home1 .rs-menu > ul > li:first-child > a, 
+    .home3 .rs-menu > ul > li:first-child > a {
+        padding-left: 22px;
+    }
+    
+    .collto-action .collto-title p.collto-des{
+        font-size: 16px;
+    }
+    .collto-action .collto-title p.collto-des span{
+        font-size: 15px;
+    }
+}
+
+/*-----------------------------------------
+	4. Responsive max-width 767
+------------------------------------------*/
+@media only screen and (max-width: 767px) {
+	.xs-mb-30{
+		margin-bottom: 30px !important;
+	}
+    .rs-carousel .owl-controls .owl-nav{
+        display: none;
+    }
+	.rs-breadcrumbs .page-title {
+		font-size: 26px;
+	}
+	.rs-pricing .style-3 .col-md-12 .price-plan .top,
+	.rs-pricing .style-3 .col-md-12 .price-plan .featured{
+		width: 100%;
+		height: auto;
+		float: none;
+		padding: 30px 0;
+	}
+	.rs-pricing .style-3 .col-md-12 .price-plan .bottom{
+		width: 100%;
+		height: auto;
+		float: none;
+	}
+	.rs-pricing .style-3 .col-md-12 .price-plan .bottom .footer{
+		padding: 30px 0;
+	}
+    .footer-bottom .copyright p,
+    .footer-bottom .text-right,
+    #rs-header .toolbar-top-area .toolbar-sl-share ul,
+    #rs-header .toolbar-top-area .toolbar-contact ul,
+	.rs-pricing .style-3 .col-md-12 .price-plan .featured ul li{
+		text-align: center;
+	}
+    .collto-action h3, 
+    .collto-action .collto-title p.collto-des {
+        text-align: center;
+        margin-bottom: 15px;
+        line-height: 24px;
+    }
+    #rs-header .toolbar-top-area .toolbar-contact ul{
+        margin-bottom: 4px;
+    }
+    .footer-bottom .copyright{
+        margin-bottom: 10px;
+    }
+	.rs-pricing .style-3 .col-md-12 .price-plan .top::after{
+		left: 50%;
+		top: 70px;
+		transform: translateX(-50%);
+		border-width: 4rem medium 4rem 2rem;
+		right: auto;
+		transform: rotate(90deg);
+		-webkit-transform: rotate(90deg);
+		-ms-transform: rotate(90deg);
+	}
+    .rs-project-details .bottom-inner ul li {
+        float: none;
+        width: 100%;
+    }
+	.rs-pricing .style-3 .col-md-12 .middle-style .top .popular{
+		padding: 2px 16px;
+	}
+    .home2 .rs-video-area .rs-video-content-wrap{
+        height: 350px;
+    }
+    .collto-action h2{
+        font-size: 20px;
+        text-align: center;
+        margin-bottom: 35px;
+        line-height: 24px;
+    }
+    .collto-action .get-start{
+        margin-top: 0;
+        text-align: center;
+    }
+    #first-slider .item p,
+    .rs-banner .content-details .sl-desc,
+    .home1 #first-slider .item p,
+    .home1 #first-slider .item p {
+        font-size: 14px;
+    }
+    .rs-banner .content-details .sl-title {
+        font-size: 24px;
+        line-height: 38px;
+        margin-bottom: 25px;
+    }
+    .home2 .rs-video-area .rs-video-content-wrap .sl-title,
+    #first-slider h1 {
+        font-size: 28px;
+        line-height: 44px;
+    }
+    .rs-project2 .grid-item{
+        width: 100%;
+    }
+    .rs-faq .sec-title p {
+        margin-bottom: 30px !important;
+    }
+    .rs-services3 .sec-title {
+        margin-bottom: 50px;
+    }
+    #rs-testimonial .rs-tst-content {
+        margin: 0px -150%;
+    }
+    .rs-contact .contact-bg .contact-address .address-item {
+        display: block;
+        text-align: center;
+    }
+    .rs-contact .contact-bg .contact-address .address-item .address-icon {
+        margin: 0 auto 15px;
+    }
+    .defult-services .small-service-item{
+        margin-top: 30px;
+    }
+    .defult-services .small-service-item img{
+        width: 100%;
+    }
+    .rs-partner.style1 .col-sm-6:last-child .partner-item{
+        margin-top: 30px;
+    }
+    .rs-banner .content-details .sl-desc{
+        display: none;
+    }
+    .rs-banner .main-banner-img img{
+        height: 180px;
+    }
+    .collto-action .rs-vertical-middle {
+        display: -ms-block;
+        display: -webkit-block;
+        display: block;
+        align-items: center;
+        text-align: center;
+    }
+    .collto-action .rs-vertical-middle .collto-title{
+        margin: 15px  0 25px;
+    }
+    #rs-header .toolbar-top-area .toolbar-contact ul li{
+        margin-right: 0;
+        display: block;
+    }
+    .rs-history .timeline li:last-child{
+        padding-bottom: 0;
+    }
+    .rs-services2 .services-item .image .service-des{
+        top: 100%;
+    }
+    a.sl-btn2, 
+    .readon {
+        padding: 5px 10px;
+        font-size: 13px;
+    }
+}
+
+/*-----------------------------------------
+	5. Responsive max-width 640
+------------------------------------------*/
+@media only screen and (max-width: 640px) {	
+	.rs-breadcrumbs .page-title {
+		font-size: 22px;
+	}
+	.rs-blog .blog-content .item .item-title h4{
+		font-size: 18px;
+	}
+	.default-pagination ul li a{
+		width: 30px;
+		height: 30px;
+		line-height: 30px;
+	}
+	.rs-coming-soon .coming-soon-part .coming-soon-text .coming-soon-title{
+		margin-top: 80px;
+		font-size: 30px;
+	}
+    #first-slider .item p{
+        display: none;
+    } 
+    .home4 #first-slider .item h1,
+    .home1 #first-slider .item h1 {
+        margin-bottom: 25px;
+    }
+	.rs-coming-soon .coming-soon-part .coming-soon-text .coming-soon-subtitle{
+		font-size: 24px;
+	}
+	.rs-coming-soon .coming-soon-part .coming-soon-text .CountDownTimer{
+		max-width: 500px;
+		margin: 20px auto 35px;
+	}
+	.rs-coming-soon .coming-soon-part .coming-soon-text .time_circles div{
+		padding-right: 0;
+	}
+	.rs-coming-soon .coming-soon-part .coming-soon-text .time_circles div span{
+		font-size: 20px !important;
+		padding: 25px 0;
+		margin: 0 10px;
+		text-align: center;
+	}
+	.rs-coming-soon .coming-soon-part .coming-soon-text .social-icons{
+		padding: 60px 0 0;
+	}
+    .sec-title p,
+    .counter-top-area .rs-count .col-md-3 {
+        width: 100% !important;
+        max-width: 300px;
+    }
+    #first-slider .carousel-control{
+        display: none;
+    }
+    .rs-breadcrumbs ul{
+        display: block;
+    }
+    .rs-breadcrumbs ul li{
+        font-size: 10px;
+    }
+}
+/*-----------------------------------------
+	6. Responsive max-width 480
+------------------------------------------*/
+@media only screen and (max-width: 480px) {
+	.rs-breadcrumbs .page-title {
+		font-size: 16px;
+	}
+    .rs-breadcrumbs img{
+        min-height: 90px;
+    }
+	.rs-coming-soon .coming-soon-part .coming-soon-text .CountDownTimer{
+		max-width: 300px;
+	}
+	.rs-coming-soon .coming-soon-part .coming-soon-text .time_circles div span{
+		padding: 16px 0;
+		margin: 0 5px;
+	}
+    #rs-header .mobile-logo img,
+    #rs-header .logo img{
+        max-width: 180px !important;
+    }
+    .rs-banner .content-details .sl-title,
+    .home4 #first-slider .item h1,
+    .home1 #first-slider .item h1 {
+        margin-bottom: 18px;
+    }
+    .rs-banner .content-details .sl-title,
+    .home2 .rs-video-area .rs-video-content-wrap .sl-title,
+    #first-slider h1 {
+        font-size: 17px;
+        line-height: 26px;
+    }
+    .rs-welcome-sec .text-side .title h3{
+        line-height: 17px;
+    }
+    .rs-team-details .description .member-title h3,
+    .rs-service1 .grid-style-1 .item-wrap .item .title h2{
+        font-size: 20px;
+    }
+    .rs-about3 .about-right-text .title {
+        margin-bottom: 10px;
+    }
+    .rs-project-details .top-images .inner-top .inner .details {
+        padding-left: 16px;
+        padding-right: 20px;
+    }
+    .rs-home-cta .cta-home-text h3,
+    .rs-welcome-sec .text-side .title h3,
+    .rs-get-touch .contact-mail .text-box .title,
+    .rs-about3 .about-right-text .title,
+    .collto-action .collto-title p.collto-des,
+    #rs-testimonial .sec-title h2,
+    .rs-welcome-sec .text-side .title h3{
+        font-size: 18px;
+    }
+    .rs-welcome-sec .text-side .list-style li {
+        padding-left: 16px;
+        position: relative;
+    }
+    .rs-welcome-sec .text-side .list-style li:before{
+        position: absolute;
+        left: 0;
+    }
+    .rs-services3 .services .text-box .title,
+    .service-details-section .services-sidebar .service-cats-contact .service-cats-title,
+    .service-details-section .services-sidebar .service-cats-area h4,
+    .rs-blog .blog-list .blog-item .blog-content .blog-text .title,
+    .collto-action .collto-title p.collto-des,
+    .defult-services .service-item .services-desc h4,
+    .rs-team .team-style .team-style-3 .team-desk .name a,
+    .sec-title h3,
+    #rs-testimonial .rs-tst-title{
+        font-size: 16px;
+    }
+    .rs-services3 .services .text-box .title{
+        line-height: 19px;
+    }
+    .rs-about .panel .panel-heading h4.panel-title a {
+        padding: 14px 10px;
+        text-align: left;
+    }
+    .rs-team2 .rs-carousel .team-item .grid-style-1 .team-item-wrap .team-content .display-table .display-table-cell .team-social {
+        margin-top: 30px;
+    }
+    #rs-testimonial .slick-prev {
+        left: 20%;
+    }
+    #rs-testimonial .slick-next {
+        right: 20%;
+    }
+    #rs-testimonial .rs-tst-content {
+        margin: 0px -80%;
+    }
+    .rs-service1 .grid-style-1 .item-wrap .item .icon a i {
+        font-size: 40px;
+    }
+    .single-blog-details .author-comment ul li {
+        padding: 20px 12px;
+    }
+    .single-blog-details .author-comment ul li:nth-child(2) {
+        margin-left: 20px;
+    }
+    .single-blog-details .share-section2 .share-link,
+    .single-blog-details .share-section .share-link1 {
+        margin-top: 10px;
+        float: none;
+    }
+    .contact-info2 .map-canvas {
+        height: 260px;
+    }
+    .collto-action .collto-title p.collto-des span {
+        font-size: 15px;
+        margin-top: 10px;
+        line-height: 22px;
+        margin-bottom: 6px;
+    }
+    .collto-action .collto-title p.collto-des {
+        line-height: 24px;
+    }
+    .rs-about .about-des ul.servic-list li {
+        float: none;
+        width: 100%;
+    }
+    .rs-about .about-des ul.servic-list li i {
+        width: 30px;
+        margin: 0 auto;
+        height: 22px;
+        font-size: 20px;
+    }
+    .rs-about .panel .panel-heading h4.panel-title a{
+        font-size: 14px;
+    }
+    .rs-project2 .project-item .btn-view i,
+    .rs-project2 .project-item .p-zoom i {
+        width: 40px;
+        height: 40px;
+        line-height: 38px;
+    }
+    .rs-project2 .project-item .p-zoom i {
+        margin-right: 10px;
+    }
+    .rs-project2 .project-item .p-title{
+        margin-top: 12px;
+    }
+    .rs-project2 .project-item .p-desc{
+        margin-top: 5px;
+    }
+    .rs-banner .main-banner-img .in-view:before,
+    .rs-banner .main-banner-img .in-view:after{
+        height: 70px;
+    }
+    .rs-services2 .services-item .image .service-des{
+        top: 105%;
+    }
+    .rs-breadcrumbs ul{
+        display: block;
+    }
+    .rs-breadcrumbs ul li{
+        font-size: 10px;
+    }
+
+}
+
+/*-----------------------------------------
+	7. Responsive max-width 375
+------------------------------------------*/
+@media only screen and (max-width: 375px) {
+    .rs-about .panel .panel-heading h4.panel-title a{
+        font-size: 13px;
+    }
+    .rs-breadcrumbs ul{
+        display: block;
+    }
+    .rs-breadcrumbs ul li{
+        font-size: 10px;
+    }
+}
+

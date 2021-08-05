@@ -1,0 +1,23 @@
+{
+	"sEmptyTable":   	"Tidak/belum ada data",
+	"sInfo":         	"Menampilkan _START_ Sampai _END_ Dari _TOTAL_ Entri Data",
+	"sInfoEmpty":    	"Menampilkan 0 Sampai 0 Dari 0 Entri Data",
+	"sInfoFiltered": 	"(Disaring Dari _MAX_ Total Endtri Data)",
+	"sInfoPostFix":  	"",
+	"sInfoThousands":  	".",
+	"sLengthMenu":   	"_MENU_ Baris Per Halaman",
+	"sLoadingRecords": 	"Menunggu...",
+	"sProcessing":   	"Sedang Diproses...",
+	"sSearch":       	"Pencarian: ",
+	"sZeroRecords":  	"Tidak ada data cocok yang ditemukan.",
+	"oPaginate": {
+		"sFirst":    	"Awal",
+		"sPrevious": 	"Sebelumnya",
+		"sNext":     	"Selanjutnya",
+		"sLast":     	"Akhir"
+	},
+	"oAria": {
+		"sSortAscending":  ": memungkinkan untuk mengurutkan kolom dalam urutan naik",
+		"sSortDescending": ": memungkinkan untuk mengurutkan kolom dalam urutan turun"
+	}
+}

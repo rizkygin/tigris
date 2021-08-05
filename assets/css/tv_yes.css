@@ -1,0 +1,43 @@
+/*
+ * Skin: hanya untuk css tv informasi di yes
+ * ongerwdm
+ */
+ .atas{
+ 	min-height: 59px;
+ 	background-color: #4A45AE;
+ }
+ .kiri{
+ 	min-height: 615px;
+ 	border-right: 1px solid rgb(111, 92, 168);
+ 	overflow: hidden;
+ }
+ .kanan_atas{
+ 	min-height: 307px;
+ 	overflow: hidden;
+ 	background-color: rgb(91, 93, 168);
+ }
+ .kanan_bawah{
+ 	min-height: 308px;
+ 	overflow: hidden;
+ 	background-color: rgb(91, 93, 168);
+ }
+ .bawah{
+ 	min-height: 45px;
+ 	overflow: hidden;
+ }
+
+ .identitas{
+ 	margin-left: 10px;
+ }
+ .identitas p{
+ 	color: #000;
+ }
+ .marquee{
+ 	color: #fff;
+ 	font-size: 28px;
+ 	box-shadow: 1px 1px 5px #000;
+ }
+ .box{
+ 	margin-bottom: 7px;
+ 	box-shadow: 1px 1px 5px #000;
+ }

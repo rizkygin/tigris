@@ -1,0 +1,14 @@
+<link href="http://localhost/new/eoffice_bappeda_paser/js/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+<script type="text/javascript" src="http://localhost/new/eoffice_bappeda_paser/js/fancybox/lib/jquery.mousewheel-3.0.6.pack.js"></script>
+<script type="text/javascript" src="http://localhost/new/eoffice_bappeda_paser/js/fancybox/source/jquery.fancybox.js?v=2.1.5"></script>
+
+------------------
+<script type="text/javascript">
+$(function(){
+    $(".fancybox").fancybox();
+});
+
+
+
+------------------------
+class="fancybox fancybox.iframe"

@@ -1,0 +1,23 @@
+
+@font-face { font-family: 'arialnarrow'; font-style: normal; font-weight: normal; 
+	src: local('arialnarrow'), url('../fonts/arialnarrow.woff') format('woff')}
+
+.laporan { font-family: 'arialnarrow',arial,tahoma; }
+.logo-instansi { max-width: 90px; margin: 0 10px 10px 0;}
+
+.tabel_print {margin:15px 0; border-collapse:collapse;}
+.tabel_print th, .add_th {border-collapse:collapse; border:1px #222 solid; text-align:center !important; background: #f9f9f9;
+    color:#000; padding: 5px 3px; font-weight: bold; margin: 0; vertical-align: middle !important; }
+.tabel_print td { border-collapse:collapse !important; color:#000; border:1px #222 solid !important; padding: 5px; margin: 0; text-align: left;font: 13px 'arialnarrow',arial; vertical-align: top; }
+.tabel_print th, .add_th, .tabel_print th { font: 15px 'arialnarrow',arial,tahoma !important; } 
+
+.on-center, .on-center td { text-align: center; }
+.on-fittop td { vertical-align: top; }
+.tleft { text-align: left !important; }
+
+.wrap_laporan { width: 700px; padding: 10px 20px; }
+.wrap_laporan_landscape { width: 900px; padding: 10px 5px; }
+.on-cetak, .on-cetak h4 { font-family: Arial,tahoma !important; }
+
+.reg-text {font: 13px 'arialnarrow',arial}
+td, th, .add_th { font-size: 13px !important;}

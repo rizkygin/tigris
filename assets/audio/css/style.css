@@ -1,0 +1,44 @@
+li {
+	list-style: none;
+}
+#tracks {
+    min-height: 64px;
+    top: 12px;
+}
+#tracks {
+    position: relative;
+    text-align: center;
+    text-decoration: none;
+}
+.con{
+	
+}
+.list{
+	max-height: 380px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+}
+
+ul,li,audio {
+border:0;
+font:inherit;
+font-size:100%;
+margin:0;
+padding:0;
+vertical-align:baseline;
+}
+.plItem { position:relative; }
+.plNum { padding-left:21px; width:25px; }
+.plTitle { left:50px; overflow:hidden; position:absolute; right:65px; text-overflow:ellipsis; top:0; white-space:nowrap; }
+.plLength { padding-left:21px; position:absolute; right:21px; top:0; }
+#plList { margin:0; }
+#plList li { background-color: rgba(146, 146, 146, 0); cursor:pointer; margin:0; padding:5px 0; }
+#plList li:hover { background-color:rgb(134, 134, 134); }
+#nowPlay { display:inline; }
+#mainwrap { /* add box-shadow or other styles here */ }
+#audiowrap { background-color:#231F20; margin:0 auto; }
+#plwrap { margin:0 auto; }
+#btnPlus { color: #5a5a5a;}
+#btnNext { color: #5a5a5a;}
+#btnPrev { color: #5a5a5a;}
+#audio1 { color: #5a5a5a; width: 380px;}

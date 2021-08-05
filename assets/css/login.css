@@ -1,0 +1,46 @@
+.login-page { margin: 0; padding: 0; position: relative; background: #264869;}
+.login-wrapper { width: 100%; position: relative; }
+.login-drop img { min-width: 100%; min-height: 100%; }
+.login-drop { z-index: 90 !important; position: absolute; height: 320px !important; overflow: hidden; background: #fff; width: 100%}
+.top-brand { color: #666; font-size: 0.9em; line-height: 1.2em; }
+.top-brand span { font-size: 1.3em; color: #444 }
+
+.login-box-ex { margin: 1% auto 0 auto; }
+
+.logo-brand { text-align: center; margin: 0 0 10px 0 }
+.logo-brand p a { color: #fff; }
+
+.fit-logo img { width: 85px;}
+.login-box-body { border: 1px solid #d3e1ed; padding: 5px 20px}
+.login-logo { letter-spacing: -1px; font-size: 4.0em; line-height: 23px; color: #fff;  margin: 0 0 10px 0; padding: 15px 0 5px 0;}
+.login-logo small { font-size: 0.3em; letter-spacing: 0}
+.login-instansi { letter-spacing: -1px; text-align: center; font-size: 1.8em; line-height: 1.1em; 
+	color: #fff;margin: 0; padding: 10px 0 5px 0;} /*background: url('../images/drop.png'); */
+.clear { clear: both }
+.hide { display: none; }
+
+
+.footer { font-size: 11px; line-height: 13px; position: absolute; width: 100%; top: 0; z-index: 100; color: #fff }
+.register-box  {margin-top: 50px 0 0 0; padding: 10px 0; width: 100%; height: 130px; } /*background: url('../images/drop.png');*/
+.login-box-register { background: #fff; margin: 0; padding: 5px 0; color: #000; }
+.login-box-register h3 { text-align: center; letter-spacing: -1px}
+
+.control-label { text-align: right; font-weight: lighter; font-size: 1.2em; padding-top: 5px; }
+
+.role-iconic { -webkit-border-radius: 5px; border-radius: 5px; margin: 0 -15px; text-align: center;}
+.role-iconic img { width: 75%; margin: 10px 3px;}
+
+.role-head { color: #555; font-size: 2.4em; padding: 0; margin: 0 -15px; line-height: 0.8em; letter-spacing: -1px;}
+.role-head small { font-size: 0.5em; font-weight: 100; letter-spacing: 0; line-height: 0.1em;  }
+
+@media (max-width: 320px) {
+.top-brand { font-size: 0.7em; } 
+.role-head { color: #555; font-size: 2.0em; padding-left: 20%; } 
+.btn-login { margin-bottom: 30px;}
+}
+
+@media (max-width: 400px) {
+.role-head { color: #555; font-size: 2.2em; padding-left: 20%; } 
+}
+
+.box-btn-keluar { margin: 10px 0 20px 0; padding-top: 10px; border-top: 1px dotted #fff }
