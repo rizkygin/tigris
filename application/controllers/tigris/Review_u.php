@@ -21,17 +21,21 @@ Class Review_u extends CI_Controller{
 		$search_key = $this->input->post('key');
 		$id_pegawai = $this->session->userdata('id_pegawai');
 
+        // cek($search_key);
 		if (!empty($search_key)) {
 			$fcari = array(
-				'judul_tesis' 		=> $search_key,
+				'nama' 		=> $search_key,
 				'nama_program_konsentrasi' 		=> $search_key,
+				'review_file' 		=> $search_key,
 			);	
-			$data['for_search'] = @$fcari['judul_tesis'];
+			$data['for_search'] = @$fcari['nama'];
 			$data['for_search'] = @$fcari['nama_program_konsentrasi'];
+			$data['for_search'] = @$fcari['review_file'];
 		} else if ($search) {
 			$fcari=un_de($search);
-			$data['for_search'] = @$fcari['judul_tesis'];
+			$data['for_search'] = @$fcari['nama'];
 			$data['for_search'] = @$fcari['nama_program_konsentrasi'];
+			$data['for_search'] = @$fcari['review_file'];
 		}
 
         $tipe_user = $this->general_model->datagrabs([
@@ -58,7 +62,6 @@ Class Review_u extends CI_Controller{
 			'nama_tahun',
 			'prodi.nama_prodi',
             'nama_program_konsentrasi',
-            'review_file'
 		];
         $where = array('b.id_tipe'=>1);
 
@@ -111,10 +114,12 @@ Class Review_u extends CI_Controller{
 		    $data['tombol'] = @$btn_tambah .' '. $btn_cetak;
             $where = array('b.id_tipe'=>1 ,'a.id_mahasiswa' => $id_pegawai);
 
-		    $dtjnsoutput = $this->general_model->datagrab(array('tabel'=>$from,'limit'=>$lim, 'offset'=>$offs, 'search'=>$fcari,'select'=>$select,'where'=>$where,'order'=>'a.tgl_upload DESC'));
+		    $dtjnsoutput = $this->general_model->datagrabs(array('tabel'=>$from,'limit'=>$lim, 'offset'=>$offs, 'search'=>$fcari,'select'=>$select,'where'=>$where,'order'=>'a.tgl_upload DESC'));
         }else{
 		    $data['tombol'] = $btn_cetak;
-    		$dtjnsoutput = $this->general_model->datagrab(array('tabel'=>$from,'limit'=>$lim, 'offset'=>$offs, 'search'=>$fcari,'select'=>$select,'where'=>$where,'order'=>'a.tgl_upload DESC'));
+    		$dtjnsoutput = $this->general_model->datagrabs(array('tabel'=>$from,'limit'=>$lim, 'offset'=>$offs, 'search'=>$fcari,'select'=>$select,'where'=>$where,'order'=>'a.tgl_upload DESC'));
+            // cek($this->db->last_query());
+
 
         }
 		
@@ -297,7 +302,7 @@ Class Review_u extends CI_Controller{
 		$this->load->view('umum/form_view', $data);
     }
 
-    function save_aksi($id){
+    function save_aksi($id = null){
         $in = $this->input->post();
 		
         $id_mahasiswa = $this->session->userdata('id_pegawai');

@@ -42,7 +42,7 @@
 		.marquee-box ul li i { margin: 0 0px 0 0; font-size: 12px; margin-top:-10px; padding:0px;}
 		.marquee-box img{ height:35px; }
 		.jam{ background: #f8c300;color:#fff;font-size: 16px !important;position:fixed;left:0px;bottom:0;font-size: 12px;height:40px;width:80px;margin-bottom: 0px;padding: 10px;font-weight: bold;}
-		.tanggal{ background: url(<?php echo base_url()?>uploads/logo/tanggal.png) no-repeat left top; position:fixed;right:0px;bottom:0;font-size: 16px;height:40px;width:115px;margin-bottom: 0px;padding: 13px 10px 10px 15px;font-weight: bold;z-index: 999999999;color:#fff;}
+		.tanggal{ background: #800000 no-repeat left top; position:fixed;right:0px;bottom:0;font-size: 16px;height:40px;width:115px;margin-bottom: 0px;padding: 13px 10px 10px 15px;font-weight: bold;z-index: 999999999;color:#fff;}
 		.logo img { float: left; margin: 15px 10px 10px 20px; max-height: 50px; }
 		.logo h2, .logo h1 { padding: 0; margin: 20px 0 0 0; color: #fff;/*text-transform: uppercase; text-shadow: 1px 1px 2px #fff*/ }
 		.logo h2 { font-size: 1em;  letter-spacing: 3px; text-transform: uppercase; }

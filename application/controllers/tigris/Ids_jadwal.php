@@ -103,14 +103,14 @@ class Ids_jadwal extends CI_Controller {
 		
 		$from_jadwal = array(
 			'jadwal_ujian a' => '',
-			'peg_pegawai b' => array('b.id_pegawai = a.id_mahasiswa','left')
+			'peg_pegawai b' => array(' a.id_mahasiswa = b.id_pegawai','left')
 		);
 		$select = 'a.*,b.nama as nama_mahasiswa';
-        $totalRec = $this->general_model->datagrab(array(
+        $totalRec = $this->general_model->datagrabs(array(
 			'tabel' => $from_jadwal, 
 					'select'=>$select,
 					'order'=>'a.tgl_mulai ASC',
-					'group_by'=>'a.nama_judul,a.tgl_mulai,a.tgl_selesai,a.id_ujian,a.tipe_ujian',
+					// 'group_by'=>'a.nama_judul,a.tgl_mulai,a.tgl_selesai,a.id_ujian,a.tipe_ujian',
 					'where'=>array('a.ket'=>null),
 					/*'where'=>array('f.tahun = YEAR(NOW())'=>null),*/
 					'offset'=>$offset
@@ -140,12 +140,13 @@ class Ids_jadwal extends CI_Controller {
 					'order'=>'a.tgl_mulai ASC',
 					'limit'=>$config['per_page'],
 					'group_by'=>'a.nama_judul,a.tgl_mulai,a.tgl_selesai,a.id_ujian,a.tipe_ujian',
-					'where'=>array('a.ket'=>null),
+					'where'=>array('a.ket'=>1),
 					/*'where'=>array('f.tahun = YEAR(NOW())'=>null),
 					'where'=>array('YEARWEEK(a.tgl_mulai) >=YEARWEEK(NOW()) or a.tgl_mulai IS NULL'=>null),*/
 					'offset'=>$offset
 			));
 		// cek($this->db->last_query()); die();
+		// cek($detail_kegiatan->num_rows());
 
 		if ($detail_kegiatan->num_rows() > 0) {
 			$heads3[]= array('data' => 'No ','style'=>'background-color: #e8e8e8;width:3%');
@@ -165,12 +166,17 @@ class Ids_jadwal extends CI_Controller {
 				$rows = array();
 				$jumlah_karakter_keg=strlen($row->nama_mahasiswa.$row->nama_judul);
 
-				if(substr($row->tgl_mulai,5,2) == date('m')){
+				// $dummydate = date_create('2021-08-06');
+				$tanggal_ujian = date_create($row->tgl_mulai);
+				if(date_format($tanggal_ujian,"m") == date('m')){
 					$bg = 'background:	#c2ffbe !important;';
 				}else{
 					$bg = 'background:	none';
 
 				}
+				// if($tanggal_ujian < $dummydate){
+				// 	$bg = 'background:red !important;';
+				// }
 
 				if($row->tipe_ujian == 1){
 					$tipe_ujian = 'Proposal Tesis';
@@ -181,11 +187,6 @@ class Ids_jadwal extends CI_Controller {
 					$tipe_ujian = 'Tesis';
 
 				}
-
-
-
-
-
 				$cek_judul_tesis = $this->general_model->datagrab(array(
 						'tabel' => 'pengajuan_judul',
 						'where' => array('judul_tesis' => $row->nama_judul)))->row();
@@ -307,19 +308,20 @@ class Ids_jadwal extends CI_Controller {
 		//--kegiatan bulan ini
 
 		
-		//kegiatan bulan depan		
+			
 		$form_minggudepan = array(
 			'jadwal_ujian a' => ''
 		);
-
+		//kegiatan bulan depan	
         $totalRec4 = $this->general_model->datagrab(array(
 			'tabel' => $form_minggudepan, 
 					'select'=>'',
 					'order'=>'a.tgl_mulai ASC',
-					'where'=>array('MONTH(a.tgl_mulai)=3'=>null),
+					'where'=>array('MONTH(a.tgl_mulai)='.date('m', strtotime('+1 month'))=>null),
 				'offset'=>$offset
 			))->num_rows();
 
+		// cek($this->db->last_query());
         $config_gal4['target']      = '#postGAL4';
         $config_gal4['base_url']    = base_url().'tigris/Ids_jadwal/ajaxPaginationGAL4';
         $config_gal4['total_rows']  = $totalRec4;
@@ -568,7 +570,7 @@ class Ids_jadwal extends CI_Controller {
 					'order'=>'a.tgl_mulai ASC',
 					'limit'=>$config['per_page'],
 					'group_by'=>'a.nama_judul,a.tgl_mulai,a.tgl_selesai,a.id_ujian,a.tipe_ujian',
-					'where'=>array('a.ket'=>null),
+					'where'=>array('a.ket'=>1),
 					/*'where'=>array('f.tahun = YEAR(NOW())'=>null),
 					'where'=>array('YEARWEEK(a.tgl_mulai) >=YEARWEEK(NOW()) or a.tgl_mulai IS NULL'=>null),*/
 					'offset'=>$offset
@@ -590,10 +592,12 @@ class Ids_jadwal extends CI_Controller {
 
 			$no = 1+$offset;
 			foreach ($detail_kegiatan->result() as $row) {
+				$tanggal_ujian = date_create($row->tgl_mulai);
+
 				$rows = array();
 				$jumlah_karakter_keg=strlen($row->nama_mahasiswa.$row->nama_judul);
 
-				if(substr($row->tgl_mulai,5,2) == date('m')){
+				if(date_format($tanggal_ujian,"m") == date('m')){
 					$bg = 'background:	#c2ffbe !important;';
 				}else{
 					$bg = 'background:	none';

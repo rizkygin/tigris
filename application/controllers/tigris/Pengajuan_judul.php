@@ -476,7 +476,7 @@ class Pengajuan_judul extends CI_Controller {
 			$param1['where'] = array('id_pengajuan_judul'=>$o['id_pengajuan_judul']);
 			$this->general_model->simpan_data($param1);
 			redirect($this->dir);
-		}
+	}
 
 	function urut($par) {
 		$o = un_de($par);
@@ -558,19 +558,19 @@ class Pengajuan_judul extends CI_Controller {
 		}
 		$data['form_data'] .= '<div class="row">';
 		$data['form_data'] .= '<div class="col-lg-6">';
-			$data['form_data'] .= '<p><label>Judul Tesis</label>';
-			$data['form_data'] .= form_textarea('judul_tesis', @$dt->judul_tesis,'class="form-control" placeholder="Judul Tesis" required');
-			
-			$data['form_data'] .= '</div>';
+		$data['form_data'] .= '<p><label>Judul Tesis</label>';
+		$data['form_data'] .= form_textarea('judul_tesis', @$dt->judul_tesis,'class="form-control" placeholder="Judul Tesis" required id="judul_tesis"');
+		
+		$data['form_data'] .= '</div>';
 		$data['form_data'] .= '<div class="col-lg-6">';
-			if(!empty($id)){
+		if(!empty($id)){
 			$data['form_data'] .= '</div>';
-		$data['form_data'] .= '<div class="col-lg-12">';
+			$data['form_data'] .= '<div class="col-lg-12">';
 
 			$data['form_data'] .= '<br><br><h1>Syarat Pengajuan Judul</h1><hr>';
 			
 
-			 $from_dt_kom = array(
+			$from_dt_kom = array(
 				'ref_pengajuan_judul a' => '',
 				'ref_bidang b' => array('a.id_bidang = b.id_bidang','left')
 			);
@@ -580,298 +580,307 @@ class Pengajuan_judul extends CI_Controller {
 			$data['form_data'] .= '<div class="col-lg-12 col-md-12">
 						<div class="row">
 							<table class="table table-striped table-bordered table-condensed table-nonfluid">
-    <thead>
-        <tr>
-          <th>No </th>
-          <th width="40%">Nama Syarat</th>
-          <th width="20%">Keterangan</th>
-          <th>di Tujukan ke</th>
-          <th>File</th>
-          <th>Status Verifikasi</th>
-        </tr>
-    </thead>
+			<thead>
+				<tr>
+				<th>No </th>
+				<th width="40%">Nama Syarat</th>
+				<th width="20%">Keterangan</th>
+				<th>di Tujukan ke</th>
+				<th>File</th>
+				<th>Status Verifikasi</th>
+				</tr>
+			</thead>
 
-    <tbody>
-';
-			$no = 1;
-			$proses = $dt->status_proses;
-			$next = $proses + 1 ;
+			<tbody>';
+					$no = 1;
+					$proses = $dt->status_proses;
+					$next = $proses + 1 ;
 
-			
-			foreach ($dt_kom->result() as $kom) {
-				$dtnilai = $this->general_model->datagrab(array('tabel'=>'mhs_pengajuan_judul','where'=>array('id_pengajuan_judul'=>$id, 'id_ref_pengajuan_judul'=>$kom->id_ref_pengajuan_judul)));
-				$dt_kom_pro = $this->general_model->datagrab(array('tabel'=>'veri_pengajuan_judul', 'where'=>array('id_pengajuan_judul'=>$dt->id_pengajuan_judul, 'id_ref_pengajuan_judul'=>$kom->id_ref_pengajuan_judul, 'id_mahasiswa'=>$dt->id_mahasiswa)));
-				
-				$dt_veri = $this->general_model->datagrab(array('tabel'=>'veri_pengajuan_judul','where'=>array('id_pengajuan_judul'=>$dt->id_pengajuan_judul, 'id_ref_pengajuan_judul'=>$kom->id_ref_pengajuan_judul, 'id_mahasiswa'=>$dt->id_mahasiswa)));
-				$hapus_field = anchor('#',' x ','class="btn btn-xs btn-danger btn-delete" act="'.site_url($this->dir.'/delete_field/'.in_de(array('id_veri_pengajuan_judul'=>$dt_kom_pro->row('id_veri_pengajuan_judul'),'id_mahasiswa'=>$dt->id_mahasiswa,'id_pengajuan_judul'=>$dt->id_pengajuan_judul,'id_mhs_pengajuan_judul'=>$dtnilai->row('id_mhs_pengajuan_judul')))).'" msg="Apakah anda yakin ingin menghapus data ini ?" title="klik untuk menghapus data"');
-				
-				$pengisian_file = $this->general_model->datagrabs([
-					'tabel' => 'ref_bidang_pengajuan_judul',
-					'where' => [
-						'urut' => $next,
-						'id_ref_bidang' => $kom->id_bidang
-					]
-				])->row();
-
-				
-
-				/*cek($kom->wajib_isi_mhs);
-				die();*/
-				// cek($next);
-				// cek(@$pengisian_file->urut);
-				// die();
-				if($next == @$pengisian_file->urut ){
-					// cek("true");
-					if($kom->wajib_isi_mhs != NULL){
-						if($dtnilai->row('berkas') != NULL){
-							/*$isi_file = form_upload('berkas['.$kom->id_ref_pengajuan_judul.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('berkas'),'class="form-control" placeholder="Nilai"');
-							*/
-							$isi_file = '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> '.$hapus_field;
-							
-						}else{
-							if($kom->id_ref_tipe_field == 1){
-								$isi_file = '';
-							}elseif($kom->id_ref_tipe_field == 2){
-	
-								$isi_file = form_upload('berkas['.$kom->id_ref_pengajuan_judul.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('berkas'),'class="form-control" placeholder="Nilai"');
-							}
-							elseif($kom->id_ref_tipe_field == 6){
-								if($dtnilai->row('link') == NULL){
-	
-									$isi_file = form_input('link['.$kom->id_ref_proposal_tesis.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('link'),'class="form-control" placeholder="link" style="width:100%"');
-								}else{
-									$xx = str_replace("http://","",$dtnilai->row('link'));
-									// var_dump($xx);
-									$isi_file = '<a href="https://'.$xx.'" class="fancybox" target="_blank">'.$dtnilai->row('link').'</a> '.$hapus_field;
-								}
-								// cek($dtnilai->row('link'));
-								// die();
-								$isi_file .= form_upload('berkas['.$kom->id_ref_proposal_tesis.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('berkas'),'class="form-control" placeholder="Nilai"');
-								
-							}
-							else{
-								if($dtnilai->row('link') == NULL){
-	
-									$isi_file = form_input('link['.$kom->id_ref_pengajuan_judul.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('link'),'class="form-control" placeholder="link" style="width:100%"');
-								}else{
-									$xx = str_replace("http://","",$dtnilai->row('link'));
-								$isi_file = '<a href="https://'.$xx.'" class="fancybox" target="_blank">'.$dtnilai->row('link').'</a> '.$hapus_field;
-								}
-							}
-						}
-						
-					}else{
-						  if($dtnilai->row('link') != NULL){
-							  $xx = str_replace("http://","",$dtnilai->row('link'));
-							  $isi_file = '<a href="https://'.$xx.'" class="fancybox" target="_blank">'.$dtnilai->row('link').'</a> ';
-						  }elseif($dtnilai->row('berkas') != NULL){
-							$isi_file = '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
-						  }else{
-							  $cek_jml_syarat = $this->general_model->datagrabs([
-								'tabel'=>'ref_pengajuan_judul',
-								'where' => [
-									'id_bidang' => $kom->id_bidang
-								]
-							  ])->num_rows();
-							  $cek_jml_disetujui = $this->general_model->datagrabs([
-								  'tabel' => 'veri_pengajuan_judul',
-								  'where'=> [
-									  'id_pengajuan_judul' => $id,
-									  'id_bidang' => $kom->id_bidang,
-									  'status_ver' => 1
-								  ]
-							  ])->num_rows();
-							  $isi_file = '<span class="blink_me"> dalam proses</span>';
-							  
-							  if(($cek_jml_syarat - $cek_jml_disetujui) == 0){
-								$isi_file = '<i class="fa fa-check" style="color:blue"></i> Selesai';
-
-							  } 
-						  }
-					}
-				}else{
-					$isi_file = '';
-					if($kom->wajib_isi_mhs != NULL){
-						if($dtnilai->row('berkas') != NULL){
-							/*$isi_file = form_upload('berkas['.$kom->id_ref_pengajuan_judul.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('berkas'),'class="form-control" placeholder="Nilai"');
-							*/
-							$isi_file = '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';	
-						}
-					}else{
-						  if($dtnilai->row('link') != NULL){
-							  $xx = str_replace("http://","",$dtnilai->row('link'));
-							  $isi_file = '<p><a href="https://'.$xx.'" class="fancybox" target="_blank">'.$dtnilai->row('link').'</a></p> ';
-						  }elseif($dtnilai->row('berkas') != NULL){
-							$isi_file .= '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
-						  }else{
-							  $isi_file = '';
-							//   $isi_file = 'next : '. $next  . " pengisian file : ". $pengisian_file;
-	
-						  }
-					}
-
-				}
-				if($proses < -1){
-					// $isi_file = '';
-					if($kom->wajib_isi_mhs != NULL){
-						// cek($kom);
-						// cek($dtnilai->row());
-						// var_dump(($dtnilai->row('link') != NULL || $dtnilai->row('berkas') != NULL) && $kom->id_ref_tipe_field == 6);
-						if(($dtnilai->row('link') != NULL || $dtnilai->row('berkas') != NULL) && $kom->id_ref_tipe_field == 6){
-							$isi_file = '';
-							if($dtnilai->row('link') != NULL){
-
-								$xx = str_replace("http://","",$dtnilai->row('link'));
-									// var_dump($xx);
-								$isi_file .= '<p><a href="https://'.$xx.'" class="fancybox" target="_blank">Tinjau Link </a></p>';
-							}
-							if($dtnilai->row('berkas') != NULL){
-								$isi_file .= '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
-								
-							}	
-							if($dtnilai->row('berkas') != NULL && $dtnilai->row('link') != NULL){
-								$isi_file = '';
-								$isi_file .= '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
-								$xx = str_replace("http://","",$dtnilai->row('link'));
-								// $isi_file .= '</hr>';
-								// var_dump($xx);
-								$isi_file .= '<p><a href="https://'.$xx.'" class="fancybox" target="_blank">Tinjau Link </a> '.'</p>';
-						
-							}
-							
-							
-						}
-						elseif($dtnilai->row('berkas') != NULL ){
-							$isi_file = '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
-							
-						}
-						else{
-							if($kom->id_ref_tipe_field == 1){
-								$isi_file = 'Hard Copy';
-							}elseif($kom->id_ref_tipe_field == 2){
-	
-								  $isi_file = form_upload('berkas['.$kom->id_ref_pengajuan_judul.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('berkas'),'class="form-control" placeholder="Nilai"');
-							}elseif($kom->id_ref_tipe_field == 6){
-								$isi_file = form_upload('berkas['.$kom->id_ref_pengajuan_judul.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('berkas'),'class="form-control" placeholder="Nilai"');
-
-								if($dtnilai->row('link') == NULL){
-	
-									$isi_file .= form_input('link['.$kom->id_ref_pengajuan_judul.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('link'),'class="form-control" placeholder="link" style="width:100%"');
-								}else{
-									$xx = str_replace("http://","",$dtnilai->row('link'));
-									// var_dump($xx);
-									$isi_file .= '<a href="https://'.$xx.'" class="fancybox" target="_blank">Tinjau Link</a> ';
-								}
-								// cek($dtnilai->row('link'));
-								// die();
-								
-							}
-							else{
-								if($dtnilai->row('link') == NULL){
-	
-									  $isi_file = form_input('link['.$kom->id_ref_pengajuan_judul.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('link'),'class="form-control" placeholder="link" style="width:100%"');
-								  }else{
-									  $xx = str_replace("http://","",$dtnilai->row('link'));
-								  $isi_file = '<a href="https://'.$xx.'" class="fancybox" target="_blank">Tinjau Link</a> ';
-								  }
-							}
-						}
-					}else{
-						if($dtnilai->row('berkas') != NULL){
-							$isi_file = '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
-							if($dtnilai->row('link') != NULL){
-								$xx = str_replace("http://","",$dtnilai->row('link'));
-								$isi_file .= '<a href="https://'.$xx.'" class="fancybox" target="_blank">'.$dtnilai->row('link').'</a> ';
-							}
-						}
-						elseif($dtnilai->row('link') != NULL){
-							$xx = str_replace("http://","",$dtnilai->row('link'));
-							if($dtnilai->row('berkas') != NULL){
-								$isi_file = '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
-							}
-							$isi_file .= '<a href="https://'.$xx.'" class="fancybox" target="_blank">'.$dtnilai->row('link').'</a> ';
-						}else{
-							$cek_jml_syarat = $this->general_model->datagrabs([
-							  'tabel'=>'ref_proposal_tesis',
-							  'where' => [
-								  'id_bidang' => $kom->id_bidang
-							  ]
-							])->num_rows();
-							$cek_jml_disetujui = $this->general_model->datagrabs([
-								'tabel' => 'veri_proposal_tesis',
-								'where'=> [
-									'id_proposal_tesis' => $id,
-									'id_bidang' => $kom->id_bidang,
-									'status_ver' => 1
-								]
-							])->num_rows();
-							$isi_file = '<span class="blink_me"> dalam proses</span>';
-							
-							if(($cek_jml_syarat - $cek_jml_disetujui) == 0){
-							  $isi_file = '<i class="fa fa-check" style="color:blue"></i> Selesai';
-
-							} 
-						}
-					}
-				}
-				$chk = NULL;
-				if($id!=NULL){
-					$dt_kom_pro = $this->general_model->datagrab(array('tabel'=>'mhs_pengajuan_judul', 'where'=>array('id_mhs_pengajuan_judul'=>@$p['id_mhs_pengajuan_judul'], 'id_ref_pengajuan_judul'=>$kom->id_ref_pengajuan_judul) ));
-					$chk = ($dt_kom_pro->num_rows() > 0) ? 'checked' : '';
-				}
-
-				if($dt_veri->row('status_ver') == 1){
-					$status_veri ='Lulus <p>catatan : '.$dt_veri->row('catatan');
-
-				}elseif($dt_veri->row('status_ver') == 2){
-					$status_veri =' Tolak <p>catatan : '.$dt_veri->row('catatan');
-
-				}else{
-					$status_veri ='-';
-
-				}
-				// $status_veri .='-'. $next. "::: ".$kom->urutan;
-
-				// cek($isi_file);
-				$data['form_data'] .= '
 					
+					foreach ($dt_kom->result() as $kom) {
+						$dtnilai = $this->general_model->datagrab(array('tabel'=>'mhs_pengajuan_judul','where'=>array('id_pengajuan_judul'=>$id, 'id_ref_pengajuan_judul'=>$kom->id_ref_pengajuan_judul)));
+						$dt_kom_pro = $this->general_model->datagrab(array('tabel'=>'veri_pengajuan_judul', 'where'=>array('id_pengajuan_judul'=>$dt->id_pengajuan_judul, 'id_ref_pengajuan_judul'=>$kom->id_ref_pengajuan_judul, 'id_mahasiswa'=>$dt->id_mahasiswa)));
+						
+						$dt_veri = $this->general_model->datagrab(array('tabel'=>'veri_pengajuan_judul','where'=>array('id_pengajuan_judul'=>$dt->id_pengajuan_judul, 'id_ref_pengajuan_judul'=>$kom->id_ref_pengajuan_judul, 'id_mahasiswa'=>$dt->id_mahasiswa)));
+						$hapus_field = anchor('#',' x ','class="btn btn-xs btn-danger btn-delete" act="'.site_url($this->dir.'/delete_field/'.in_de(array('id_veri_pengajuan_judul'=>$dt_kom_pro->row('id_veri_pengajuan_judul'),'id_mahasiswa'=>$dt->id_mahasiswa,'id_pengajuan_judul'=>$dt->id_pengajuan_judul,'id_mhs_pengajuan_judul'=>$dtnilai->row('id_mhs_pengajuan_judul')))).'" msg="Apakah anda yakin ingin menghapus data ini ?" title="klik untuk menghapus data"');
+						
+						$pengisian_file = $this->general_model->datagrabs([
+							'tabel' => 'ref_bidang_pengajuan_judul',
+							'where' => [
+								'urut' => $next,
+								'id_ref_bidang' => $kom->id_bidang
+							]
+						])->row();
+						/*cek($kom->wajib_isi_mhs);
+						die();*/
+						// cek($next);
+						// cek(@$pengisian_file->urut);
+						// die();
+						if($next == @$pengisian_file->urut ){
+							// cek("true");
+							if($kom->wajib_isi_mhs != NULL){
+								if($dtnilai->row('berkas') != NULL){
+									/*$isi_file = form_upload('berkas['.$kom->id_ref_pengajuan_judul.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('berkas'),'class="form-control" placeholder="Nilai"');
+									*/
+									$isi_file = '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> '.$hapus_field;
+									
+								}else{
+									if($kom->id_ref_tipe_field == 1){
+										$isi_file = '';
+									}elseif($kom->id_ref_tipe_field == 2){
+			
+										$isi_file = form_upload('berkas['.$kom->id_ref_pengajuan_judul.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('berkas'),'class="form-control" placeholder="Nilai"');
+									}
+									elseif($kom->id_ref_tipe_field == 6){
+										if($dtnilai->row('link') == NULL){
+			
+											$isi_file = form_input('link['.$kom->id_ref_proposal_tesis.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('link'),'class="form-control" placeholder="link" style="width:100%"');
+										}else{
+											$xx = str_replace("http://","",$dtnilai->row('link'));
+											// var_dump($xx);
+											$isi_file = '<a href="https://'.$xx.'" class="fancybox" target="_blank">'.$dtnilai->row('link').'</a> '.$hapus_field;
+										}
+										// cek($dtnilai->row('link'));
+										// die();
+										$isi_file .= form_upload('berkas['.$kom->id_ref_proposal_tesis.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('berkas'),'class="form-control" placeholder="Nilai"');
+										
+									}
+									else{
+										if($dtnilai->row('link') == NULL){
+			
+											$isi_file = form_input('link['.$kom->id_ref_pengajuan_judul.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('link'),'class="form-control" placeholder="link" style="width:100%"');
+										}else{
+											$xx = str_replace("http://","",$dtnilai->row('link'));
+										$isi_file = '<a href="https://'.$xx.'" class="fancybox" target="_blank">'.$dtnilai->row('link').'</a> '.$hapus_field;
+										}
+									}
+								}
+								
+							}else{
+								if($dtnilai->row('link') != NULL){
+									$xx = str_replace("http://","",$dtnilai->row('link'));
+									$isi_file = '<a href="https://'.$xx.'" class="fancybox" target="_blank">'.$dtnilai->row('link').'</a> ';
+								}elseif($dtnilai->row('berkas') != NULL){
+									$isi_file = '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
+								}else{
+									$cek_jml_syarat = $this->general_model->datagrabs([
+										'tabel'=>'ref_pengajuan_judul',
+										'where' => [
+											'id_bidang' => $kom->id_bidang
+										]
+									])->num_rows();
+									$cek_jml_disetujui = $this->general_model->datagrabs([
+										'tabel' => 'veri_pengajuan_judul',
+										'where'=> [
+											'id_pengajuan_judul' => $id,
+											'id_bidang' => $kom->id_bidang,
+											'status_ver' => 1
+										]
+									])->num_rows();
+									$isi_file = '<span class="blink_me"> dalam proses</span>';
+									
+									if(($cek_jml_syarat - $cek_jml_disetujui) == 0){
+										$isi_file = '<i class="fa fa-check" style="color:blue"></i> Selesai';
 
-							
+									} 
+								}
+							}
+						}else{
+							$isi_file = '';
+							if($kom->wajib_isi_mhs != NULL){
+								if($dtnilai->row('berkas') != NULL){
+									/*$isi_file = form_upload('berkas['.$kom->id_ref_pengajuan_judul.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('berkas'),'class="form-control" placeholder="Nilai"');
+									*/
+									$isi_file = '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';	
+								}
+							}else{
+								if($dtnilai->row('link') != NULL){
+									$xx = str_replace("http://","",$dtnilai->row('link'));
+									$isi_file = '<p><a href="https://'.$xx.'" class="fancybox" target="_blank">'.$dtnilai->row('link').'</a></p> ';
+								}elseif($dtnilai->row('berkas') != NULL){
+									$isi_file .= '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
+								}else{
+									$isi_file = '';
+									//   $isi_file = 'next : '. $next  . " pengisian file : ". $pengisian_file;
+			
+								}
+							}
 
-       
-		        <tr>
-		          <th style="text-align:left">'.$no.'</th>
-		          <th style="text-align:left">'.$kom->nama_syarat.'</th>
-		          <th style="text-align:left">'.$kom->keterangan_pengajuan_judul.'</th>
-		          <th style="text-align:left">'.$kom->nama_bidang.'</th>
-		          <th style="text-align:left">
-		          <div class="col-lg-12">'.form_hidden('id_berkas[]', $kom->id_ref_pengajuan_judul).$isi_file.'</th>
-		          <th style="text-align:left">
-		          <div class="col-lg-12">'.$status_veri.'</th>
-		          
-		        </tr>
+						}
+						if($proses < -1){
+							// $isi_file = '';
+							if($kom->wajib_isi_mhs != NULL){
+								// cek($kom);
+								// cek($dtnilai->row());
+								// var_dump(($dtnilai->row('link') != NULL || $dtnilai->row('berkas') != NULL) && $kom->id_ref_tipe_field == 6);
+								if(($dtnilai->row('link') != NULL || $dtnilai->row('berkas') != NULL) && $kom->id_ref_tipe_field == 6){
+									$isi_file = '';
+									if($dtnilai->row('link') != NULL){
+
+										$xx = str_replace("http://","",$dtnilai->row('link'));
+											// var_dump($xx);
+										$isi_file .= '<p><a href="https://'.$xx.'" class="fancybox" target="_blank">Tinjau Link </a></p>';
+									}
+									if($dtnilai->row('berkas') != NULL){
+										$isi_file .= '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
+										
+									}	
+									if($dtnilai->row('berkas') != NULL && $dtnilai->row('link') != NULL){
+										$isi_file = '';
+										$isi_file .= '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
+										$xx = str_replace("http://","",$dtnilai->row('link'));
+										// $isi_file .= '</hr>';
+										// var_dump($xx);
+										$isi_file .= '<p><a href="https://'.$xx.'" class="fancybox" target="_blank">Tinjau Link </a> '.'</p>';
+								
+									}
+									
+									
+								}
+								elseif($dtnilai->row('berkas') != NULL ){
+									$isi_file = '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
+									
+								}
+								else{
+									if($kom->id_ref_tipe_field == 1){
+										$isi_file = 'Hard Copy';
+									}elseif($kom->id_ref_tipe_field == 2){
+			
+										$isi_file = form_upload('berkas['.$kom->id_ref_pengajuan_judul.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('berkas'),'class="form-control" placeholder="Nilai"');
+									}elseif($kom->id_ref_tipe_field == 6){
+										$isi_file = form_upload('berkas['.$kom->id_ref_pengajuan_judul.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('berkas'),'class="form-control" placeholder="Nilai"');
+
+										if($dtnilai->row('link') == NULL){
+			
+											$isi_file .= form_input('link['.$kom->id_ref_pengajuan_judul.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('link'),'class="form-control" placeholder="link" style="width:100%"');
+										}else{
+											$xx = str_replace("http://","",$dtnilai->row('link'));
+											// var_dump($xx);
+											$isi_file .= '<a href="https://'.$xx.'" class="fancybox" target="_blank">Tinjau Link</a> ';
+										}
+										// cek($dtnilai->row('link'));
+										// die();
+										
+									}
+									else{
+										if($dtnilai->row('link') == NULL){
+			
+											$isi_file = form_input('link['.$kom->id_ref_pengajuan_judul.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('link'),'class="form-control" placeholder="link" style="width:100%"');
+										}else{
+											$xx = str_replace("http://","",$dtnilai->row('link'));
+										$isi_file = '<a href="https://'.$xx.'" class="fancybox" target="_blank">Tinjau Link</a> ';
+										}
+									}
+								}
+							}else{
+								if($dtnilai->row('berkas') != NULL){
+									$isi_file = '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
+									if($dtnilai->row('link') != NULL){
+										$xx = str_replace("http://","",$dtnilai->row('link'));
+										$isi_file .= '<a href="https://'.$xx.'" class="fancybox" target="_blank">'.$dtnilai->row('link').'</a> ';
+									}
+								}
+								elseif($dtnilai->row('link') != NULL){
+									$xx = str_replace("http://","",$dtnilai->row('link'));
+									if($dtnilai->row('berkas') != NULL){
+										$isi_file = '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
+									}
+									$isi_file .= '<a href="https://'.$xx.'" class="fancybox" target="_blank">'.$dtnilai->row('link').'</a> ';
+								}else{
+									$cek_jml_syarat = $this->general_model->datagrabs([
+									'tabel'=>'ref_proposal_tesis',
+									'where' => [
+										'id_bidang' => $kom->id_bidang
+									]
+									])->num_rows();
+									$cek_jml_disetujui = $this->general_model->datagrabs([
+										'tabel' => 'veri_proposal_tesis',
+										'where'=> [
+											'id_proposal_tesis' => $id,
+											'id_bidang' => $kom->id_bidang,
+											'status_ver' => 1
+										]
+									])->num_rows();
+									$isi_file = '<span class="blink_me"> dalam proses</span>';
+									
+									if(($cek_jml_syarat - $cek_jml_disetujui) == 0){
+									$isi_file = '<i class="fa fa-check" style="color:blue"></i> Selesai';
+
+									} 
+								}
+							}
+						}
+						$chk = NULL;
+						if($id!=NULL){
+							$dt_kom_pro = $this->general_model->datagrab(array('tabel'=>'mhs_pengajuan_judul', 'where'=>array('id_mhs_pengajuan_judul'=>@$p['id_mhs_pengajuan_judul'], 'id_ref_pengajuan_judul'=>$kom->id_ref_pengajuan_judul) ));
+							$chk = ($dt_kom_pro->num_rows() > 0) ? 'checked' : '';
+						}
+
+						if($dt_veri->row('status_ver') == 1){
+							$status_veri ='Lulus <p>catatan : '.$dt_veri->row('catatan');
+
+						}elseif($dt_veri->row('status_ver') == 2){
+							$status_veri =' Tolak <p>catatan : '.$dt_veri->row('catatan');
+
+						}else{
+							$status_veri ='-';
+
+						}
+						// $status_veri .='-'. $next. "::: ".$kom->urutan;
+
+						// cek($isi_file);
+						$data['form_data'] .= '
+						<tr>
+						<th style="text-align:left">'.$no.'</th>
+						<th style="text-align:left">'.$kom->nama_syarat.'</th>
+						<th style="text-align:left">'.$kom->keterangan_pengajuan_judul.'</th>
+						<th style="text-align:left">'.$kom->nama_bidang.'</th>
+						<th style="text-align:left">
+						<div class="col-lg-12">'.form_hidden('id_berkas[]', $kom->id_ref_pengajuan_judul).$isi_file.'</th>
+						<th style="text-align:left">
+						<div class="col-lg-12">'.$status_veri.'</th>
+						</tr>';
+						$no++;
+					}
 
 
+						$data['form_data'] .= form_hidden('id_mahasiswa',@$o['id_mahasiswa']);
 
-						';
-					$no++;
-			}
+					$data['form_data'] .= '
+					</tbody>
+				</table>
+				</div>
+				</div>';
+		}else{
+			$data['form_data'] .= '<div id= "progress" style="display:block">';
+			$data['form_data'] .= '<p><label id ="status_progress">Processing . . .</label>';
 
-
-				$data['form_data'] .= form_hidden('id_mahasiswa',@$o['id_mahasiswa']);
-
-			$data['form_data'] .= '
-    </tbody>
-</table>
-</div>
-					</div>';
-		}
+			$data['form_data'] .= '<div class="progress">
+			<div class="progress-bar progress-bar-striped active" role="progressbar"
+				aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width:0%">
+				  0%
+				</div>
+		  	</div>';
 			$data['form_data'] .= '</div>';
+			$data['form_data'] .= '<button type="button" id="check" class="btn btn-default">Cek Similiarity</button>';
+
+			$data['form_data'] .= '<p><label>Similiarity</label>';
+			$data['form_data'] .= '<span id="similiar"> 0%</span>';
+			$data['form_data'] .= '<p id="judul_mirip"></p>';
+
+
+			$data['form_data'] .= '</div>';
+			
+
+		}
+		$data['form_data'] .= '</div>';
 		$data['form_data'] .= '</div>';
 		$data['form_data'] .= '<div style="clear:both;"></div>';
 
-			$data['content'] = 'umum/pengajuan_judul_form';
-			$this->load->view('home', $data);
+
+		// $data['script'] = '.';
+		$data['content'] = 'umum/pengajuan_judul_form';
+		$this->load->view('home', $data);
 
 
 		//$this->load->view('umum/form_view', $data);
@@ -1201,7 +1210,7 @@ class Pengajuan_judul extends CI_Controller {
 			
 			$data['content'] = 'umum/pengajuan_judul_form';
 			$this->load->view('home', $data);
-		}
+	}
 
 
     function save_aksi(){
@@ -2006,8 +2015,6 @@ class Pengajuan_judul extends CI_Controller {
 		redirect($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$id_mahasiswa,'id_pengajuan_judul'=>$id_pengajuan_judul)));
 	}
 
-	
-
     function form_pengesahan($param=NULL) {
         $o=un_de($param);
         /*cek($o);
@@ -2157,12 +2164,12 @@ class Pengajuan_judul extends CI_Controller {
 
 
          //$pdf->Image('assets/logo/brand.png',10,6,60,0);
-    // Times bold 15
-       
-    // Move to the right
-        $pdf->Cell(60);
+		// Times bold 15
+		
+		// Move to the right
+			$pdf->Cell(60);
 
-    // Line break
+		// Line break
         // logo
         $pdf->SetLineWidth(1);
 
@@ -2409,67 +2416,134 @@ class Pengajuan_judul extends CI_Controller {
         $pdf->Ln(10);
 
         $html='<table border="1">
-<tr>
-<td width="110" height="40">Hari/ Tanggal</td>
-<td width="500" height="40">Bab/ Materi</td>
-<td width="150" height="40">Ttd Pembimbing</td>
-</tr>
-<tr>
-<td width="110" height="100">.</td>
-<td width="500" height="100">.</td>
-<td width="150" height="100">.</td>
-</tr>
-<tr>
-<td width="110" height="100">.</td>
-<td width="500" height="100">.</td>
-<td width="150" height="100">.</td>
-</tr>
-<tr>
-<td width="110" height="100">.</td>
-<td width="500" height="100">.</td>
-<td width="150" height="100">.</td>
-</tr>
-<tr>
-<td width="110" height="100">.</td>
-<td width="500" height="100">.</td>
-<td width="150" height="100">.</td>
-</tr>
-<tr>
-<td width="110" height="100">.</td>
-<td width="500" height="100">.</td>
-<td width="150" height="100">.</td>
-</tr>
-<tr>
-<td width="110" height="100">.</td>
-<td width="500" height="100">.</td>
-<td width="150" height="100">.</td>
-</tr>
-<tr>
-<td width="110" height="100">.</td>
-<td width="500" height="100">.</td>
-<td width="150" height="100">.</td>
-</tr>
-<tr>
-<td width="110" height="100">.</td>
-<td width="500" height="100">.</td>
-<td width="150" height="100">.</td>
-</tr>
-<tr>
-<td width="110" height="100">.</td>
-<td width="500" height="100">.</td>
-<td width="150" height="100">.</td>
-</tr>
-</table>';
+		<tr>
+		<td width="110" height="40">Hari/ Tanggal</td>
+		<td width="500" height="40">Bab/ Materi</td>
+		<td width="150" height="40">Ttd Pembimbing</td>
+		</tr>
+		<tr>
+		<td width="110" height="100">.</td>
+		<td width="500" height="100">.</td>
+		<td width="150" height="100">.</td>
+		</tr>
+		<tr>
+		<td width="110" height="100">.</td>
+		<td width="500" height="100">.</td>
+		<td width="150" height="100">.</td>
+		</tr>
+		<tr>
+		<td width="110" height="100">.</td>
+		<td width="500" height="100">.</td>
+		<td width="150" height="100">.</td>
+		</tr>
+		<tr>
+		<td width="110" height="100">.</td>
+		<td width="500" height="100">.</td>
+		<td width="150" height="100">.</td>
+		</tr>
+		<tr>
+		<td width="110" height="100">.</td>
+		<td width="500" height="100">.</td>
+		<td width="150" height="100">.</td>
+		</tr>
+		<tr>
+		<td width="110" height="100">.</td>
+		<td width="500" height="100">.</td>
+		<td width="150" height="100">.</td>
+		</tr>
+		<tr>
+		<td width="110" height="100">.</td>
+		<td width="500" height="100">.</td>
+		<td width="150" height="100">.</td>
+		</tr>
+		<tr>
+		<td width="110" height="100">.</td>
+		<td width="500" height="100">.</td>
+		<td width="150" height="100">.</td>
+		</tr>
+		<tr>
+		<td width="110" height="100">.</td>
+		<td width="500" height="100">.</td>
+		<td width="150" height="100">.</td>
+		</tr>
+		</table>';
 
-$pdf->WriteHTML($html);
+		$pdf->WriteHTML($html);
        // $pdf->Cell(0,10,'Page '.$pdf->PageNo().'/{nb}',0,0,'R');
 
 
-    // Line break
+    	// Line break
         $pdf->Output('Pengajuan Judul - '.$dt_row->nama.' ('.$dt_row->nip.')'.'.pdf', 'I'); 
         // $pdf->Output(); 
 
         //  }
 
-        }
+    }
+
+	function similiarity(){
+		$judul = $this->input->get('title');
+		$page = $this->input->get('page');
+		// cek($judul);
+		// die();
+		// $page = $in['page'];
+		$limit = 1;
+		if(empty($page)) $page = 1;
+
+		$offset = ($page - 1) * $limit;
+		$endCount = $offset + $limit;
+		$total_data  = $this->general_model->datagrabs(
+			[
+				'tabel' => 'pengajuan_judul',
+				'select' => 'count(*) as jumlah',
+			]	
+		)->row()->jumlah;
+		$result = [];
+		$status = false;
+		if($total_data > 0 ){
+			$status  = true;
+			$model = $this->general_model->datagrabs(
+				[
+					'tabel' => 'pengajuan_judul',
+					'limit' => $limit,
+					'offset' => $offset,
+				]	
+			)->result();
+			$persen = 0;
+			foreach($model as $row){
+				// cek($row);
+				$percen = similar_text($judul,$row->judul_tesis,$perc);
+				// if($persen < $perc){
+				// 	$persen = $perc;
+				// }
+				$result[] = [
+					'id' => $row->id_pengajuan_judul,
+					'judul' => $row->judul_tesis,
+					'persen' => $perc
+				];
+				// similar_text('bafoobar', 'barfoo', $persen);
+				
+			}
+		}
+		$progress = ($page*$limit/$total_data) *100 ;
+		if($progress>100){
+			$progress = 100;
+		}
+		$morePages = $total_data > $endCount;
+
+		die(json_encode([
+			'status' => $status,
+			'more' => $morePages,
+			'result' => $result,
+			'progress' => $progress
+		]));
+		
+
+
+		// $res = [
+		// 	'status' => true,
+		// 	'judul'=> $judul,
+		// 	'persen' => $persen
+		// ];
+		// return die(json_encode($res));
+	}
 }

@@ -38,11 +38,11 @@ class Penjadwalan_tesis extends CI_Controller {
 				'judul_tesis' 		=> $search_key/*,
 				'nama_kegiatan' 		=> $search_key,*/
 			);	
-			$data['for_search'] = $fcari['judul_tesis'];
+			$data['for_search'] = @$fcari['judul_tesis'];
 			//$data['for_search'] = $fcari['nama_kegiatan'];
 		} else if ($search) {
 			$fcari=un_de($search);
-			$data['for_search'] = $fcari['judul_tesis'];
+			$data['for_search'] = @$fcari['judul_tesis'];
 			//$data['for_search'] = $fcari['nama_kegiatan'];
 		}
 
@@ -271,13 +271,6 @@ class Penjadwalan_tesis extends CI_Controller {
 					$rows[] = 	$hapus;
 				}
 				if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"akad") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"perp") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"keua")) {
-
-
-
-			
-			
-
-			
 					$verifikasi = anchor('#','<i class="fa fa-list"></i>', 'class="btn btn-xs btn-primary btn-edit btn-flat" act="'.site_url($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_tesis'=>$row->id_tesis))).'" title="Verifikasi data..."');
 					
 					$rows[] = 	((($cek_jml==$cek_jml2)) ? 'sudah diverifikasi' : $cek_jml-$cek_jml2.' belum di verifikasi');

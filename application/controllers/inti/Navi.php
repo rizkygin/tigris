@@ -179,11 +179,13 @@ class Navi extends CI_Controller {
 	function show_navi($par = null) {
 		
 		if (!empty($par)) $par = un_de($par);
-		
+		// var_dump($par);
+
 		$jud = ($par['ref'] == 2) ? 'Referensi' : null;
 		$data['breadcrumb'] = array('' => 'Pengaturan', 'referensi/nav' => 'Navigasi');
 		
 		$pil = $this->input->post('pil');
+		// var_dump($pil);
 		$pil = !empty($pil) ? $pil : (!empty($par['app'])?$par['app']:null);
 		$where = (!empty($pil)) ? array('id_aplikasi' => $pil) : null;
 		

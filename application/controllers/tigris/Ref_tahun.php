@@ -270,7 +270,7 @@ class Ref_tahun extends CI_Controller {
     	$keterangan_tahun = $this->input->post('keterangan_tahun',TRUE);
     	/*$kode_Tahun = $this->input->post('kode_Tahun');*/
     	$tgl_skrg = date('Y-m-d');
-     	$u = $this->general_model->datagrab(array(
+     	$u = $this->general_model->datagrab(array(	
 					'tabel' => 'ref_tahun',
 					'select' => 'max(urut) as urut_nav',
 				))->row();

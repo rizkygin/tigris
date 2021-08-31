@@ -388,76 +388,61 @@ class Tesis extends CI_Controller {
 
 
 		if($this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs")){
-			if($cek_tahun->nama_tahun < 2020){
-				if(date('Y-m-d') >= $cek_tanggal->row('start_date') AND date('Y-m-d') <= $cek_tanggal->row('end_date')){
-					if($cek_petesis2 == 1){
+			if($cek_pengajuan_judul2 == 1){
+				if($cek_tanggal->row('start_date') == NULL AND $cek_tanggal->row('end_date') == NULL){
+					$btn_tambah = '';
+				}else{
+					if(date('Y-m-d') >= $cek_tanggal->row('start_date') AND date('Y-m-d') <= $cek_tanggal->row('end_date')){
+						
+						
+						if($cek_petesis2 == 1){
 
 							$btn_tambah ='';
 						}else{
-							
-							$btn_tambah= anchor(site_url($this->dir.'/tambah_data/'.$cek_tanggal->row('id_periode_pu').'/'.$cek_tanggal->row('id_ref_semester')),'<i class="fa fa-plus fa-btn"></i> Tambah Tesis', 'class="btn btn-success btn-editx btn-flat" act="" title="Klik untuk tambah data"');
-							
+							if($cek_pengajuan_judul3 == 1){
+								$btn_tambah = anchor(site_url($this->dir.'/pendaftaran_ujian/'.$cek_tanggal->row('id_periode_pu').'/'.$cek_tanggal->row('id_ref_semester')),'<i class="fa fa-plus fa-btn"></i> Tambah Tesis', 'class="btn btn-success btn-editx btn-flat" act="" title="Klik untuk tambah data"');
+							}else{
+
+							$btn_tambah ='';
+							}
 						}
-				}else{
-					$btn_tambah ='';
-				}
-			}else{
-				if($cek_pengajuan_judul2 == 1){
-					if($cek_tanggal->row('start_date') == NULL AND $cek_tanggal->row('end_date') == NULL){
+					}else{
 						$btn_tambah = '';
-					}else{
-						if(date('Y-m-d') >= $cek_tanggal->row('start_date') AND date('Y-m-d') <= $cek_tanggal->row('end_date')){
+					}
+				}
 
-							
-							if($cek_petesis2 == 1){
 
-								$btn_tambah ='';
-							}else{
-								if($cek_pengajuan_judul3 == 1){
-									$btn_tambah = anchor(site_url($this->dir.'/pendaftaran_ujian/'.$cek_tanggal->row('id_periode_pu').'/'.$cek_tanggal->row('id_ref_semester')),'<i class="fa fa-plus fa-btn"></i> Tambah Tesis', 'class="btn btn-success btn-editx btn-flat" act="" title="Klik untuk tambah data"');
-								}else{
 
-								$btn_tambah ='';
-								}
-							}
-						}else{
+			}else{
+				if($cek_pengajuan_judul3 == 1){
+
+					if($cek_peproposal_tesis2 == 1){
+
 							$btn_tambah = '';
+					}else{
+						if($cek_peproposal_tesis3 == 1){
+							
+								if($cek_petesis2 == 0){
+									$btn_tambah = anchor(site_url($this->dir.'/pendaftaran_ujian/'.$cek_tanggal->row('id_periode_pu').'/'.$cek_tanggal->row('id_ref_semester')),'<i class="fa fa-plus fa-btn"></i> Tambah Tesis', 'class="btn btn-success btn-editx btn-flat" act="" title="Klik untuk tambah data"');
+
+								}else{
+										
+									$btn_tambah = '';
+								}
+
+						}else{
+								$btn_tambah = anchor(site_url($this->dir.'/pendaftaran_ujian/'.$cek_tanggal->row('id_periode_pu').'/'.$cek_tanggal->row('id_ref_semester')),'<i class="fa fa-plus fa-btn"></i> Tambah Tesis', 'class="btn btn-success btn-editx btn-flat" act="" title="Klik untuk tambah data"');
 						}
 					}
-
-
 
 				}else{
-					if($cek_pengajuan_judul3 == 1){
-
-						if($cek_peproposal_tesis2 == 1){
-
-								$btn_tambah = '';
-						}else{
-							if($cek_peproposal_tesis3 == 1){
-								
-									if($cek_petesis2 == 0){
-										$btn_tambah = anchor(site_url($this->dir.'/pendaftaran_ujian/'.$cek_tanggal->row('id_periode_pu').'/'.$cek_tanggal->row('id_ref_semester')),'<i class="fa fa-plus fa-btn"></i> Tambah Tesis', 'class="btn btn-success btn-editx btn-flat" act="" title="Klik untuk tambah data"');
-
-									}else{
-											
-										$btn_tambah = '';
-									}
-
-							}else{
-									$btn_tambah = anchor(site_url($this->dir.'/pendaftaran_ujian/'.$cek_tanggal->row('id_periode_pu').'/'.$cek_tanggal->row('id_ref_semester')),'<i class="fa fa-plus fa-btn"></i> Tambah Tesis', 'class="btn btn-success btn-editx btn-flat" act="" title="Klik untuk tambah data"');
-							}
-						}
-
-					}else{
-							$btn_tambah = '';
-					}
-						
-
+						$btn_tambah = '';
 				}
+					
+
 			}
 		}else{
-					$btn_tambah = '';
+			$btn_tambah = '';
 		
 		}
 		$btn_cetak =
@@ -503,9 +488,39 @@ class Tesis extends CI_Controller {
 
 
 	function pendaftaran_ujian($id_1=NULL,$id_2=NULL) {
+
+		
 		$id_periode_pu= $id_1;
     	$id_ref_semester= $id_2;
 		$id_mahasiswa = $this->session->userdata('id_pegawai');
+
+		$rentang = $this->general_model->datagrabs([
+			'tabel' => 'ref_rentang',
+			'where' => [
+				'id' => 1,
+			]
+		])->row()->rentang;
+		$tanggal_mendaftar_proposal = $this->general_model->datagrabs([
+			'tabel' => 'proposal_tesis',
+			'where' => [
+				'id_mahasiswa' => $id_mahasiswa,
+				'status_n_pt' => 1,
+			],
+			'select' => 'tgl_pt'
+		])->row()->tgl_pt;
+		$tanggal_bisa = date_create($tanggal_mendaftar_proposal);
+		date_add($tanggal_bisa,date_interval_create_from_date_string($rentang . " days"));
+		$now = date_create(date('Y-m-d'));
+		$interval = date_diff($now,$tanggal_bisa);
+		$interval = $interval->format('%a');
+
+		if($interval > 0){
+			$this->session->set_flashdata('fail', 'Belum saatnya mendaftar Ujian Tesis');
+			redirect($this->dir);
+		}else{
+			$this->session->set_flashdata('ok', 'Bisa');
+			redirect($this->dir);
+		}
 		$dt = $this->general_model->datagrab(array(
 					'tabel' => 'pengajuan_judul',
 					'where' => array('id_mahasiswa' => $id_mahasiswa,'status_pj' =>1,'status_tesis' =>0)))->row();
@@ -1621,7 +1636,14 @@ if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"pim
 			$this->session->set_flashdata('fail', 'Penguji melebihi dari 2 dosen!');
 			redirect($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$id_mahasiswa,'id_proposal_tesis'=>$id_proposal_tesis)));
 		
-	}
+		}
+		$this->general_model->delete_data(array(
+			'tabel' => 'mhs_penguji',
+			'where' => array(
+				'id_pendaftaran_ujian' => $id_tesis,'id_mahasiswa' => $id_mahasiswa,'id_ref_semester' => $id_ref_semester,'id_periode_pu' => $id_periode_pu,
+				'tipe_ujian' =>3)
+			)
+		);
     	if($this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")){
 
 
@@ -1665,14 +1687,7 @@ if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"pim
 						$this->session->set_flashdata('fail', 'Dosen'.$dosen->nama.' melebihi beban maksimum');
 						redirect($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$id_mahasiswa,'id_proposal_tesis'=>$id_proposal_tesis)));
 					}
-					$this->general_model->delete_data(array(
-						'tabel' => 'mhs_penguji',
-						'where' => array(
-							'id_pendaftaran_ujian' => $id_tesis,'id_mahasiswa' => $id_mahasiswa,'id_ref_semester' => $id_ref_semester,'id_periode_pu' => $id_periode_pu,
-							'tipe_ujian' =>3,
-							'id_pembimbing' => $value)
-						)
-					);
+					
 					$this->general_model->save_data('mhs_penguji', array(
 						'id_pendaftaran_ujian'=>$id_tesis,
 						'tipe_ujian'=>3,

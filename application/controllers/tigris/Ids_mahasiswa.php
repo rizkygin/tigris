@@ -461,7 +461,7 @@ class Ids_mahasiswa extends CI_Controller {
 		$from_pj = array(
 			'pengajuan_judul a' => '',
 			'peg_pegawai b' => array('b.id_pegawai = a.id_mahasiswa','left'),
-			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_program_studi','left'),
+			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_konsentrasi','left'),
 			'ref_tahun d' => array('d.id_ref_tahun = b.id_ref_tahun','left')
 		);
 		$select = 'a.*,a.id_ref_program_konsentrasi as s,a.judul_tesis as nama_judul,b.*,c.*,c.id_ref_program_konsentrasi as ss,c.nama_program_konsentrasi,b.nama as nama_mahasiswa,d.*';

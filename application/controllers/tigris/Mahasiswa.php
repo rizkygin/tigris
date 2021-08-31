@@ -31,19 +31,19 @@ class Mahasiswa extends CI_Controller {
 		if (!empty($search_key)) {
 			$fcari = array(
 				'nama' 		=> $search_key,
-				'nip' 		=> $search_key,
+				'username' 		=> $search_key,
 				'nama_semester' => $search_key,
 				'nama_program_konsentrasi' => $search_key
 			);	
 			$data['for_search'] = $fcari['nama'];
-			$data['for_search'] = $fcari['nip'];
+			$data['for_search'] = $fcari['username'];
 			$data['for_search'] = $fcari['nama_semester'];
 			$data['for_search'] = $fcari['nama_program_konsentrasi'];
 			//$data['for_search'] = $fcari['nama_kegiatan'];
 		} else if ($search) {
 			$fcari=un_de($search);
 			$data['for_search'] = @$fcari['nama'];
-			$data['for_search'] = @$fcari['nip'];
+			$data['for_search'] = @$fcari['username'];
 			$data['for_search'] = @$fcari['nama_semester'];
 			$data['for_search'] = @$fcari['nama_program_konsentrasi'];
 
@@ -53,13 +53,12 @@ class Mahasiswa extends CI_Controller {
 		
 		$from = array(
 			'peg_pegawai a' => '',
-			'ref_unit b' => array('a.id_unit = b.id_unit','left'),
-			'ref_bidang c' => array('a.id_bidang = c.id_bidang','left'),
 			'ref_program_konsentrasi d' => array('a.id_konsentrasi = d.id_ref_program_konsentrasi','left'),
 			'ref_tahun e' => array('a.id_ref_tahun = e.id_ref_tahun','left'),
 			'ref_semester f' => array('a.id_ref_semester = f.id_ref_semester','left'),
 			'ref_prodi prodi' => array('a.id_program_studi = prodi.id_ref_prodi', 'left')
 		);
+		$select = 'd.nama_program_konsentrasi,prodi.nama_prodi,f.nama_semester,e.nama_tahun,a.*';
 		$where = array('a.id_tipe'=>1);
 		$config['per_page']		= '10';
 		$config['uri_segment']	= '5';
@@ -68,12 +67,12 @@ class Mahasiswa extends CI_Controller {
 
 
 		$config['base_url']	= site_url($this->dir.'/Mahasiswa/list_data/'.in_de($fcari));
-		$config['total_rows'] = $this->general_model->datagrab(array('tabel' =>$from,'where'=>$where, 'select'=>'*','search' => $fcari,'offset'=>$offs))->num_rows();
+		$config['total_rows'] = $this->general_model->datagrab(array('tabel' =>$from,'where'=>$where, 'select'=>$select,'search' => $fcari,'offset'=>$offs))->num_rows();
 		$this->pagination->initialize($config);
 		$data['total']	= $config['total_rows'];
 		$data['links'] = $this->pagination->create_links();
 
-		$dtjnsoutput = $this->general_model->datagrabs(array( 'tabel'=>$from, 'order'=>'e.nama_tahun ASC, a.nama ASC','where'=>$where, 'limit'=>$lim, 'offset'=>$offs, 'search'=>$fcari));
+		$dtjnsoutput = $this->general_model->datagrabs(array( 'tabel'=>$from, 'select'=>$select,'order'=>'a.nama ASC','where'=>$where, 'limit'=>$lim, 'offset'=>$offs, 'search'=>$fcari));
 
 
 		$nav = $this->general_model->datagrab(array(

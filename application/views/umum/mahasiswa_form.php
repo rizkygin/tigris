@@ -41,7 +41,7 @@
 	form_hidden('id_peg_jabatan',@$row->id_peg_jabatan).	
 	form_hidden('id_pegawai',@$row->id_pegawai).	
 	form_label('Program Konsentrasi').
-	form_dropdown('id_ref_program_konsentrasi',$cb_program_konsentrasi,@$row->id_program_studi,'class="combo-box form-control" id="id_ref_program_konsentrasi" style="width: 100%" required'); ?></p>
+	form_dropdown('id_ref_program_konsentrasi',$cb_program_konsentrasi,@$row->id_konsentrasi,'class="combo-box form-control" id="id_ref_program_konsentrasi" style="width: 100%" required'); ?></p>
 	
 	
 

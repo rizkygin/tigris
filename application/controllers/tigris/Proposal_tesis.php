@@ -450,6 +450,7 @@ class Proposal_tesis extends CI_Controller {
 					'id_ref_semester'=>$id_ref_semester,
 					'judul_tesis'=>$dt->judul_tesis,
 					'tgl_pt'=>date('Y-m-d'),
+					'status_proses'=>0,
 					'id_ref_program_konsentrasi'=>$dt->id_ref_program_konsentrasi
 					),
 			);
@@ -1559,7 +1560,13 @@ if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"pim
 
 			
 				// die();
-
+				$this->general_model->delete_data(array(
+					'tabel' => 'mhs_penguji',
+					'where' => array(
+						'id_pendaftaran_ujian' => $id_proposal_tesis,'id_mahasiswa' => $id_mahasiswa,'id_ref_semester' => $id_ref_semester,'id_periode_pu' => $id_periode_pu,
+						'tipe_ujian' =>1)
+					)
+				);
 				foreach ($pemb as $key => $value) {
 
 					$cek_beban_proposal = $this->general_model->datagrabs([
@@ -1591,20 +1598,17 @@ if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"pim
 							'id_pegawai' => $value
 						]
 					])->row();
+					//jika beban penguji(dosen) proposal + tesis == 6 maka tidak boleh masuk
 					if($cek_beban_proposal + $cek_beban_tesis >= 6){
 						$this->session->set_flashdata('fail', 'Dosen'.$dosen->nama.' melebihi beban maksimum');
 						redirect($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$id_mahasiswa,'id_proposal_tesis'=>$id_proposal_tesis)));
 					}
 					// cek($cek_beban_proposal);
 					// die();
-					$this->general_model->delete_data(array(
-						'tabel' => 'mhs_penguji',
-						'where' => array(
-							'id_pendaftaran_ujian' => $id_proposal_tesis,'id_mahasiswa' => $id_mahasiswa,'id_ref_semester' => $id_ref_semester,'id_periode_pu' => $id_periode_pu,
-							'tipe_ujian' =>1,
-							'id_pembimbing' => $value)
-						)
-					);
+					
+					// cek($this->db->last_query());
+
+					// cek($value);
 					// die();
 					$this->general_model->save_data('mhs_penguji', array(
 						'id_pendaftaran_ujian'=>$id_proposal_tesis,
@@ -1617,6 +1621,7 @@ if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"pim
 					));
 				}
 
+				// die();
 						
 
 

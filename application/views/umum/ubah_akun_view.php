@@ -93,7 +93,7 @@
 					$path_inst_logo = !empty($st['pemerintah_logo']) ? FCPATH.'logo/'.$st['pemerintah_logo'] : null;
 					$logo_instansi = (file_exists($path_inst_logo) and !empty($st['pemerintah_logo'])) ? base_url().'logo/'.$st['pemerintah_logo'] : base_url().'assets/logo/brand.png';
 					?>
-	        		<div class="logo-brand "><img src="<?php echo $logo_instansi ?>" /></p></div><p class="top-brand">
+	        		<div class="logo-brand" ><img style="height:100px" src="<?php echo $logo_instansi ?>" /></p></div><p class="top-brand">
 	        		<?php if (!empty($st['pemerintah'])) echo $st['pemerintah']; ?><br>
 	        		<span><?php echo $st['instansi'] ?></span></p>      
       			</div>
