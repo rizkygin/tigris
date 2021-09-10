@@ -3,6 +3,7 @@
 class Penjadwalan_proposal_tesis extends CI_Controller {
 	var $dir = 'tigris/Penjadwalan_proposal_tesis';
 	function __construct() {
+		
 		parent::__construct();
 		$this->load->helper('cmd');
 		if (not_login(uri_string()))redirect('login');
@@ -18,6 +19,12 @@ class Penjadwalan_proposal_tesis extends CI_Controller {
 		}else{
 			$this->where = array();
 		}
+		$this->db->query('SET SESSION sql_mode =
+		                  REPLACE(REPLACE(REPLACE(
+		                  @@sql_mode,
+		                  "ONLY_FULL_GROUP_BY,", ""),
+		                  ",ONLY_FULL_GROUP_BY", ""),
+		                  "ONLY_FULL_GROUP_BY", "")');
 	}
 
 	function cr($e) {
@@ -1041,33 +1048,34 @@ die();*/
 
 
         $pdf->SetFont('Times','',16.4);
-        $pdf->Ln(5);
+        $pdf->Ln(1);
         $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-         $pdf->Image('assets/images/corp/beritalogo.png',60,40,100,0);
+        $pdf->SetX(80);
+        //  $pdf->Image('assets/images/corp/beritalogo.png',60,40,100,0);
+		$pdf->Cell(55,7,'SIDANG PROPOSAL',"B",0,"C");
 
 
-        $pdf->SetFont('Times','',12);
+        // $pdf->SetFont('Times','',12);
+        // $pdf->Ln(10);
+        // $pdf->SetTextColor(0,0,0);
+        // $pdf->SetX(25);
+        // $pdf->Cell(20,5,'Pada hari ini,    '.konversi_tanggal('D',substr($dt_row->tgl_mulai,0,10)).'  Tanggal    '.konversi_tanggal('j',substr($dt_row->tgl_mulai,0,10)).'   Bulan    '.konversi_tanggal('M',substr($dt_row->tgl_mulai,0,10)).'  Tahun    '.konversi_tanggal('Y',substr($dt_row->tgl_mulai,0,10)).'    telah dilaksanakan');
+
+
+        // $pdf->SetFont('Times','',12);
+        // $pdf->Ln(5);
+        // $pdf->SetTextColor(0,0,0);
+        // $pdf->SetX(25);
+        // $pdf->Cell(20,5,'Ujian REVIEW PROPOSAL TESIS, untuk Mahasiswa :');
+
+
+
         $pdf->Ln(10);
         $pdf->SetTextColor(0,0,0);
         $pdf->SetX(25);
-        $pdf->Cell(20,5,'Pada hari ini,    '.konversi_tanggal('D',substr($dt_row->tgl_mulai,0,10)).'  Tanggal    '.konversi_tanggal('j',substr($dt_row->tgl_mulai,0,10)).'   Bulan    '.konversi_tanggal('M',substr($dt_row->tgl_mulai,0,10)).'  Tahun    '.konversi_tanggal('Y',substr($dt_row->tgl_mulai,0,10)).'    telah dilaksanakan');
-
-
         $pdf->SetFont('Times','',12);
-        $pdf->Ln(5);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->Cell(20,5,'Ujian REVIEW PROPOSAL TESIS, untuk Mahasiswa :');
-
-
-
-        $pdf->Ln(10);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(35);
-        $pdf->SetFont('Times','',12);
-        $pdf->Cell(20,5,'Nama                : ');
-        $pdf->SetX(64);
+        $pdf->Cell(20,5,'NAMA MAHASISWA   : ');
+        $pdf->SetX(75);
         $pdf->SetFont('Times','',12);
         $pdf->MultiCell(210,5,''.$dt_row->nama_mahasiswa.'');
 
@@ -1075,10 +1083,10 @@ die();*/
 
         $pdf->Ln(0);
         $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(35);
+        $pdf->SetX(25);
         $pdf->SetFont('Times','',12);
-        $pdf->Cell(20,5,'NIM                  : ');
-        $pdf->SetX(64);
+        $pdf->Cell(20,5,'N I M                               : ');
+        $pdf->SetX(75);
         $pdf->SetFont('Times','',12);
         $pdf->MultiCell(200,5,''.$dt_row->nip.'');
 
@@ -1086,17 +1094,17 @@ die();*/
 
         $pdf->Ln(0);
         $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(35);
+        $pdf->SetX(25);
         $pdf->SetFont('Times','',12);
-        $pdf->Cell(20,5,'Bidang Kajian  : ');
+        $pdf->Cell(20,5,'HARI / TANGGAL  : ');
         $pdf->SetX(64);
         $pdf->SetFont('Times','',12);
-        $pdf->MultiCell(200,5,''.$dt_row->nama_program_konsentrasi.'');
+        $pdf->MultiCell(200,5,''.konversi_tanggal('D',substr($dt_row->tgl_mulai,0,10)).'Tanggal    '.date('d/m/yyyy',$dt_row->tgl_mulai));
 
 
         $pdf->Ln(0);
         $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(35);
+        $pdf->SetX(25);
         $pdf->SetFont('Times','',12);
         $pdf->Cell(20,5,'Judul Tesis       : ');
         $pdf->SetX(64);
@@ -1105,7 +1113,7 @@ die();*/
 
         $pdf->Ln(0);
         $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(35);
+        $pdf->SetX(25);
         $pdf->SetFont('Times','',12);
         $pdf->Cell(20,5,'Para Reviewer terdiri dari      : ');
         $pdf->SetX(64);

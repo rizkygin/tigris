@@ -10,9 +10,15 @@ class Mahasiswa extends CI_Controller {
 	var $dir = 'tigris';
 	function __construct() {
 	
+		
 		parent::__construct();
 		login_check($this->session->userdata('login_state'));
-		
+		$this->db->query('SET SESSION sql_mode =
+		                  REPLACE(REPLACE(REPLACE(
+		                  @@sql_mode,
+		                  "ONLY_FULL_GROUP_BY,", ""),
+		                  ",ONLY_FULL_GROUP_BY", ""),
+		                  "ONLY_FULL_GROUP_BY", "")');
 	}
 	
 	function cr($e) {
@@ -361,7 +367,7 @@ class Mahasiswa extends CI_Controller {
 	}
 	
 	function reset_operator($id=null){
-		$this->general_model->save_data('peg_pegawai',array('password' => md5('qwerty')),'id_pegawai',$id);
+		$this->general_model->save_data('peg_pegawai',array('password' => md5('qwerty'),'status' => '1'),'id_pegawai',$id);
 		$this->session->set_flashdata('ok', 'Password operator berhasil di reset');
 		redirect('tigris/Mahasiswa');
 	}

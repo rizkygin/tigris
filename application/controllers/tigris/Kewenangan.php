@@ -18,6 +18,7 @@ class Kewenangan extends CI_Controller {
 
 	function __construct() {
 	
+		
 		parent::__construct();
 		login_check($this->session->userdata('login_state'));
 		
@@ -25,6 +26,12 @@ class Kewenangan extends CI_Controller {
 			'tabel' => 'ref_aplikasi','where' => array('folder' => $this->uri->segment(1))
 		))->row();
 		$this->in_app = !empty($app_std->nama_aplikasi) ? $app_std->nama_aplikasi : 'Root';
+		$this->db->query('SET SESSION sql_mode =
+		                  REPLACE(REPLACE(REPLACE(
+		                  @@sql_mode,
+		                  "ONLY_FULL_GROUP_BY,", ""),
+		                  ",ONLY_FULL_GROUP_BY", ""),
+		                  "ONLY_FULL_GROUP_BY", "")');
 	}
 
 	function get_app($dir) {

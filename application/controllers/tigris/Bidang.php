@@ -6,9 +6,14 @@ class Bidang extends CI_Controller {
 	var $dump_unit = array();
 	
 	function __construct() {
-	
-		parent::__construct();
 		
+		parent::__construct();
+		$this->db->query('SET SESSION sql_mode =
+			REPLACE(REPLACE(REPLACE(
+			@@sql_mode,
+			"ONLY_FULL_GROUP_BY,", ""),
+			",ONLY_FULL_GROUP_BY", ""),
+			"ONLY_FULL_GROUP_BY", "")');
 	}
 	
 	public function index() {

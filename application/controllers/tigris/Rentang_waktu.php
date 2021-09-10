@@ -5,11 +5,17 @@ Class Rentang_waktu extends CI_Controller{
     var $dir = 'tigris/Rentang_waktu';
 
     function __construct() {
+        
         parent::__construct();
         $this->load->helper('cmd');
         if (not_login(uri_string()))redirect('login');
         date_default_timezone_set('Asia/Jakarta');
-       
+        $this->db->query('SET SESSION sql_mode =
+		                  REPLACE(REPLACE(REPLACE(
+		                  @@sql_mode,
+		                  "ONLY_FULL_GROUP_BY,", ""),
+		                  ",ONLY_FULL_GROUP_BY", ""),
+		                  "ONLY_FULL_GROUP_BY", "")');
     }
     function index(){
         // $data['breadcrumb'] = array($this->dir => 'Rentang Waktu');
@@ -52,7 +58,7 @@ Class Rentang_waktu extends CI_Controller{
         ];
         $this->general_model->save_data('ref_rentang',$data,'id',1);
 
-        $this->session->set_flashdata('fail', 'Belum memilih jenis berkas!');
+        $this->session->set_flashdata('ok', 'Berhasil Disimpan!');
             redirect($this->dir);
     }
 }

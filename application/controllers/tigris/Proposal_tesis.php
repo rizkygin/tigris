@@ -3,11 +3,18 @@
 class Proposal_tesis extends CI_Controller {
 	var $dir = 'tigris/Proposal_tesis';
 	function __construct() {
+		
 		parent::__construct();
 		$this->load->helper('cmd');
 		if (not_login(uri_string()))redirect('login');
 		date_default_timezone_set('Asia/Jakarta');
 		$id_pegawai = $this->session->userdata('id_pegawai');
+		$this->db->query('SET SESSION sql_mode =
+		                  REPLACE(REPLACE(REPLACE(
+		                  @@sql_mode,
+		                  "ONLY_FULL_GROUP_BY,", ""),
+		                  ",ONLY_FULL_GROUP_BY", ""),
+		                  "ONLY_FULL_GROUP_BY", "")');
 	}
 
 	function cr($e) {
@@ -89,7 +96,7 @@ class Proposal_tesis extends CI_Controller {
 				$heads[] = array('data' => 'Aksi ','colspan' => 2);
 
 			}
-				if (!in_array($offset,array("cetak","excel")) && $this->general_model->check_role($this->session->userdata('id_pegawai'),"akad") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"perp") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"keua") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")){
+			if (!in_array($offset,array("cetak","excel")) && $this->general_model->check_role($this->session->userdata('id_pegawai'),"akad") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"perp") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"keua") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")){
 				$heads[] = array('data' => ' Verifikasi ','colspan' => 2);
 			}else{
 
@@ -108,50 +115,31 @@ class Proposal_tesis extends CI_Controller {
 					$status = anchor('tigris/proposal_tesis/on/'.in_de(array('id_proposal_tesis' => $row->id_proposal_tesis,'status' =>1)),'<i class="fa fa-fw fa-toggle-off text-default" style="font-size:20px;"></i>');
 
 				}
-				//cek($row->id_proposal_tesis);
-				
-
-
 				$id_pegawai = $this->session->userdata('id_pegawai');
 
 				$id_bidang = $this->general_model->datagrab(array('tabel'=>'peg_pegawai','where'=>array('id_pegawai'=>@$id_pegawai)))->row('id_bidang');
-
-
-
 				$cek_jml = $this->general_model->datagrab(array('tabel'=>'ref_proposal_tesis','where'=>array('id_bidang'=>@$id_bidang)))->num_rows();
-
-
-				$cek_jml_akademik = $this->general_model->datagrab(array('tabel'=>'ref_proposal_tesis','where'=>array('id_bidang'=>2)))->num_rows();
-
-
-				$cek_jml_perustakaan = $this->general_model->datagrab(array('tabel'=>'ref_proposal_tesis','where'=>array('id_bidang'=>3)))->num_rows();
-
-
-				$cek_jml_keuangan = $this->general_model->datagrab(array('tabel'=>'ref_proposal_tesis','where'=>array('id_bidang'=>4)))->num_rows();
-
-
 				$cek_jml2 = $this->general_model->datagrab(array('tabel'=>'veri_proposal_tesis','where'=>array('id_proposal_tesis'=>@$row->id_proposal_tesis,'id_bidang'=>@$id_bidang,'status_ver'=>1)))->num_rows();
-
-
-				$cek_akademik = $this->general_model->datagrab(array('tabel'=>'veri_proposal_tesis','where'=>array('id_proposal_tesis'=>@$row->id_proposal_tesis,'id_bidang'=>2,'status_ver'=>1)))->num_rows();
-
-
-				$cek_perustakaan = $this->general_model->datagrab(array('tabel'=>'veri_proposal_tesis','where'=>array('id_proposal_tesis'=>@$row->id_proposal_tesis,'id_bidang'=>3,'status_ver'=>1)))->num_rows();
-
-
-				$cek_keuangan = $this->general_model->datagrab(array('tabel'=>'veri_proposal_tesis','where'=>array('id_proposal_tesis'=>@$row->id_proposal_tesis,'id_bidang'=>4,'status_ver'=>1)))->num_rows();
-
-
 				$cek_status_pt = $this->general_model->datagrab(array('tabel'=>'proposal_tesis','where'=>array('id_proposal_tesis'=>@$row->id_proposal_tesis)))->row();
+				$cek_jdl = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$row->id_mahasiswa,'judul_tesis'=>$row->judul_tesis)))->row();
 
-
+				$terakhir = 1;
+				$selesai = false;
+				foreach ($id_bidangs as $id_bidang){
+					$cek_jmls = $this->general_model->datagrab(array('tabel'=>'ref_proposal_tesis','where'=>array('id_bidang'=>$id_bidang)))->num_rows();
+					$cek_bidang = $this->general_model->datagrab(array('tabel'=>'veri_proposal_tesis','where'=>array('id_proposal_tesis'=>@$row->id_proposal_tesis,'id_bidang'=>$id_bidang,'status_ver'=>1)))->num_rows();
+					$cek_bidang_tertolak = $this->general_model->datagrab(array('tabel'=>'veri_proposal_tesis','where'=>array('id_proposal_tesis'=>@$row->id_proposal_tesis,'id_bidang'=>$id_bidang,'status_ver'=>2)))->num_rows();
 				
-					$cek_jdl = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$row->id_mahasiswa,'judul_tesis'=>$row->judul_tesis)))->row();
+					if($cek_jmls-$cek_bidang <= 0 ){
+						$terakhir += 1;
+					}
+					if(sizeof($id_bidangs) == $terakhir){
+						$selesai = true;
+					}
+				}
 
-					
-
-				if($cek_jml_akademik==$cek_akademik AND $cek_jml_perustakaan==$cek_perustakaan  AND $cek_jml_keuangan==$cek_keuangan) {
-					
+				if($selesai) {
+					//abu abu
 					$warna = 'background-color:#eee;color:#222;';
 				}elseif(@$cek_jdl->status_pj ==  1 AND @$cek_jdl->status_tesis == 0 AND @$cek_jdl->status_n_pj == 1){
 
@@ -162,12 +150,7 @@ class Proposal_tesis extends CI_Controller {
 					$warna = 'background-color:#FFFFD1;color:#605A01;';
 					
 				}
-
-
-
-
 				$rows[] = 	array('data'=>$no,'style'=>''.$warna.';text-align:center');
-				/*$rows[] = 	$row->kode_Proposal Tesis;*/
 				$rows[] = array(
 					'data' => $row->judul_tesis,
 					'style'=>$warna);
@@ -177,14 +160,8 @@ class Proposal_tesis extends CI_Controller {
 				$rows[] = array(
 					'data' => $row->nama_program_konsentrasi,
 					'style'=>$warna);
-				/*if($this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")){*/
-				// $rows[] = 	((($cek_jml_akademik-$cek_akademik) == 0) ? '<i class="fa fa-check" style="color:blue"></i>  Selesai' : ' dalam Proses');
-				// $rows[] = 	((($cek_jml_perustakaan-$cek_perustakaan) == 0) ? '<i class="fa fa-check" style="color:blue"></i>  Selesai' : ' dalam Proses');
-				// $rows[] = 	((($cek_jml_keuangan-$cek_keuangan) == 0) ? '<i class="fa fa-check" style="color:blue"></i>  Selesai' : ' dalam Proses');
-				// $rows[] = 	((($cek_jml_akademik==$cek_akademik) AND ($cek_jml_perustakaan==$cek_perustakaan) AND ($cek_jml_keuangan==$cek_keuangan) AND $cek_jml==$cek_jml2) ? (($cek_status_pt->status_pt != 1)? '<span class="blink_me">dalam proses</div>' : '<i class="fa fa-check" style="color:blue"></i>  Selesai') : 'Belum di verifikasi semua bidang');
-				
+
 				foreach($id_bidangs as $id_bidang){
-					// $rows[] = $return;
 
 					$cek_jmls = $this->general_model->datagrab(array('tabel'=>'ref_proposal_tesis','where'=>array('id_bidang'=>$id_bidang)))->num_rows();
 					$cek_bidang = $this->general_model->datagrab(array('tabel'=>'veri_proposal_tesis','where'=>array('id_proposal_tesis'=>@$row->id_proposal_tesis,'id_bidang'=>$id_bidang,'status_ver'=>1)))->num_rows();
@@ -193,9 +170,19 @@ class Proposal_tesis extends CI_Controller {
 					if(($cek_jmls-$cek_bidang) <= 0 ){
 						$return = '<i class="fa fa-check" style="color:blue"></i> Selesai';
 					}else if(($cek_jmls-$cek_bidang) != 0 && $cek_bidang_tertolak > 0){
-						$return = '<span class="badge badge-pill badge-danger"  style="background-color:red">'.$cek_bidang_tertolak.'Tertolak</span>';
+						$return = '<span class="badge badge-pill badge-danger"  style="background-color:red">Tertolak</span>';
 					}else{
-						$return = 'dalam Proses';
+						if($id_bidang == 5){
+							$lolos_revisi = $this->general_model->datagrab(array('tabel'=>'veri_proposal_tesis','where'=>array('id_proposal_tesis'=>@$row->id_proposal_tesis,'id_bidang'=>$id_bidang,'status_ver'=>3)))->num_rows();
+							if($lolos_revisi){
+								$return = '<i class="fa fa-warning" style="color:orange"></i> Revisi';
+							}else{
+								$return = 'dalam Proses';
+							}
+						}else{
+							$return = 'dalam Proses';
+
+						}
 					}
 					$rows[] = $return;
 
@@ -225,7 +212,6 @@ class Proposal_tesis extends CI_Controller {
 					}else{
 						$rows[] = 	$ubah;
 					}
-					$rows[] =((($cek_jml_akademik==$cek_akademik) OR ($cek_jml_perustakaan==$cek_perustakaan) OR ($cek_jml_keuangan==$cek_keuangan) OR $cek_jml==$cek_jml2) ? '' : $hapus);
 				}
 
 				$cek_jdl = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$row->id_mahasiswa,'judul_tesis'=>$row->judul_tesis)))->row();
@@ -256,20 +242,25 @@ class Proposal_tesis extends CI_Controller {
 					}else{
 						$rows[] = 	$verifikasi1;
 					}
-
-
-					/*if($cek_pengajuan_judulx > 0){
-
-						$rows[] = 	'data sudah di non aktifkan';
-					}else{
-						$rows[] = 	$verifikasi1;
-					}*/
 				}
 				if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")) {
-
+					$terakhir = 1;
+					$selesai = false;
+					foreach ($id_bidangs as $id_bidang){
+						$cek_jmls = $this->general_model->datagrab(array('tabel'=>'ref_proposal_tesis','where'=>array('id_bidang'=>$id_bidang)))->num_rows();
+						$cek_bidang = $this->general_model->datagrab(array('tabel'=>'veri_proposal_tesis','where'=>array('id_proposal_tesis'=>@$row->id_proposal_tesis,'id_bidang'=>$id_bidang,'status_ver'=>1)))->num_rows();
+						$cek_bidang_tertolak = $this->general_model->datagrab(array('tabel'=>'veri_proposal_tesis','where'=>array('id_proposal_tesis'=>@$row->id_proposal_tesis,'id_bidang'=>$id_bidang,'status_ver'=>2)))->num_rows();
+					
+						if($cek_jmls-$cek_bidang <= 0 ){
+							$terakhir += 1;
+						}
+						if(sizeof($id_bidangs) == $terakhir){
+							$selesai = true;
+						}
+					}
 					$cek_pengajuan_judulx = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$row->id_mahasiswa,'status_n_pj'=>2)))->num_rows();
 
-					if($cek_jml_akademik==$cek_akademik AND $cek_jml_perustakaan==$cek_perustakaan  AND $cek_jml_keuangan==$cek_keuangan){
+					if($selesai){
 						
 						if(@$cek_jdl->status_pj ==  1 AND @$cek_jdl->status_tesis == 1 AND @$cek_jdl->status_n_pj == 2){
 
@@ -437,7 +428,7 @@ class Proposal_tesis extends CI_Controller {
 		$id_mahasiswa = $this->session->userdata('id_pegawai');
 		$dt = $this->general_model->datagrab(array(
 					'tabel' => 'pengajuan_judul',
-					'where' => array('id_mahasiswa' => $id_mahasiswa,'status_pj' =>1,'status_tesis' =>0)))->row();
+					'where' => array('id_mahasiswa' => $id_mahasiswa,'status_pj' =>1||3,'status_tesis' =>0)))->row();
 
 		$param1 =
 			array(
@@ -450,7 +441,7 @@ class Proposal_tesis extends CI_Controller {
 					'id_ref_semester'=>$id_ref_semester,
 					'judul_tesis'=>$dt->judul_tesis,
 					'tgl_pt'=>date('Y-m-d'),
-					'status_proses'=>0,
+					'status_proses'=> 0,
 					'id_ref_program_konsentrasi'=>$dt->id_ref_program_konsentrasi
 					),
 			);
@@ -498,13 +489,7 @@ class Proposal_tesis extends CI_Controller {
 			);
 
 			$param2['where'] = array('id_proposal_tesis'=>$o['id2']);
-			 $this->general_model->simpan_data($param2);
-
-
-
-
-		//$this->general_model->save_data('proposal_tesis',array('urut' => $o['no2']),'id_proposal_tesis',$o['id1']);
-		//$this->general_model->save_data('proposal_tesis',array('urut' => $o['no1']),'id_proposal_tesis',$o['id2']);
+			$this->general_model->simpan_data($param2);
 		redirect($this->dir);
 
 	}
@@ -624,7 +609,7 @@ class Proposal_tesis extends CI_Controller {
 			$data['form_data'] .= '</div>';
 		$data['form_data'] .= '<div class="col-lg-6">';
 		$btn_tambah= anchor(site_url($this->dir.'/tambah_data/'.$dt->id_periode_pu.'/'.$dt->id_ref_semester.'/'.$id),'<i class="fa fa-pencil fa-btn"></i> Edit Judul dan Pembimbing', 'class="btn btn-warning btn-editx btn-flat" act="" title="Klik untuk tambah data"');
-		$data['form_data'] .= $btn_tambah.'</div>';
+		$data['form_data'] .= '</div>';
 			if(!empty($id)){
 		$data['form_data'] .= '<div class="col-lg-12">';
 
@@ -673,223 +658,73 @@ class Proposal_tesis extends CI_Controller {
 					]
 				])->row();
 
-				/*cek($kom->wajib_isi);
-				die();*/
-				if($next == @$pengisian_file->urut){
-					if($kom->wajib_isi != NULL){
-						// cek($kom);
-						// cek($dtnilai->row());
-						// var_dump(($dtnilai->row('link') != NULL || $dtnilai->row('berkas') != NULL) && $kom->id_ref_tipe_field == 6);
-						if(($dtnilai->row('link') != NULL || $dtnilai->row('berkas') != NULL) && $kom->id_ref_tipe_field == 6){
-							$isi_file = '';
-							if($dtnilai->row('link') != NULL){
-
-								$xx = str_replace("http://","",$dtnilai->row('link'));
-									// var_dump($xx);
-								$isi_file .= '<p><a href="https://'.$xx.'" class="fancybox" target="_blank">Tinjau Link </a> '.$hapus_field.'</p>';
-							}
-							if($dtnilai->row('berkas') != NULL){
-								$isi_file .= '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> '.$hapus_field;
-								
-							}	
-							if($dtnilai->row('berkas') != NULL && $dtnilai->row('link') != NULL){
-								$isi_file = '';
-								$isi_file .= '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
-								$xx = str_replace("http://","",$dtnilai->row('link'));
-								// $isi_file .= '</hr>';
-								// var_dump($xx);
-								$isi_file .= '<p><a href="https://'.$xx.'" class="fancybox" target="_blank">Tinjau Link </a> '.$hapus_field.'</p>';
-						
-							}
-							
-							
-						}
-						elseif($dtnilai->row('berkas') != NULL ){
-							$isi_file = '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> '.$hapus_field;
-							
-						}
-						else{
-							if($kom->id_ref_tipe_field == 1){
-								$isi_file = 'Hard Copy';
-							}elseif($kom->id_ref_tipe_field == 2){
-	
-								  $isi_file = form_upload('berkas['.$kom->id_ref_proposal_tesis.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('berkas'),'class="form-control" placeholder="Nilai"');
-							}elseif($kom->id_ref_tipe_field == 6){
-								$isi_file = form_upload('berkas['.$kom->id_ref_proposal_tesis.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('berkas'),'class="form-control" placeholder="Nilai"');
-
-								if($dtnilai->row('link') == NULL){
-	
-									$isi_file .= form_input('link['.$kom->id_ref_proposal_tesis.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('link'),'class="form-control" placeholder="link" style="width:100%"');
-								}else{
-									$xx = str_replace("http://","",$dtnilai->row('link'));
-									// var_dump($xx);
-									$isi_file .= '<a href="https://'.$xx.'" class="fancybox" target="_blank">Tinjau Link</a> '.$hapus_field;
-								}
-								// cek($dtnilai->row('link'));
-								// die();
-								
-							}
-							else{
-								if($dtnilai->row('link') == NULL){
-	
-									  $isi_file = form_input('link['.$kom->id_ref_proposal_tesis.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('link'),'class="form-control" placeholder="link" style="width:100%"');
-								  }else{
-									  $xx = str_replace("http://","",$dtnilai->row('link'));
-								  $isi_file = '<a href="https://'.$xx.'" class="fancybox" target="_blank">Tinjau Link</a> '.$hapus_field;
-								  }
-							}
-						}
-					}else{
-						
-						if($dtnilai->row('berkas') != NULL){
-							$isi_file = '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
-							if($dtnilai->row('link') != NULL){
-								$xx = str_replace("http://","",$dtnilai->row('link'));
-								$isi_file .= '<a href="https://'.$xx.'" class="fancybox" target="_blank">'.$dtnilai->row('link').'</a> ';
-							}
-						}
-						elseif($dtnilai->row('link') != NULL){
-							$xx = str_replace("http://","",$dtnilai->row('link'));
-							if($dtnilai->row('berkas') != NULL){
-								$isi_file = '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
-							}
-							$isi_file .= '<a href="https://'.$xx.'" class="fancybox" target="_blank">'.$dtnilai->row('link').'</a> ';
-						}else{
-							$cek_jml_syarat = $this->general_model->datagrabs([
-							  'tabel'=>'ref_proposal_tesis',
-							  'where' => [
-								  'id_bidang' => $kom->id_bidang
-							  ]
-							])->num_rows();
-							$cek_jml_disetujui = $this->general_model->datagrabs([
-								'tabel' => 'veri_proposal_tesis',
-								'where'=> [
-									'id_proposal_tesis' => $id,
-									'id_bidang' => $kom->id_bidang,
-									'status_ver' => 1
-								]
-							])->num_rows();
-							$isi_file = '<span class="blink_me"> dalam proses</span>';
-							
-							if(($cek_jml_syarat - $cek_jml_disetujui) == 0){
-							  $isi_file = '<i class="fa fa-check" style="color:blue"></i> Selesai';
-
-							} 
-						}
-					}	
-				}else{
+				// cek($pengisian_file);
+				if(empty($pengisian_file)){
 					$isi_file = '';
-					if($dtnilai->row('berkas') != NULL){
-						$isi_file .= '<p><a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a></p> ';
+
+					if(!empty($dtnilai->row())){
+						if($dtnilai->row('berkas') != null){
+							$isi_file .= '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
+						}
+						if($dtnilai->row('link') != null){
+							$isi_file .= '<a href="'.$dtnilai->row('link').'" class="fancybox" target="_blank">'.'Tinjau Link'.'</a> ';
+						}
+						//jika mahasasiswa yang harus isi dan belum di verifikasi maka mahasiswa bisa hapus data
+						if($kom->wajib_isi == 1 && empty($dt_veri->row())){
+							$isi_file .= $hapus_field;
+						}
 					}
-					if($dtnilai->row('link') != NULL){
-						$xx = str_replace("http://","",$dtnilai->row('link'));
-						$isi_file .= '<a href="https://'.$xx.'" class="fancybox" target="_blank">Tinjau Link</a> ';
-					}
-				}
+					elseif($dt_kom_pro->row()){
+						// if($)
+						if($kom->id_ref_tipe_field == 1){
+							$isi_file .= 'Berkas ';
 
-				if($proses < -1){
-					if($kom->wajib_isi != NULL){
-						// cek($kom);
-						// cek($dtnilai->row());
-						// var_dump(($dtnilai->row('link') != NULL || $dtnilai->row('berkas') != NULL) && $kom->id_ref_tipe_field == 6);
-						if(($dtnilai->row('link') != NULL || $dtnilai->row('berkas') != NULL) && $kom->id_ref_tipe_field == 6){
-							$isi_file = '';
-							if($dtnilai->row('link') != NULL){
+						}
+						if($dt_kom_pro->row('status_ver') == 1 ){
+							$isi_file .= 'Disetujui';
 
-								$xx = str_replace("http://","",$dtnilai->row('link'));
-									// var_dump($xx);
-								$isi_file .= '<p><a href="https://'.$xx.'" class="fancybox" target="_blank">Tinjau Link </a> '.'</p>';
-							}
-							if($dtnilai->row('berkas') != NULL){
-								$isi_file .= '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
-								
-							}	
-							if($dtnilai->row('berkas') != NULL && $dtnilai->row('link') != NULL){
-								$isi_file = '';
-								$isi_file .= '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
-								$xx = str_replace("http://","",$dtnilai->row('link'));
-								// $isi_file .= '</hr>';
-								// var_dump($xx);
-								$isi_file .= '<p><a href="https://'.$xx.'" class="fancybox" target="_blank">Tinjau Link </a> '.'</p>';
-						
-							}
-							
-							
-						}
-						elseif($dtnilai->row('berkas') != NULL ){
-							$isi_file = '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
-							
-						}
-						else{
-							if($kom->id_ref_tipe_field == 1){
-								$isi_file = 'Hard Copy';
-							}elseif($kom->id_ref_tipe_field == 2){
-	
-								  $isi_file = form_upload('berkas['.$kom->id_ref_proposal_tesis.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('berkas'),'class="form-control" placeholder="Nilai"');
-							}elseif($kom->id_ref_tipe_field == 6){
-								$isi_file = form_upload('berkas['.$kom->id_ref_proposal_tesis.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('berkas'),'class="form-control" placeholder="Nilai"');
-
-								if($dtnilai->row('link') == NULL){
-	
-									$isi_file .= form_input('link['.$kom->id_ref_proposal_tesis.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('link'),'class="form-control" placeholder="link" style="width:100%"');
-								}else{
-									$xx = str_replace("http://","",$dtnilai->row('link'));
-									// var_dump($xx);
-									$isi_file .= '<a href="https://'.$xx.'" class="fancybox" target="_blank">Tinjau Link</a> ';
-								}
-								// cek($dtnilai->row('link'));
-								// die();
-								
-							}
-							else{
-								if($dtnilai->row('link') == NULL){
-	
-									  $isi_file = form_input('link['.$kom->id_ref_proposal_tesis.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('link'),'class="form-control" placeholder="link" style="width:100%"');
-								  }else{
-									  $xx = str_replace("http://","",$dtnilai->row('link'));
-								  $isi_file = '<a href="https://'.$xx.'" class="fancybox" target="_blank">Tinjau Link</a> ';
-								  }
-							}
-						}
-					}else{
-						
-						if($dtnilai->row('berkas') != NULL){
-							$isi_file = '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
-							if($dtnilai->row('link') != NULL){
-								$xx = str_replace("http://","",$dtnilai->row('link'));
-								$isi_file .= '<a href="https://'.$xx.'" class="fancybox" target="_blank">'.$dtnilai->row('link').'</a> ';
-							}
-						}
-						elseif($dtnilai->row('link') != NULL){
-							$xx = str_replace("http://","",$dtnilai->row('link'));
-							if($dtnilai->row('berkas') != NULL){
-								$isi_file = '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
-							}
-							$isi_file .= '<a href="https://'.$xx.'" class="fancybox" target="_blank">'.$dtnilai->row('link').'</a> ';
 						}else{
-							$cek_jml_syarat = $this->general_model->datagrabs([
-							  'tabel'=>'ref_proposal_tesis',
-							  'where' => [
-								  'id_bidang' => $kom->id_bidang
-							  ]
-							])->num_rows();
-							$cek_jml_disetujui = $this->general_model->datagrabs([
-								'tabel' => 'veri_proposal_tesis',
-								'where'=> [
-									'id_proposal_tesis' => $id,
-									'id_bidang' => $kom->id_bidang,
-									'status_ver' => 1
-								]
-							])->num_rows();
-							$isi_file = '<span class="blink_me"> dalam proses</span>';
-							
-							if(($cek_jml_syarat - $cek_jml_disetujui) == 0){
-							  $isi_file = '<i class="fa fa-check" style="color:blue"></i> Selesai';
-
-							} 
+							$isi_file .= 'Ditolak';
 						}
+
 					}
+				}elseif(!empty($pengisian_file)){
+					$isi_file = '';
+						if(empty($dtnilai->row())){
+							switch($kom->id_ref_tipe_field){
+								case 1:
+									$isi_file = 'Hard Copy';
+									break;
+								case 2:
+									$isi_file = form_upload('berkas['.$kom->id_ref_proposal_tesis.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('berkas'),'class="form-control" placeholder="Nilai"');
+									break;
+								case 3 : 
+									$isi_file = form_input('link['.$kom->id_ref_proposal_tesis.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('link'),'class="form-control" placeholder="link" style="width:100%"');
+									break;
+								case 4 || 5:
+									$isi_file = '<span class="blink_me"> dalam proses</span>';
+									break;
+								case 6 :
+									$isi_file = form_upload('berkas['.$kom->id_ref_proposal_tesis.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('berkas'),'class="form-control" placeholder="Nilai"');
+									$isi_file .= form_input('link['.$kom->id_ref_proposal_tesis.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('link'),'class="form-control" placeholder="link" style="width:100%"');
+									break;
+							}
+						}elseif(!empty($dtnilai->row())){
+							$isi_file = '';
+							if($dtnilai->row('berkas') != null){
+								$isi_file .= '<a href="'.base_url('/uploads/'.$dtnilai->row('berkas')).'" class="fancybox" target="_blank">'.$dtnilai->row('berkas').'</a> ';
+							}
+							if($dtnilai->row('link') != null){
+								$isi_file = '<a href="'.$dtnilai->row('link').'" class="fancybox" target="_blank">'.'Tinjau Link'.'</a> ';
+							}
+							if($kom->id_ref_tipe_field == 1){
+								$isi_file = 'Berkas Disetujui';
+							}
+							//jika mahasasiswa yang harus isi dan belum di verifikasi maka mahasiswa bisa hapus data
+							if($kom->wajib_isi == 1 && empty($dt_veri->row())){
+								$isi_file .= $hapus_field;
+							}
+						}
 				}
 				$chk = NULL;
 				if($id!=NULL){
@@ -948,6 +783,8 @@ class Proposal_tesis extends CI_Controller {
 
     public function verifikasi($param=NULL){
     	$o = un_de($param);
+		// cek($o);
+		
     	$id= $o['id_proposal_tesis'];
         $data = array(
             'button' => 'Tambah',
@@ -967,7 +804,21 @@ class Proposal_tesis extends CI_Controller {
        	$dt = !empty($id) ?  $this->general_model->datagrab(array(
 					'tabel' => $from,'select' => $select,
 					'where' => array('a.id_proposal_tesis' => $id)))->row() : null;
-       
+		$pembimbing = $this->general_model->datagrabs([
+			'tabel' => [
+				'pengajuan_judul pengajuan_judul' => '',
+				'mhs_pembimbing pemb' => 'pengajuan_judul.id_mahasiswa = pemb.id_mahasiswa',
+				'peg_pegawai peg' => 'pemb.id_pembimbing = peg.id_pegawai'
+			],
+			'where' => [
+				'pengajuan_judul.id_mahasiswa' => $o['id_mahasiswa'],
+				'pengajuan_judul.judul_tesis' => $dt->judul_tesis,
+				'pengajuan_judul.status_n_pj' => 1,
+				'pemb.status_pemb' => 1,
+			],
+			'select' => 'peg.nama'
+		])->result();
+		// cek($this->db->last_query());
 		$cb_tipe = $this->general_model->combo_box(array('tabel'=>'ref_program_konsentrasi','key'=>'id_ref_program_konsentrasi','val'=>array('nama_program_konsentrasi')));
 		$cb_pembimbing1 = $this->general_model->combo_box(array('tabel'=>'peg_pegawai','key'=>'id_pegawai','val'=>array('nama'),'where'=>array('id_tipe'=>2)));
 		$cb_pembimbing2 = $this->general_model->combo_box(array('tabel'=>'peg_pegawai','key'=>'id_pegawai','val'=>array('nama'),'where'=>array('id_tipe'=>2)));
@@ -977,7 +828,13 @@ class Proposal_tesis extends CI_Controller {
 		
 		$data['form_data'] = '';
 		$data['form_data'] .= '<input type="hidden" name="id_pendaftaran_ujian" class="id_pendaftaran_ujian" value="'.$id .'"/>';
-		if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")) {
+		$bidang_yang_menangani_dosen_penguji  = $this->general_model->datagrabs([
+			'tabel' => 'ref_proposal_tesis',
+			'where' => [
+				'id_ref_tipe_field' => 5
+			]
+		])->row();
+		if ($this->general_model->check_bidang($this->session->userdata('id_pegawai'))->id_bidang == $bidang_yang_menangani_dosen_penguji->id_bidang) {
 			$fromx = array(
 					'peg_pegawai b' =>'' ,
 					'ref_tipe_dosen c' => array('c.id_ref_tipe_dosen = b.id_ref_tipe_dosen','left')
@@ -998,45 +855,25 @@ class Proposal_tesis extends CI_Controller {
 						'proposal_tesis c' => array('c.id_proposal_tesis = b.id_pendaftaran_ujian','left')
 					);
 				$cek_jumlah_pem = $this->general_model->datagrab(array('tabel'=>$fromcc,'select'=>'count(b.id_mahasiswa) as x,c.status_n_pt,b.tipe_ujian', 'where'=>array('b.id_pembimbing'=>$kom->id_pegawai,'c.status_n_pt'=>1,'b.tipe_ujian'=>1,'b.id_ref_semester'=>$cek_periode->row('id_ref_semester'))))->row();
-
-				// cek($this->db->last_query());
-				// $fromdd = array(
-				// 		'mhs_penguji b' =>'' ,
-				// 		'seminar_hp c' => array('c.id_seminar_hp = b.id_pendaftaran_ujian','left')
-				// 	);
-				// $cek_jumlah_shp = $this->general_model->datagrab(array('tabel'=>$fromdd,'select'=>'count(b.id_mahasiswa) as x,c.status_n_shp', 'where'=>array('b.id_pembimbing'=>$kom->id_pegawai,'c.status_n_shp'=>1,'b.tipe_ujian'=>2,'b.id_ref_semester'=>$cek_periode->row('id_ref_semester'))))->row();
-
 				$fromee = array(
 						'mhs_penguji b' =>'' ,
 						'tesis c' => array('c.id_tesis = b.id_pendaftaran_ujian','left')
 					);
 				$cek_jumlah_t = $this->general_model->datagrab(array('tabel'=>$fromee,'select'=>'count(b.id_mahasiswa) as x,c.status_n_t', 'where'=>array('b.id_pembimbing'=>$kom->id_pegawai,'c.status_n_t !='=>2,'b.tipe_ujian'=>3,'b.id_ref_semester'=>$cek_periode->row('id_ref_semester'))))->row();
-				//cek($kom->id_pegawai	);
-				//cek($cek_jumlah_pem->x);
+				
 
 					$id_pegawai = $this->session->userdata('id_pegawai');
 					
-					//cek($cek_jumlah_pem->id_pembimbing);
 					if($kom->id_ref_tipe_dosen == 2 OR $kom->tipe_dosen == 'LUAR BIASA'){
 						$dt_tipe = 'iya';
 					}else{
 						$dt_tipe = 'bukan';
 					}
 
-
-				//	cek($cek_jumlah_pem->x);
 				$chk_pem = NULL;
 					$dt_mhs = $this->general_model->datagrab(array('tabel'=>'mhs_penguji', 'where'=>array('id_pendaftaran_ujian'=>$dt->id_proposal_tesis, 'id_pembimbing'=>$kom->id_pegawai, 'id_mahasiswa'=>$dt->id_mahasiswa, 'tipe_ujian'=>1)));
 					
 					$jumlah_mhs = $this->general_model->datagrab(array('tabel'=>'mhs_penguji','select'=>'count(id_mahasiswa) as x', 'where'=>array('id_pembimbing'=>$kom->id_pegawai)))->row();
-
-					// $chk_pem = ($dt_mhs->num_rows() > 0) ? 'checked' : '';
-					//cek($cek_jumlah_pem->x+$cek_jumlah_t->x+$cek_jumlah_t->x);
-					// if(($cek_jumlah_pem->x+$cek_jumlah_t->x) >= 6){
-					// 	$chk_pem = ($dt_mhs->num_rows() > 0) ? 'checked' : '';
-					
-					// 	$data['form_data'] .= '<input  disabled="disabled" name="pemb[]'.$kom->id_pegawai.'" '.$chk_pem.' type="checkbox" value="'.$kom->id_pegawai.'" class="incheck" style="margin-top: -2px"> '.$kom->nama.'---'.$kom->tipe_dosen.'---'.' (<b>'.($cek_jumlah_pem->x+$cek_jumlah_shp->x+$cek_jumlah_t->x).'</b>)';
-					// }else{
 						$chk_pem = ($dt_mhs->num_rows() > 0) ? 'checked' : '';
 					
 						$data['form_data'] .= 
@@ -1045,14 +882,8 @@ class Proposal_tesis extends CI_Controller {
 						class="incheck" style="margin-top: -2px"> '
 						.$kom->nama.'---'.$kom->tipe_dosen.'---'.' (<b>'.
 						($cek_jumlah_pem->x+$cek_jumlah_t->x).'</b>)';
-					// }
-					/*$data['form_data'] .= '<input  name="pemb[]'.$kom->id_pegawai.'" '.$chk_pem.' type="checkbox" value="'.$kom->id_pegawai.'" class="incheck" style="margin-top: -2px"> '.$kom->nama.'---'.$kom->tipe_dosen.'---'.' (<b>'.@$jumlah_mhs->x.'</b>)';*/
 					$data['form_data'] .= '</div>';
 			}
-			/*$data['form_data'] .= '<p><label>Pembimbing 1</label>';
-			$data['form_data'] .= form_dropdown('id_pemb_1', $cb_pembimbing1,@$dt->id_pemb_1,'class="form-control combo-box"  required style="width: 100%"');
-			$data['form_data'] .= '<p><label>Pembimbing 2</label>';
-			$data['form_data'] .= form_dropdown('id_pemb_2', $cb_pembimbing2,@$dt->id_pemb_2,'class="form-control combo-box" style="width: 100%"');*/
 			$data['form_data'] .= '</div>';
 		}
 
@@ -1069,15 +900,25 @@ class Proposal_tesis extends CI_Controller {
 			</tr>
 			
 			<tr>
-				<td>Semester</td>
-				<td>'.@$dt->nama_semester.'</td>
+				<td>Dosen Pembimbing</td>
+				<td>';
+				$data['form_data'] .= '<ul>';
+				foreach($pembimbing as $pemb){
+					$data['form_data'] .= '<li>';	
+					$data['form_data'] .= @$pemb->nama;	
+					$data['form_data'] .= '</li>';	
+
+				}
+				$data['form_data'] .= '</ul>';
+
+			$data['form_data'] .='</td>
 			</tr>
 			<tr>
 				<td>Tahun</td>
 				<td>'.@$dt->nama_tahun.'</td>
 			</tr>
 			<tr>
-				<td>Program Konsentrasi</td>
+				<td>Kelas</td>
 				<td>'.@$dt->nama_program_konsentrasi.'</td>
 			</tr>
 			</thead>
@@ -1090,7 +931,7 @@ class Proposal_tesis extends CI_Controller {
 		if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"akad")) {
 			$data['form_data'] .= '<div class="col-lg-6">';
 			$btn_tambah= anchor(site_url($this->dir.'/tambah_data/'.$dt->id_periode_pu.'/'.$dt->id_ref_semester.'/'.$id),'<i class="fa fa-pencil fa-btn"></i> Edit Judul dan Pembimbing', 'class="btn btn-warning btn-editx btn-flat" act="" title="Klik untuk tambah data"');
-			$data['form_data'] .= $btn_tambah.'</div>';
+			$data['form_data'] .= '</div>';
 		}
 		
 		$data['form_data'] .= '<div class="col-lg-12">';
@@ -1181,9 +1022,14 @@ $no = 1;
 						}
 					}else{
 						//cek($kom->id_ref_tipe_field);
+						
 						if($kom->id_ref_tipe_field == 1){
 							$isi_file = 'Hard Copy';
-						}elseif($kom->id_ref_tipe_field == 2){
+						}
+						elseif($kom->id_ref_tipe_field == 5){
+							$isi_file = 'Pemilihan Dosen Penguji';
+						}
+						elseif($kom->id_ref_tipe_field == 2){
 
 	          				$isi_file = 'Belum Ada file';
 						}else{
@@ -1197,11 +1043,14 @@ $no = 1;
 	
 						}
 					}
-	          	}else{/*
-	          		cek($kom->id_ref_tipe_field);*/
+	          	}else{
 	          		if($kom->id_ref_tipe_field == 1){
 							$isi_file = 'Hard Copy';
-					}elseif($kom->id_ref_tipe_field == 2){
+					}
+					elseif($kom->id_ref_tipe_field == 5){
+						$isi_file = 'Pemilihan Dosen Penguji';
+					}
+					elseif($kom->id_ref_tipe_field == 2){
 						if($dtnilai->row('berkas') == NULL){
 
 	          					$isi_file = form_upload('berkas['.$kom->id_ref_proposal_tesis.']',($dtnilai->num_rows()==NULL) ? NULL : $dtnilai->row('berkas'),'class="form-control" placeholder="Nilai"');
@@ -1290,16 +1139,19 @@ $no = 1;
 </div>
 					</div>';
 
-if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")) {
+	if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")) {
 
 			$data['form_data'] .= '<p><label>Status Proposal Tesis</label><p>';
 			$data['form_data'] .= '<label>
-                      <input type="radio" value="1" name="status_n_pt" class="flat-blue" '.((!empty($dt) and $dt->status_n_pt == "1") ? 'checked' : '').' /> <i>Lulus</i> 
+                      <input type="radio" value="1" name="status_n_pt" class="flat-blue" '.((!empty($dt) and $dt->status_n_pt == "1") ? 'checked' : '').' /> <i>Lolos</i> 
                     </label>&nbsp;  &nbsp;  &nbsp;';
 			$data['form_data'] .= '<label>
+				<input type="radio" value="3" name="status_n_pt" class="flat-blue" '.((!empty($dt) and $dt->status_n_pt == "3") ? 'checked' : '').' /> <i>Lolos dengan Revisi</i>
+			</label> &nbsp;  &nbsp;  &nbsp;';
+			$data['form_data'] .= '<label>
                       <input type="radio" value="2" name="status_n_pt" class="flat-blue" '.((!empty($dt) and $dt->status_n_pt == "2") ? 'checked' : '').' /> <i>Berhenti/ Mengulang</i>
-                    </label>';
-}
+			</label>';
+	}
 			$data['form_data'] .= '</div>';
 		$data['form_data'] .= '</div>';
 		$data['form_data'] .= '<div style="clear:both;"></div>';
@@ -1520,17 +1372,12 @@ if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"pim
 		$link = $this->input->post('link');
 		$status_ver = $this->input->post('status_ver');
 		$catatan = $this->input->post('catatan');
-		//cek($berkas);
-		/*cek($catatan);
-		
-*//*cek($status_ver);
-		die();*/
 		$id_pegawai = $this->input->post('id_pegawai');
 		$id_mahasiswa = $this->input->post('id_mahasiswa');
 		$id_ref_semester = $this->input->post('id_ref_semester');
 		$id_periode_pu = $this->input->post('id_periode_pu');
-		/*cek($id_periode_pu);
-		die();*/
+		// cek($this->input->post());
+		// die();
 
 		$status_n_pt = $this->input->post('status_n_pt');
 		if($status_n_pt == NULL){
@@ -1547,239 +1394,212 @@ if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"pim
 		// cek(sizeof($pemb));
 		// cek($pemb);
 		// die();
-		if(sizeof($pemb) > 2){
+		if(!empty($pemb)){
+			if(sizeof($pemb) > 2){
 				$this->session->set_flashdata('fail', 'Penguji melebihi dari 2 dosen!');
 				redirect($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$id_mahasiswa,'id_proposal_tesis'=>$id_proposal_tesis)));
 			
+			}
 		}
+		
     	if($this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")){
 
 			$id_proposal_tesis = $this->input->post('id_pendaftaran_ujian');
-			$id_pemb_1 = $this->input->post('id_pemb_1');
-			$id_pemb_2 = $this->input->post('id_pemb_2');
+			// cek($id_proposal_tesis);
+			// die();
+			$this->general_model->delete_data(array(
+				'tabel' => 'mhs_penguji',
+				'where' => array(
+					'id_pendaftaran_ujian' => $id_proposal_tesis,'id_mahasiswa' => $id_mahasiswa,'id_ref_semester' => $id_ref_semester,'id_periode_pu' => $id_periode_pu,
+					'tipe_ujian' =>1)
+				)
+			);
+			foreach ($pemb as $key => $value) {
 
-			
-				// die();
-				$this->general_model->delete_data(array(
+				$cek_beban_proposal = $this->general_model->datagrabs([
 					'tabel' => 'mhs_penguji',
-					'where' => array(
-						'id_pendaftaran_ujian' => $id_proposal_tesis,'id_mahasiswa' => $id_mahasiswa,'id_ref_semester' => $id_ref_semester,'id_periode_pu' => $id_periode_pu,
-						'tipe_ujian' =>1)
-					)
-				);
-				foreach ($pemb as $key => $value) {
-
-					$cek_beban_proposal = $this->general_model->datagrabs([
-						'tabel' => 'mhs_penguji',
-						'where' => [
-							
-							'tipe_ujian' => 1,
-							'status_peng' => 1,
-							'id_pembimbing' => $value
-						]
-					])->num_rows();
-					
-					$cek_beban_tesis = $this->general_model->datagrabs([
-						'tabel' => 'mhs_penguji',
-						'where' => [
-							
-							'tipe_ujian' => 3,
-							'status_peng' => 1,
-							'id_pembimbing' => $value
-						]
-					])->num_rows();
-
-					// cek($value);
-					// cek($cek_beban_proposal);
-					// cek($cek_beban_tesis);
-					$dosen = $this->general_model->datagrabs([
-						'tabel' => 'peg_pegawai',
-						'where' => [
-							'id_pegawai' => $value
-						]
-					])->row();
-					//jika beban penguji(dosen) proposal + tesis == 6 maka tidak boleh masuk
-					if($cek_beban_proposal + $cek_beban_tesis >= 6){
-						$this->session->set_flashdata('fail', 'Dosen'.$dosen->nama.' melebihi beban maksimum');
-						redirect($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$id_mahasiswa,'id_proposal_tesis'=>$id_proposal_tesis)));
-					}
-					// cek($cek_beban_proposal);
-					// die();
-					
-					// cek($this->db->last_query());
-
-					// cek($value);
-					// die();
-					$this->general_model->save_data('mhs_penguji', array(
-						'id_pendaftaran_ujian'=>$id_proposal_tesis,
-						'tipe_ujian'=>1,
-						'id_mahasiswa'=>$id_mahasiswa,
-						'id_ref_semester'=>$id_ref_semester,
-						'id_periode_pu'=>$id_periode_pu,
-						'id_pembimbing'=>$value,
-						'status_peng'=>1
-					));
-				}
-
-				// die();
+					'where' => [
 						
+						'tipe_ujian' => 1,
+						'status_peng' => 1,
+						'id_pembimbing' => $value
+					]
+				])->num_rows();
+				
+				$cek_beban_tesis = $this->general_model->datagrabs([
+					'tabel' => 'mhs_penguji',
+					'where' => [
+						
+						'tipe_ujian' => 3,
+						'status_peng' => 1,
+						'id_pembimbing' => $value
+					]
+				])->num_rows();
+				$dosen = $this->general_model->datagrabs([
+					'tabel' => 'peg_pegawai',
+					'where' => [
+						'id_pegawai' => $value
+					]
+				])->row();
+				//jika beban penguji(dosen) proposal + tesis == 6 maka tidak boleh masuk
+				if($cek_beban_proposal + $cek_beban_tesis >= 6){
+					$this->session->set_flashdata('fail', 'Dosen'.$dosen->nama.' melebihi beban maksimum');
+					redirect($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$id_mahasiswa,'id_proposal_tesis'=>$id_proposal_tesis)));
+				}
+				// cek($cek_beban_proposal);
+				// die();
+				
+				// cek($this->db->last_query());
 
-
-
+				// cek($value);
+				// die();
+				$this->general_model->save_data('mhs_penguji', array(
+					'id_pendaftaran_ujian'=>$id_proposal_tesis,
+					'tipe_ujian'=>1,
+					'id_mahasiswa'=>$id_mahasiswa,
+					'id_ref_semester'=>$id_ref_semester,
+					'id_periode_pu'=>$id_periode_pu,
+					'id_pembimbing'=>$value,
+					'status_peng'=>1
+				));
+			}
 			$par = array(
 					'tabel'=>'proposal_tesis',
 					'data'=>array(
-						'id_pemb_1' => $id_pemb_1,
-						'id_pemb_2' => $id_pemb_2,
 						'status_pt' => 1,
 						'status_n_pt' =>$status_n_pt
 						),
 					);
+			$par['where'] = array('id_proposal_tesis'=>$id_proposal_tesis);
 
-					$par['where'] = array('id_proposal_tesis'=>$id_proposal_tesis);
-
-				$sim = $this->general_model->save_data($par);
+			$sim = $this->general_model->save_data($par);
 					
 
 
-				$cek_judul = $this->general_model->datagrabs(array('tabel'=>'proposal_tesis','where'=>array('id_proposal_tesis'=>$id_proposal_tesis)))->row();
+			$cek_judul = $this->general_model->datagrabs(array('tabel'=>'proposal_tesis','where'=>array('id_proposal_tesis'=>$id_proposal_tesis)))->row();
 
 				// cek($status_n_pt);
-				if($status_n_pt == 2){
+			if($status_n_pt == 2){
 
-							$par1 = array(
-								'tabel'=>'mhs_pembimbing',
-								'data'=>array(
-									'status_pemb' => 0
-								),
-							);
+						$par1 = array(
+							'tabel'=>'mhs_pembimbing',
+							'data'=>array(
+								'status_pemb' => 0
+							),
+						);
 
-							$par1['where'] = array('id_mahasiswa' => $id_mahasiswa);
-							$sim = $this->general_model->save_data($par1);
-
-
-
-							$parxx = array(
-								'tabel'=>'mhs_penguji',
-								'data'=>array(
-									'status_peng' => 0
-								),
-							);
-
-							$parxx['where'] = array(
-								'id_pendaftaran_ujian' => $id_proposal_tesis,'id_mahasiswa' => $id_mahasiswa,'id_ref_semester' => $id_ref_semester,'id_periode_pu' => $id_periode_pu,
-									'tipe_ujian' =>1);
-							$sim = $this->general_model->save_data($parxx);
-
-							$par1 = array(
-								'tabel'=>'pengajuan_judul',
-								'data'=>array(
-									'status_tesis' => 1,
-									'status_n_pj' => 2
-								),
-							);
-
-							$par1['where'] = array('id_mahasiswa'=>$id_mahasiswa,'judul_tesis'=>$cek_judul->judul_tesis);
-							$sim = $this->general_model->save_data($par1);
-
-							$par2 = array(
-								'tabel'=>'proposal_tesis',
-								'data'=>array(
-									'status_n_pt' => 2
-								),
-							);
-
-							$par2['where'] = array('id_mahasiswa'=>$id_mahasiswa,'judul_tesis'=>$cek_judul->judul_tesis);
-							$sim = $this->general_model->save_data($par2);
-
-							$par3 = array(
-								'tabel'=>'seminar_hp',
-								'data'=>array(
-									'status_n_shp' => 2
-								),
-							);
-
-							$par3['where'] = array('id_mahasiswa'=>$id_mahasiswa,'judul_tesis'=>$cek_judul->judul_tesis);
-							$sim = $this->general_model->save_data($par3);
-
-							$par4 = array(
-								'tabel'=>'tesis',
-								'data'=>array(
-									'status_n_t' => 2
-								),
-							);
-
-							$par4['where'] = array('id_mahasiswa'=>$id_mahasiswa,'judul_tesis'=>$cek_judul->judul_tesis);
-							$sim = $this->general_model->save_data($par4);
-					}else{
-						if($status_n_pt == 1){
-							// var_dump($status_n_pj);
-							// die();
-							$pars_n_pt = array(
-								'tabel'=>'veri_proposal_tesis',
-								'data'=>array(
-									'id_proposal_tesis'=>$id_proposal_tesis,
-									'id_mahasiswa'=>$id_mahasiswa,
-									'id_ref_proposal_tesis'=>$key,
-									'id_bidang'=>$this->general_model->check_bidang($this->session->userdata('id_pegawai'))->id_bidang,
-									'status'=>1,
-									'status_ver'=>1
-									),
-								);
-			
-								
-								
-							$sim = $this->general_model->save_data($pars_n_pt);
-						}
-						
-							$par1 = array(
-								'tabel'=>'pengajuan_judul',
-								'data'=>array(
-									'status_tesis' => 0,
-									'status_n_pj' => 1
-								),
-							);
-
-							$par1['where'] = array('id_pengajuan_judul'=>$id_pengajuan_judul);
-							$sim = $this->general_model->save_data($par1);
-
-							$par2 = array(
-								'tabel'=>'proposal_tesis',
-								'data'=>array(
-									'status_n_pt' => 1
-								),
-							);
-
-							$par2['where'] = array('id_mahasiswa'=>$id_mahasiswa,'judul_tesis'=>$cek_judul->judul_tesis);
-							$sim = $this->general_model->save_data($par2);
-
-							$par3 = array(
-								'tabel'=>'seminar_hp',
-								'data'=>array(
-									'status_n_shp' => 1
-								),
-							);
-
-							$par3['where'] = array('id_mahasiswa'=>$id_mahasiswa,'judul_tesis'=>$cek_judul->judul_tesis);
-							$sim = $this->general_model->save_data($par3);
-
-							$par4 = array(
-								'tabel'=>'tesis',
-								'data'=>array(
-									'status_n_t' => 1
-								),
-							);
-
-							$par4['where'] = array('id_mahasiswa'=>$id_mahasiswa,'judul_tesis'=>$cek_judul->judul_tesis);
-							$sim = $this->general_model->save_data($par4);
+						$par1['where'] = array('id_mahasiswa' => $id_mahasiswa);
+						$sim = $this->general_model->save_data($par1);
 
 
-				}
+
+						$parxx = array(
+							'tabel'=>'mhs_penguji',
+							'data'=>array(
+								'status_peng' => 0
+							),
+						);
+
+						$parxx['where'] = array(
+							'id_pendaftaran_ujian' => $id_proposal_tesis,'id_mahasiswa' => $id_mahasiswa,'id_ref_semester' => $id_ref_semester,'id_periode_pu' => $id_periode_pu,
+								'tipe_ujian' =>1);
+						$sim = $this->general_model->save_data($parxx);
+
+						$par1 = array(
+							'tabel'=>'pengajuan_judul',
+							'data'=>array(
+								'status_tesis' => 1,
+								'status_n_pj' => 2
+							),
+						);
+
+						$par1['where'] = array('id_mahasiswa'=>$id_mahasiswa,'judul_tesis'=>$cek_judul->judul_tesis);
+						$sim = $this->general_model->save_data($par1);
+
+						$par2 = array(
+							'tabel'=>'proposal_tesis',
+							'data'=>array(
+								'status_n_pt' => 2
+							),
+						);
+
+						$par2['where'] = array('id_mahasiswa'=>$id_mahasiswa,'judul_tesis'=>$cek_judul->judul_tesis);
+						$sim = $this->general_model->save_data($par2);
+
+						$par4 = array(
+							'tabel'=>'tesis',
+							'data'=>array(
+								'status_n_t' => 2
+							),
+						);
+
+						$par4['where'] = array('id_mahasiswa'=>$id_mahasiswa,'judul_tesis'=>$cek_judul->judul_tesis);
+						$sim = $this->general_model->save_data($par4);
+			}
+			else{
+				
+				$par1 = array(
+					'tabel'=>'pengajuan_judul',
+					'data'=>array(
+						'status_tesis' => 0,
+						//apapun yang dilakukan pimpinan tentang proposal tesis, akan berpengaruh pada pengajuan judul, sehingga jika proposal tesis lolos dengan revisi, maka judul yang diajukan juga akan bernilai revisi, makanya status _n_pj = $status_n_pt
+						'status_n_pj' => $status_n_pt
+					),
+				);
+
+				$par1['where'] = array('id_mahasiswa'=>$id_mahasiswa,'judul_tesis'=>$cek_judul->judul_tesis);
+				$sim = $this->general_model->save_data($par1);
+				$par2 = array(
+					'tabel'=>'proposal_tesis',
+					'data'=>array(
+						'status_n_pt' => $status_n_pt
+					),
+				);
+				$par2['where'] = array('id_mahasiswa'=>$id_mahasiswa,'judul_tesis'=>$cek_judul->judul_tesis);
+				$sim = $this->general_model->save_data($par2);
+				$par4 = array(
+					'tabel'=>'tesis',
+					'data'=>array(
+						'status_n_t' => 1
+					),
+				);
+				$par4['where'] = array('id_mahasiswa'=>$id_mahasiswa,'judul_tesis'=>$cek_judul->judul_tesis);
+				$sim = $this->general_model->save_data($par4);
+			}
+			if($status_n_pt){
+				$id_ref = $this->general_model->datagrabs([
+					'tabel' => 'ref_proposal_tesis',
+					'where' => [
+						// 'id_bidang' => 5,
+						//pemilihan dosen penguji
+						'id_ref_tipe_field' => 5
+					]
+				])->row('id_ref_proposal_tesis');
+				$pars_n_pt = array(
+					'tabel'=>'veri_proposal_tesis',
+					'data'=>array(
+						'id_proposal_tesis'=>$id_proposal_tesis,
+						'id_mahasiswa'=>$id_mahasiswa,
+						'id_bidang'=>$this->general_model->check_bidang($this->session->userdata('id_pegawai'))->id_bidang,
+						'id_ref_proposal_tesis' => $id_ref,
+						'status'=>1,
+						'status_ver'=>$status_n_pt
+						),
+					);
+					$this->general_model->delete_data([
+						'tabel'=>'veri_proposal_tesis',
+						'where' => [
+							'id_bidang'=>$this->general_model->check_bidang($this->session->userdata('id_pegawai'))->id_bidang,
+							'status'=>1,
+							'id_proposal_tesis'=>$id_proposal_tesis,
+							'id_mahasiswa'=>$id_mahasiswa,
+						]
+					]);
+				$sim = $this->general_model->save_data($pars_n_pt);
+			}
 
 			$this->session->set_flashdata('ok', 'Data Berhasil Disimpan...');
     	}else{
-
-
 			foreach ($berkas as $key => $value) {
 				# code...
 				// cek($value);
@@ -1829,53 +1649,36 @@ if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"pim
 											'id_proposal_tesis' => $id_proposal_tesis,'id_mahasiswa' => $id_mahasiswa,'id_ref_proposal_tesis' => $value)));
 									}
 				}
-					
-					
 			}
-			// cek($link);
-			// die();
-
-
-		
-
-			foreach (@$link as $key => $value) {
-				$pars = array(
-					'tabel'=>'mhs_proposal_tesis',
-					'data'=>array(
-						'id_proposal_tesis'=>$id_proposal_tesis,
-						'id_mahasiswa' => $id_mahasiswa,
-						'id_ref_proposal_tesis' => $key,
-						'link' => $value
-						),
-					);
-
-				$cek_link = $this->general_model->datagrabs(array('tabel'=>'mhs_proposal_tesis','where'=>array('id_proposal_tesis'=>$id_proposal_tesis,'id_mahasiswa'=>$id_mahasiswa,'id_ref_proposal_tesis'=>$key)));
-				/*cek($cek_link);
-				die();*/
-				if($cek_link->num_rows() > 0) $pars['where'] = array('id_proposal_tesis'=>$id_proposal_tesis,'id_mahasiswa'=>$id_mahasiswa,'id_ref_proposal_tesis'=>$key);
-
-
-					
-				$sim = $this->general_model->save_data($pars);
-				$cek_linkx = $this->general_model->datagrabs(array('tabel'=>'veri_proposal_tesis','where'=>array('id_proposal_tesis'=>$id_proposal_tesis,'id_mahasiswa'=>$id_mahasiswa,'id_ref_proposal_tesis'=>$key)))->num_rows();
-				
-				if($cek_linkx > 0) 
-					$this->general_model->delete_data(array(
-					'tabel' => 'veri_proposal_tesis',
-					'where' => array(
-						'id_proposal_tesis' => $id_proposal_tesis,'id_mahasiswa' => $id_mahasiswa,'id_ref_proposal_tesis' => $key)));
-			}
+			if(!empty($link)){
+				foreach (@$link as $key => $value) {
+					$pars = array(
+						'tabel'=>'mhs_proposal_tesis',
+						'data'=>array(
+							'id_proposal_tesis'=>$id_proposal_tesis,
+							'id_mahasiswa' => $id_mahasiswa,
+							'id_ref_proposal_tesis' => $key,
+							'link' => $value
+							),
+						);
 	
-			$disetujui = $this->general_model->datagrabs([
-				'tabel' => 'veri_proposal_tesis',
-				'where' => [
-					'id_proposal_tesis'=>$id_proposal_tesis,
-					'id_mahasiswa'=>$id_mahasiswa,
-					'id_bidang' => $id_bidang,
-					'status_ver' => 1,
-				]
-			])->num_rows();
-
+					$cek_link = $this->general_model->datagrabs(array('tabel'=>'mhs_proposal_tesis','where'=>array('id_proposal_tesis'=>$id_proposal_tesis,'id_mahasiswa'=>$id_mahasiswa,'id_ref_proposal_tesis'=>$key)));
+					/*cek($cek_link);
+					die();*/
+					if($cek_link->num_rows() > 0) $pars['where'] = array('id_proposal_tesis'=>$id_proposal_tesis,'id_mahasiswa'=>$id_mahasiswa,'id_ref_proposal_tesis'=>$key);
+	
+	
+						
+					$sim = $this->general_model->save_data($pars);
+					$cek_linkx = $this->general_model->datagrabs(array('tabel'=>'veri_proposal_tesis','where'=>array('id_proposal_tesis'=>$id_proposal_tesis,'id_mahasiswa'=>$id_mahasiswa,'id_ref_proposal_tesis'=>$key)))->num_rows();
+					
+					if($cek_linkx > 0) 
+						$this->general_model->delete_data(array(
+						'tabel' => 'veri_proposal_tesis',
+						'where' => array(
+							'id_proposal_tesis' => $id_proposal_tesis,'id_mahasiswa' => $id_mahasiswa,'id_ref_proposal_tesis' => $key)));
+				}
+			}
 			foreach ($status_ver as $key => $value) {
 
 				$pars = array(
@@ -1910,31 +1713,7 @@ if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"pim
 
 
 			}
-			$cek_jumlah_perbidang_yang_dituju = $this->general_model->datagrabs(
-				[
-					'tabel'=>'ref_proposal_tesis',
-					'where'=>array('id_bidang'=>@$id_bidang)
-			])->num_rows();
-			if($cek_jumlah_perbidang_yang_dituju - $disetujui == 0 ){
-				$proposal_tesis_proses = $this->general_model->datagrabs([
-
-					'tabel' => 'proposal_tesis',
-					'where' => [
-						'id_proposal_tesis' => $id_proposal_tesis
-					]
-				])->row();
-				if($pengajuan_judul_proses->status_proses >= 0){
-					$this->general_model->save_data([
-						'tabel' => 'proposal_tesis',
-						'where' => [
-							'id_proposal_tesis' => $id_proposal_tesis,
-						],
-						'data' => [
-							'status_proses' => $proposal_tesis_proses->status_proses + 1,
-						]
-					]);
-				}
-			}
+			
 
 			foreach ($catatan as $key => $value) {
 				$parx = array(
@@ -1949,38 +1728,98 @@ if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"pim
 				$sim = $this->general_model->save_data($parx);
 			}
 
-
-
-            
-			/*
-
-            $klm = $this->input->post('klm');
-			
-
-			$this->general_model->delete_data(array(
-					'tabel' => 'veri_proposal_tesis',
-					'where' => array(
-						'id_proposal_tesis' => $id_proposal_tesis,'id_mahasiswa' => $id_mahasiswa,'id_bidang' => $id_bidang)));
-
-				foreach ($klm as $key => $value) {
-					$this->general_model->save_data('veri_proposal_tesis', array(
-						'id_proposal_tesis'=>$id_proposal_tesis,
-						'id_mahasiswa'=>$id_mahasiswa,
-						'id_pegawai'=>$id_pegawai,
-						'id_bidang'=>$id_bidang,
-						//'id_ref_proposal_tesis'=>$value,
-						'status'=>1,
-						'status_ver'=>$value
-					));
-				}*/
-
-				$this->session->set_flashdata('ok', 'Data Berhasil Disimpan...');
+			$this->session->set_flashdata('ok', 'Data Berhasil Disimpan...');
 			
     	}
+		$disetujui = $this->general_model->datagrabs([
+			'tabel' => 'veri_proposal_tesis',
+			'where' => [
+				'id_proposal_tesis'=>$id_proposal_tesis,
+				'id_mahasiswa'=>$id_mahasiswa,
+				'id_bidang' => $id_bidang,
+				'status_ver' => 1,
+			],
+			'select' => 'id_ref_proposal_tesis'
+		])->num_rows();
+
+		// cek($this->db->last_query());
+		// die();
+		
+		$cek_jumlah_perbidang_yang_dituju = $this->general_model->datagrabs(
+			[
+				'tabel'=>'ref_proposal_tesis',
+				'where'=>array('id_bidang'=>@$id_bidang)
+		])->num_rows();
+		if($cek_jumlah_perbidang_yang_dituju - $disetujui == 0 ){
+			$proposal_tesis_proses = $this->general_model->datagrabs([
+
+				'tabel' => 'ref_bidang_ujian_proposal',
+				'where' => [
+					'id_ref_bidang' => $id_bidang
+				]
+			])->row();
+			// cek($id_bidang);
+			// die();
+			if($proposal_tesis_proses){
+				$this->general_model->save_data([
+					'tabel' => 'proposal_tesis',
+					'where' => [
+						'id_proposal_tesis' => $id_proposal_tesis,
+					],
+					'data' => [
+						'status_proses' => $this->proses_bidang_selanjutnya($proposal_tesis_proses->urut,$id_proposal_tesis),
+					]
+				]);
+			}
+		}
 
 		redirect($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$id_mahasiswa,'id_proposal_tesis'=>$id_proposal_tesis)));
 
     }
+	function proses_bidang_selanjutnya($urut,$id_proposal_tesis){
+		$urutan_selanjutnya = $urut + 1;
+
+		$next_bidang  = $this->general_model->datagrabs([
+			'tabel' => 'ref_bidang_ujian_proposal',
+			'where' => [
+				'urut' => $urutan_selanjutnya
+			]
+		])->row('id_ref_bidang');
+		$bool = $this->cek_apakah_bidang_selanjutnya_sudah_selesai($next_bidang,$id_proposal_tesis);
+		if($next_bidang == null){
+			return $urut;
+		}else{
+			if($bool){
+				return $this->proses_bidang_selanjutnya($urutan_selanjutnya,$id_proposal_tesis);
+			}else{
+				return $urut;
+			}
+		}
+		
+	}
+	function cek_apakah_bidang_selanjutnya_sudah_selesai($next_bidang,$id_proposal_tesis){
+		$jumlah_syarat_next_bidang = $this->general_model->datagrabs([
+			'tabel' => 'ref_proposal_tesis',
+			'where' => [
+				'id_bidang' => $next_bidang
+			]
+			])->num_rows();
+		$jumlah_veri_next_bidang = $this->general_model->datagrabs([
+			'tabel' => 'veri_proposal_tesis',
+			'where' => [
+				'id_bidang' => $next_bidang,
+				'id_proposal_tesis'=>$id_proposal_tesis,
+				'status_ver' => 1,
+			],
+			'select' => 'DISTINCT id_ref_proposal_tesis'
+
+		])->num_rows();
+		if($jumlah_syarat_next_bidang - $jumlah_veri_next_bidang == 0){
+			return true;
+		}else{
+			return false;
+		}
+	}
 	function delete_data($code) {
 		$sn = un_de($code);
 		$id_proposal_tesis = $sn['id_proposal_tesis'];
@@ -2049,6 +1888,32 @@ if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"pim
 			// cek($id_mahasiswa);
 			// cek($id_proposal_tesis);
 			// die();
+		$urut = $this->general_model->datagrabs([
+			'tabel' => [
+				'veri_proposal_tesis veri' => '',
+				'ref_proposal_tesis ref' => 'veri.id_ref_proposal_tesis = ref.id_ref_proposal_tesis',
+				'ref_bidang_ujian_proposal bidang' => 'ref.id_bidang = bidang.id_ref_bidang' 
+			],
+			'where' => [
+				'veri.id_veri_proposal_tesis' => $id_veri_proposal_tesis
+			],
+			'select' => 'bidang.urut'
+			])->row();
+		$status_proses = $this->general_model->datagrabs([
+			'tabel' => 'proposal_tesis',
+			'where' => [
+				'id_proposal_tesis' => $id_proposal_tesis
+			]
+		])->row('status_proses');
+		$proses = $urut->urut-1;
+		// var_dump($urut);
+		// var_dump($status_proses);
+		if($status_proses < $proses){
+			$proses = $status_proses;
+		}
+		// var_dump($proses);
+		// die();
+
 		$del = $this->general_model->delete_data('veri_proposal_tesis','id_veri_proposal_tesis',$id_veri_proposal_tesis);
 		$delx = $this->general_model->delete_data('mhs_proposal_tesis','id_mhs_proposal_tesis',$id_mhs_proposal_tesis);
 
@@ -2059,7 +1924,7 @@ if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"pim
 				'id_proposal_tesis' => $id_proposal_tesis,
 			],
 			'data' => [
-				'status_proses' => -999
+				'status_proses' =>	$proses
 			]
 			]
 			

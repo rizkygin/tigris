@@ -4,6 +4,7 @@ class Ids_jadwalx extends CI_Controller {
 
 	function __construct() {
 	
+		
 		parent::__construct();
 
 		$this->perPage = 18;
@@ -11,7 +12,12 @@ class Ids_jadwalx extends CI_Controller {
 		$this->mingdep = 2;
 		$this->mini = 1;
 
-
+		$this->db->query('SET SESSION sql_mode =
+			REPLACE(REPLACE(REPLACE(
+			@@sql_mode,
+			"ONLY_FULL_GROUP_BY,", ""),
+			",ONLY_FULL_GROUP_BY", ""),
+			"ONLY_FULL_GROUP_BY", "")');
 		
 	}
 

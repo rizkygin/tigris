@@ -2,6 +2,7 @@
 class Ref_bidang extends CI_Controller{
     var $dir = 'tigris/Ref_bidang';
 	function __construct() {
+		
 		parent::__construct();
 		$this->load->helper('cmd');
 		if (not_login(uri_string()))redirect('login');
@@ -17,6 +18,12 @@ class Ref_bidang extends CI_Controller{
 		}else{
 			$this->where = array();
 		}
+		$this->db->query('SET SESSION sql_mode =
+		                  REPLACE(REPLACE(REPLACE(
+		                  @@sql_mode,
+		                  "ONLY_FULL_GROUP_BY,", ""),
+		                  ",ONLY_FULL_GROUP_BY", ""),
+		                  "ONLY_FULL_GROUP_BY", "")');
 	}
     
 	function cr($e) {

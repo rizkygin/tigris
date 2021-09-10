@@ -6,6 +6,7 @@ class Ids_mahasiswa extends CI_Controller {
 
 	function __construct() {
 	
+		
 		parent::__construct();
 		$this->load->library('Ajax_pagination');
 		$this->load->library('Ajax_pagination_gal1');
@@ -17,7 +18,12 @@ class Ids_mahasiswa extends CI_Controller {
 		$this->perPage2 = 3;
 		$this->mingdep = 2;
 		$this->mini = 1;
-
+		$this->db->query('SET SESSION sql_mode =
+			REPLACE(REPLACE(REPLACE(
+			@@sql_mode,
+			"ONLY_FULL_GROUP_BY,", ""),
+			",ONLY_FULL_GROUP_BY", ""),
+			"ONLY_FULL_GROUP_BY", "")');
 
 		
 	}

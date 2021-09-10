@@ -83,7 +83,7 @@ $db['default'] = array(
 
 	'username' => 'root',
 	'password' => '',
-	'database' => 'thor',
+	'database' => 'tigris_2',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
 	'pconnect' => FALSE,

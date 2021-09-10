@@ -25,7 +25,7 @@ else echo form_open($form_link,'id="form_data" role="form"');
 	?>	
 
 		<br><button class="btn btn-danger btn-md btn-flat btn-form-cancel" type="button"><a href="<?php echo $dir;?>"><i class="fa fa-arrow-left"></i> &nbsp; Batal</a></button>
-		<button href="#" class="btn btn-success btn-md btn-flat btn-save-act pull-right" id ="simpan"><i class="fa fa-save"></i> &nbsp; Simpan</button>
+		<button href="#" class="btn btn-success btn-md btn-flat btn-save-act pull-right" ><i class="fa fa-save"></i> &nbsp; Simpan</button>
 		<div class="clear"></div>
 	<?php } ?>
 <?php echo  form_close()?>
@@ -39,12 +39,16 @@ else echo form_open($form_link,'id="form_data" role="form"');
           </div>
 
 <script type="text/javascript">
+	
 	<?php echo  @$out_script; ?>
 	let similiar_percen = 0;
 	let judul_mirip = new Array();
 	let text = "";
+	let id_pengajuan_judul;
 	function check_similiarity(judul,page = null){
 		// console.log(judul);
+		$('#similiar_hidden').val(0);
+		
 		similiar_percen = 0;
 
 		page = page || 1;
@@ -97,26 +101,49 @@ else echo form_open($form_link,'id="form_data" role="form"');
 						$('#similiar').text(' ' + similiar_percen.toFixed(2) + '%');
 						$('#status_progress').text('Complete');
 						
+						$('#similiar_hidden').val(similiar_percen.toFixed(2));
 						// $('#check').attr('disabled', true);
 					}
-					if(e.persen > 80){
+					if(e.persen > 50){
 						judul_mirip.push(e);
 						text = "Mirip Dengan";
+						
 					}
 				});
 
-				$('#simpan').attr('disabled',false);
+
 				$.map(judul_mirip,function(e){
 					text += "</br> " + e.judul + " : " + e.persen.toFixed(2) +"%";
-					$('#simpan').attr('disabled',true);
 
 				});
+				// console.log(judul_mirip.length);
+				if(judul_mirip.length == 1 ){
+					console.log('yeay');
+					console.log(judul_mirip[0]);
+				}
 				$('#judul_mirip').html(text);
 			}
 		}
 		return similiar_percen;
 	}
 	$(document).ready(function(){
+
+		<?php 
+		if(@$edit_data_sendiri){
+			?>
+			$('#ngecek').css('display','none');
+
+			$('#similiar_hidden').val(0);
+			
+			$('#tampil_cek').on('click',(event) => {
+				$('#ngecek').css('display','block');
+				$('#tampil_cek').css('display','none');
+				$('#similiar_hidden').val(100);
+
+				})
+			<?php
+		} 
+		?>		
 		$('.combo-box').select2(); // Yang merasa punya select dicek lagi, ubah ke DOM combo-box
 		$('.datemask').inputmask('dd/mm/yyyy', {'placeholder': 'dd/mm/yyyy'});
 		$('input[type="checkbox"].incheck, input[type="radio"].incheck').iCheck({
@@ -129,7 +156,6 @@ else echo form_open($form_link,'id="form_data" role="form"');
 		   $('#box-main').show();
 	   	});
 		   
-		$('#simpan').attr('disabled',true);
 		
 		$('#form_data').submit(function() {
 			$('.btn-save-act').attr('disabled','disabled').html('<i class="fa fa-spin fa-spinner fa-btn"></i> Proses ...');
@@ -145,9 +171,7 @@ else echo form_open($form_link,'id="form_data" role="form"');
 					$('.progress .progress-bar').text('0%');
 					$('#status_progress').text('Processing . . .');
 					$('#judul_mirip').html('');
-				$('#simpan').attr('disabled',true);
-
-
+				$('#similiar_hidden').val(100);
 
 		});
 		$('#check').on('click',(event) => check_similiarity($('#judul_tesis').val()));

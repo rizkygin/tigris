@@ -4,6 +4,7 @@ class Home extends CI_Controller {
 	var $dir = 'tigris';
 	var $dir_pj = 'tigris/Pengajuan_judul';
 	function __construct() {
+		
 		parent::__construct();/*
 		$this->load->library('Ajax_pagination');
 		$this->load->library('Ajax_pagination_gal1');
@@ -25,6 +26,12 @@ class Home extends CI_Controller {
 			$this->where = array();
 		}
 
+		$this->db->query('SET SESSION sql_mode =
+		                  REPLACE(REPLACE(REPLACE(
+		                  @@sql_mode,
+		                  "ONLY_FULL_GROUP_BY,", ""),
+		                  ",ONLY_FULL_GROUP_BY", ""),
+		                  "ONLY_FULL_GROUP_BY", "")');
 	}
 
 	function cr($e) {
@@ -36,6 +43,8 @@ class Home extends CI_Controller {
     }
 
 	public function index() {
+		// cek("fukc you");
+		// die();
 		$this->list_data();
 	}
 
@@ -168,18 +177,28 @@ class Home extends CI_Controller {
 		if ($data_pj->num_rows() > 0) {
 			$heads = array('No','Judul Tesis','Mahasiswa','Kelas');
 
-			/*if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")){*/
-				$heads[] = array('data' => 'Akademik');
-				$heads[] = array('data' => 'Perpustkaan');
-				$heads[] = array('data' => 'Keuangan');
-				$heads[] = array('data' => 'Pimpinan');
+			$urutan_bidang = $this->general_model->datagrabs([
+				'tabel' => [
+					'ref_bidang_pengajuan_judul a' => '',
+					'ref_bidang bidang' => 'a.id_ref_bidang = bidang.id_bidang'
+				],
+				'where' => [
+					'a.status' => 1 
+				],
+				'select' => 'bidang.id_bidang,bidang.nama_bidang',
+				'order' => 'a.urut ASC'
+			])->result();
+			
+			foreach($urutan_bidang as $key => $bidang){
+				$id_bidangs[] = $bidang->id_bidang;
+				$heads[] = array('data' => $bidang->nama_bidang);
+			}
 
-			/*}*/
 			if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs")){
 				$heads[] = array('data' => 'Aksi ','colspan' => 2);
 
 			}
-				if (!in_array($offset,array("cetak","excel")) && $this->general_model->check_role($this->session->userdata('id_pegawai'),"akad") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"perp") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"keua") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")){
+			if (!in_array($offset,array("cetak","excel")) && $this->general_model->check_role($this->session->userdata('id_pegawai'),"akad") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"perp") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"keua") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")){
 				$heads[] = array('data' => ' Verifikasi ','colspan' => 2);
 			}else{
 
@@ -219,10 +238,6 @@ class Home extends CI_Controller {
 					$status = anchor('tigris/pengajuan_judul/on/'.in_de(array('id_pengajuan_judul' => $row->id_pengajuan_judul,'status' =>1)),'<i class="fa fa-fw fa-toggle-off text-default" style="font-size:20px;"></i>');
 
 				}
-				//cek($row->id_pengajuan_judul);
-				
-
-
 				$id_pegawai = $this->session->userdata('id_pegawai');
 
 				$id_bidang = $this->general_model->datagrab(array('tabel'=>'peg_pegawai','where'=>array('id_pegawai'=>@$id_pegawai)))->row('id_bidang');
@@ -256,20 +271,71 @@ class Home extends CI_Controller {
 				$cek_status_pj = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_pengajuan_judul'=>@$row->id_pengajuan_judul)))->row();
 
 
+				// cek($row);
 				$rows[] = 	array('data'=>$no,'style'=>'text-align:center');
 				/*$rows[] = 	$row->kode_Pengajuan Judul;*/
 				$rows[] = 	$row->judul_tesis;
-				$rows[] = 	$row->nama;
+				$rows[] = 	$row->nama.' - '.$row->nip;
 				$rows[] = 	$row->nama_program_konsentrasi;
-				/*if($this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")){*/
-					$rows[] = 	((($cek_jml_akademik-$cek_akademik) == 0) ? '<i class="fa fa-check" style="color:blue"></i>' : ' dalam Proses');
-				$rows[] = 	((($cek_jml_perustakaan-$cek_perustakaan) == 0) ? '<i class="fa fa-check" style="color:blue"></i>' : ' dalam Proses');
-				$rows[] = 	((($cek_jml_keuangan-$cek_keuangan) == 0) ? '<i class="fa fa-check" style="color:blue"></i>' : ' dalam Proses');
-				$rows[] = 	((($cek_jml_akademik==$cek_akademik) AND ($cek_jml_perustakaan==$cek_perustakaan) AND ($cek_jml_keuangan==$cek_keuangan) AND $cek_jml==$cek_jml2) ? (($cek_status_pj->status_pj != 1)? '<span class="blink_me"> dalam proses</span>' : '<i class="fa fa-check" style="color:blue"></i>') : 'Belum di verifikasi semua bidang');
-				/*$rows[] = 	((($cek_jml_keuangan-$cek_keuangan) == 0) ? '<i class="fa fa-check" style="color:blue"></i>' : ' dalam Proses');*/
+				foreach($id_bidangs as $id_bidang){
+					$return = '';
+					$cek_jmls = $this->general_model->datagrab(array('tabel'=>'ref_pengajuan_judul','where'=>array('id_bidang'=>$id_bidang)))->num_rows();
+					$cek_bidang = $this->general_model->datagrab(array('tabel'=>'veri_pengajuan_judul','where'=>array('id_pengajuan_judul'=>@$row->id_pengajuan_judul,'id_bidang'=>$id_bidang,'status_ver'=>1)))->num_rows();
+					$cek_bidang_tertolak = $this->general_model->datagrab(array('tabel'=>'veri_pengajuan_judul','where'=>array('id_pengajuan_judul'=>@$row->id_pengajuan_judul,'id_bidang'=>$id_bidang,'status_ver'=>2)))->num_rows();
+					// cek($cek_jmls);
+					// cek($cek_bidang);
+					// cek($cek_bidang_tertolak);
+					if(($cek_jmls-$cek_bidang) <= 0 ){
+						$return = '<i class="fa fa-check" style="color:blue"></i> Selesai';
+						// $nota_dinas += 1;
 
-				// }
-			
+					}else if(($cek_jmls-$cek_bidang) != 0 && $cek_bidang_tertolak > 0){
+						$return = '<span class="badge badge-pill badge-danger"  style="background-color:red">Tertolak</span>';
+					}else{
+						if($this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs")){
+							$return = 'dalam Proses';
+						}else{
+							
+							//sudah upload
+							$sudah_upload = $this->general_model->datagrabs([
+								'tabel' => [
+									'mhs_pengajuan_judul mhs' => '',
+									'ref_pengajuan_judul syarat' => ['mhs.id_ref_pengajuan_judul = syarat.id_ref_pengajuan_judul','left'] ,
+								],'where' => [
+									'mhs.id_mahasiswa' => $row->id_mahasiswa,
+									'syarat.id_bidang' => $id_bidang
+								]
+							]);
+							$sudah_diverif = $this->general_model->datagrabs([
+								'tabel' => 'veri_pengajuan_judul',
+								'where' => [
+									'id_mahasiswa' => $row->id_mahasiswa,
+									'id_bidang' => $id_bidang
+								],
+								'select' => 'distinct id_ref_pengajuan_judul'
+							]);
+							if($sudah_upload->num_rows() > 0 ){
+								if($this->general_model->check_bidang($this->session->userdata('id_pegawai'))->id_bidang == $id_bidang){
+									$menunggu = true;
+
+									$syarat_menunggu = $sudah_upload->num_rows()-$sudah_diverif->num_rows();
+								}
+								$return = $sudah_upload->num_rows()-$sudah_diverif->num_rows(). ' Syarat Menunggu';
+
+								if($sudah_upload->num_rows()-$sudah_diverif->num_rows() == 0){
+									$return = 'Menunggu';
+
+								}
+							}else{
+							//belum upload
+
+								$return = 'Menunggu Proses';
+							}
+						}
+					}
+					// $rows[] = $return . 'id_bidang : ' . $id_bidang ;
+					$rows[] = $return;
+				}
 
 				
 				if (!in_array($offset,array("cetak","excel")) && $this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs")) {
@@ -298,18 +364,24 @@ class Home extends CI_Controller {
 
 				}
 				if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"akad") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"perp") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"keua")) {
-
-
-
-			
-			
-
-			
 					$verifikasi1 = anchor(site_url($this->dir_pj.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_pengajuan_judul'=>$row->id_pengajuan_judul))),'<i class="fa fa-list"></i>', 'class="btn btn-xs btn-primary  btn-flat" act="" title="Verifikasi data..."');
 					if($cek_jml==$cek_jml2){
 						$rows[] = 'SELESAI';
 					}else{
-						$rows[] = array('data'=>$cek_jml-$cek_jml2.' belum di verifikasi','style'=>'text-align:center','class'=>'blink_me');
+						if(empty($menunggu)){
+							$rows[] = array('data'=>$cek_jml-$cek_jml2.' belum selesai','style'=>'text-align:center','class'=>'blink_me');
+						}else{
+
+							if($syarat_menunggu/(int)$cek_jml == 1){
+								$rows[] = array('data'=>'Butuh verifikasi','style'=>'text-align:center','class'=>'blink_me');
+							}
+							elseif($syarat_menunggu == 0){
+								$rows[] = array('data'=>'Menunggu','style'=>'text-align:center','class'=>'blink_me');
+							}else{
+								$rows[] = array('data'=>$syarat_menunggu.'/'.$cek_jml.' Syarat butuh verifikasi','style'=>'text-align:center','class'=>'blink_me');
+							}
+							
+						}
 					}
 
 					$cek_pengajuan_judulx = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$row->id_mahasiswa,'status_pj'=>1,'status_tesis'=>1,'status_n_pj'=>2)))->num_rows();
@@ -330,67 +402,31 @@ class Home extends CI_Controller {
 					}else{
 						$rows[] = 	$verifikasi1;
 					}
-					/*
-					if($row->status_pj ==  1 OR $row->status_tesis == 1 OR $row->status_n_pj == 1){
-
-						$rows[] = 	'data di non aktifkan';
-					}else{
-						$rows[] = 	$verifikasi1;
-					}*/
-
 				}
 
 					
 					
 				if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")) {
 
-
-
-			
-			
-				$cek_pengajuan_judulx = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$row->id_mahasiswa,'status_pj'=>1,'status_tesis'=>1,'status_n_pj'=>2)))->num_rows();
-
-
-					
-
+					$cek_pengajuan_judulx = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$row->id_mahasiswa,'status_pj'=>1,'status_tesis'=>1,'status_n_pj'=>2)))->num_rows();
 					if($cek_jml_akademik==$cek_akademik AND $cek_jml_perustakaan==$cek_perustakaan  AND $cek_jml_keuangan==$cek_keuangan){
-						
-						
+						if($row->status_pj ==  1 AND $row->status_tesis == 1 AND $row->status_n_pj == 2){
+								$verifikasi22 = anchor(site_url($this->dir_pj.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_pengajuan_judul'=>$row->id_pengajuan_judul))),'<i class="fa fa-list"></i> ubah status', 'class="btn btn-xs btn-primary btn-flat" act="" title="Verifikasi data..."');
+				
 
-
-							if($row->status_pj ==  1 AND $row->status_tesis == 1 AND $row->status_n_pj == 2){
-									$verifikasi22 = anchor(site_url($this->dir_pj.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_pengajuan_judul'=>$row->id_pengajuan_judul))),'<i class="fa fa-list"></i> ubah status', 'class="btn btn-xs btn-primary btn-flat" act="" title="Verifikasi data..."');
-					
-
-									if($row->status_pj ==  1 AND $row->status_tesis == 0 AND $row->status_n_pj == 1){
-								
-										$rows[] = 	$verifikasi22;
-										
-									}else{
-										$rows[] = 	'data di non aktifkan '.$verifikasi22;
-									}
-								
-							}else{
-								$verifikasi2 = anchor(site_url($this->dir_pj.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_pengajuan_judul'=>$row->id_pengajuan_judul))),'<i class="fa fa-list"></i>', 'class="btn btn-xs btn-primary btn-flat" act="" title="Verifikasi data..."');
-					
-								$rows[] = 	$verifikasi2;
-							}
-
-/*
-
-						if($row->status_pj ==  1 OR $row->status_tesis == 1 OR $row->status_n_pj == 1){
-
-							$verifikasi22 = anchor(site_url($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_pengajuan_judul'=>$row->id_pengajuan_judul))),'<i class="fa fa-list"></i> ubah status', 'class="btn btn-xs btn-primary btn-flat" act="" title="Verifikasi data..."');
-					
-							$rows[] = 	'data di non aktifkan '.$verifikasi22;
+								if($row->status_pj ==  1 AND $row->status_tesis == 0 AND $row->status_n_pj == 1){
+							
+									$rows[] = 	$verifikasi22;
+									
+								}else{
+									$rows[] = 	'data di non aktifkan '.$verifikasi22;
+								}
+							
 						}else{
-							$verifikasi2 = anchor(site_url($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_pengajuan_judul'=>$row->id_pengajuan_judul))),'<i class="fa fa-list"></i>', 'class="btn btn-xs btn-primary btn-flat" act="" title="Verifikasi data..."');
-					
+							$verifikasi2 = anchor(site_url($this->dir_pj.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_pengajuan_judul'=>$row->id_pengajuan_judul))),'<i class="fa fa-list"></i>', 'class="btn btn-xs btn-primary btn-flat" act="" title="Verifikasi data..."');
+				
 							$rows[] = 	$verifikasi2;
-
-						}*/
-
-
+						}
 					}else{
 						
 
@@ -430,18 +466,25 @@ class Home extends CI_Controller {
 		if ($data_pt->num_rows() > 0) {
 			$heads = array('No','Judul Tesis','Mahasiswa','Kelas');
 
-			/*if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")){*/
-				$heads[] = array('data' => 'Akademik');
-				$heads[] = array('data' => 'Perpustakaan');
-				$heads[] = array('data' => 'Keuangan');
-				$heads[] = array('data' => 'Pimpinan');
+			$urutan_bidang = $this->general_model->datagrabs([
+				'tabel' => [
+					'ref_bidang_ujian_proposal a' => '',
+					'ref_bidang bidang' => 'a.id_ref_bidang = bidang.id_bidang'
+				],
+				'select' => 'bidang.id_bidang,bidang.nama_bidang',
+				'order' => 'a.urut ASC'
+			])->result();
+			
+			foreach($urutan_bidang as $key => $bidang){
+				$id_bidang_proposal[] = $bidang->id_bidang;
+				$heads[] = array('data' => $bidang->nama_bidang);
+			}
 
-			/*}*/
 			if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs")){
 				$heads[] = array('data' => 'Aksi ','colspan' => 2);
 
 			}
-				if (!in_array($offset,array("cetak","excel")) && $this->general_model->check_role($this->session->userdata('id_pegawai'),"akad") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"perp") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"keua") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")){
+			if (!in_array($offset,array("cetak","excel")) && $this->general_model->check_role($this->session->userdata('id_pegawai'),"akad") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"perp") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"keua") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")){
 				$heads[] = array('data' => ' Verifikasi ','colspan' => 2);
 			}else{
 
@@ -460,8 +503,21 @@ class Home extends CI_Controller {
 					$status = anchor('tigris/proposal_tesis/on/'.in_de(array('id_proposal_tesis' => $row->id_proposal_tesis,'status' =>1)),'<i class="fa fa-fw fa-toggle-off text-default" style="font-size:20px;"></i>');
 
 				}
-				//cek($row->id_proposal_tesis);
 				
+				$terakhir = 1;
+				$selesai = false;
+				foreach ($id_bidang_proposal as $id_bidang){
+					$cek_jmls = $this->general_model->datagrab(array('tabel'=>'ref_proposal_tesis','where'=>array('id_bidang'=>$id_bidang)))->num_rows();
+					$cek_bidang = $this->general_model->datagrab(array('tabel'=>'veri_proposal_tesis','where'=>array('id_proposal_tesis'=>@$row->id_proposal_tesis,'id_bidang'=>$id_bidang,'status_ver'=>1)))->num_rows();
+					$cek_bidang_tertolak = $this->general_model->datagrab(array('tabel'=>'veri_proposal_tesis','where'=>array('id_proposal_tesis'=>@$row->id_proposal_tesis,'id_bidang'=>$id_bidang,'status_ver'=>2)))->num_rows();
+				
+					if($cek_jmls-$cek_bidang <= 0 ){
+						$terakhir += 1;
+					}
+					if(sizeof($id_bidang_proposal) == $terakhir){
+						$selesai = true;
+					}
+				}
 
 
 				$id_pegawai = $this->session->userdata('id_pegawai');
@@ -472,37 +528,16 @@ class Home extends CI_Controller {
 
 				$cek_jml = $this->general_model->datagrab(array('tabel'=>'ref_proposal_tesis','where'=>array('id_bidang'=>@$id_bidang)))->num_rows();
 
-
-				$cek_jml_akademik = $this->general_model->datagrab(array('tabel'=>'ref_proposal_tesis','where'=>array('id_bidang'=>2)))->num_rows();
-
-
-				$cek_jml_perustakaan = $this->general_model->datagrab(array('tabel'=>'ref_proposal_tesis','where'=>array('id_bidang'=>3)))->num_rows();
-
-
-				$cek_jml_keuangan = $this->general_model->datagrab(array('tabel'=>'ref_proposal_tesis','where'=>array('id_bidang'=>4)))->num_rows();
-
-
 				$cek_jml2 = $this->general_model->datagrab(array('tabel'=>'veri_proposal_tesis','where'=>array('id_proposal_tesis'=>@$row->id_proposal_tesis,'id_bidang'=>@$id_bidang,'status_ver'=>1)))->num_rows();
-
-
-				$cek_akademik = $this->general_model->datagrab(array('tabel'=>'veri_proposal_tesis','where'=>array('id_proposal_tesis'=>@$row->id_proposal_tesis,'id_bidang'=>2,'status_ver'=>1)))->num_rows();
-
-
-				$cek_perustakaan = $this->general_model->datagrab(array('tabel'=>'veri_proposal_tesis','where'=>array('id_proposal_tesis'=>@$row->id_proposal_tesis,'id_bidang'=>3,'status_ver'=>1)))->num_rows();
-
-
-				$cek_keuangan = $this->general_model->datagrab(array('tabel'=>'veri_proposal_tesis','where'=>array('id_proposal_tesis'=>@$row->id_proposal_tesis,'id_bidang'=>4,'status_ver'=>1)))->num_rows();
 
 
 				$cek_status_pt = $this->general_model->datagrab(array('tabel'=>'proposal_tesis','where'=>array('id_proposal_tesis'=>@$row->id_proposal_tesis)))->row();
 
-
-				
-					$cek_jdl = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$row->id_mahasiswa,'judul_tesis'=>$row->judul_tesis)))->row();
+				$cek_jdl = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$row->id_mahasiswa,'judul_tesis'=>$row->judul_tesis)))->row();
 
 					
 
-				if($cek_jml_akademik==$cek_akademik AND $cek_jml_perustakaan==$cek_perustakaan  AND $cek_jml_keuangan==$cek_keuangan) {
+				if($selesai) {
 					
 					$warna = 'background-color:#eee;color:#222;';
 				}elseif(@$cek_jdl->status_pj ==  1 AND @$cek_jdl->status_tesis == 0 AND @$cek_jdl->status_n_pj == 1){
@@ -514,12 +549,7 @@ class Home extends CI_Controller {
 					$warna = 'background-color:#FFFFD1;color:#605A01;';
 					
 				}
-
-
-
-
 				$rows[] = 	array('data'=>$no,'style'=>''.$warna.';text-align:center');
-				/*$rows[] = 	$row->kode_Proposal Tesis;*/
 				$rows[] = array(
 					'data' => $row->judul_tesis,
 					'style'=>$warna);
@@ -529,18 +559,35 @@ class Home extends CI_Controller {
 				$rows[] = array(
 					'data' => $row->nama_program_konsentrasi,
 					'style'=>$warna);
-				/*if($this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")){*/
-					$rows[] = 	((($cek_jml_akademik-$cek_akademik) == 0) ? '<i class="fa fa-check" style="color:blue"></i>' : ' dalam Proses');
-				$rows[] = 	((($cek_jml_perustakaan-$cek_perustakaan) == 0) ? '<i class="fa fa-check" style="color:blue"></i>' : ' dalam Proses');
-				$rows[] = 	((($cek_jml_keuangan-$cek_keuangan) == 0) ? '<i class="fa fa-check" style="color:blue"></i>' : ' dalam Proses');
-				$rows[] = 	((($cek_jml_akademik==$cek_akademik) AND ($cek_jml_perustakaan==$cek_perustakaan) AND ($cek_jml_keuangan==$cek_keuangan) AND $cek_jml==$cek_jml2) ? (($cek_status_pt->status_pt != 1)? '<span class="blink_me">dalam proses</div>' : '<i class="fa fa-check" style="color:blue"></i>') : 'Belum di verifikasi semua bidang');
-				/*$rows[] = 	((($cek_jml_keuangan-$cek_keuangan) == 0) ? '<i class="fa fa-check" style="color:blue"></i>' : ' dalam Proses');*/
+				foreach($id_bidang_proposal as $id_bidang){
 
-				// }
-				
+					$cek_jmls = $this->general_model->datagrab(array('tabel'=>'ref_proposal_tesis','where'=>array('id_bidang'=>$id_bidang)))->num_rows();
+					$cek_bidang = $this->general_model->datagrab(array('tabel'=>'veri_proposal_tesis','where'=>array('id_proposal_tesis'=>@$row->id_proposal_tesis,'id_bidang'=>$id_bidang,'status_ver'=>1)))->num_rows();
+					$cek_bidang_tertolak = $this->general_model->datagrab(array('tabel'=>'veri_proposal_tesis','where'=>array('id_proposal_tesis'=>@$row->id_proposal_tesis,'id_bidang'=>$id_bidang,'status_ver'=>2)))->num_rows();
+					
+					if(($cek_jmls-$cek_bidang) <= 0 ){
+						$return = '<i class="fa fa-check" style="color:blue"></i> Selesai';
+					}else if(($cek_jmls-$cek_bidang) != 0 && $cek_bidang_tertolak > 0){
+						$return = '<span class="badge badge-pill badge-danger"  style="background-color:red">Tertolak</span>';
+					}else{
+						if($id_bidang == 5){
+							$lolos_revisi = $this->general_model->datagrab(array('tabel'=>'veri_proposal_tesis','where'=>array('id_proposal_tesis'=>@$row->id_proposal_tesis,'id_bidang'=>$id_bidang,'status_ver'=>3)))->num_rows();
+							if($lolos_revisi){
+								$return = '<i class="fa fa-warning" style="color:orange"></i> Revisi';
+							}else{
+								$return = 'dalam Proses';
+							}
+						}else{
+							$return = 'dalam Proses';
+
+						}
+					}
+					$rows[] = $return;
+
+				}		
 				if (!in_array($offset,array("cetak","excel")) && $this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs")) {
-					$Verifikasi = anchor('#','<i class="fa fa-pencil"></i>', 'class="btn btn-xs btn-warning btn-edit btn-flat" act="'.site_url($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_proposal_tesis'=>$row->id_proposal_tesis))).'" title="Edit Data..."');
-					$ubah = anchor(site_url($this->dir.'/add_data/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_proposal_tesis'=>$row->id_proposal_tesis,'id_ref_semester'=>$row->id_ref_semester,'id_periode_pu'=>$row->id_periode_pu))),'<i class="fa fa-pencil"></i>', 'class="btn btn-xs btn-warning btn-editx btn-flat" act="" title="Edit Data..."');
+					$Verifikasi = anchor('#','<i class="fa fa-pencil"></i>', 'class="btn btn-xs btn-warning btn-edit btn-flat" act="'.site_url($this->dir.'/Proposal_tesis/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_proposal_tesis'=>$row->id_proposal_tesis))).'" title="Edit Data..."');
+					$ubah = anchor(site_url($this->dir.'/Proposal_tesis/add_data/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_proposal_tesis'=>$row->id_proposal_tesis,'id_ref_semester'=>$row->id_ref_semester,'id_periode_pu'=>$row->id_periode_pu))),'<i class="fa fa-pencil"></i>', 'class="btn btn-xs btn-warning btn-editx btn-flat" act="" title="Edit Data..."');
 					$hapus = anchor('#','<i class="fa fa-trash"></i>','class="btn btn-xs btn-flat btn-danger btn-delete" act="'.site_url($this->dir.'/delete_data/'.in_de(array('id_proposal_tesis'=>$row->id_proposal_tesis))).'" msg="Apakah anda yakin ingin menghapus data ini ?" title="klik untuk menghapus data"');
 
 					$cek_pengajuan_judulx = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$id_pegawai,'status_n_pj'=>2)))->num_rows();
@@ -562,19 +609,6 @@ class Home extends CI_Controller {
 					}else{
 						$rows[] = 	$ubah;
 					}
-
-					/*
-
-					if($cek_pengajuan_judulx > 0){
-
-						$rows[] = 	'data sudah di non aktifkan';
-					}else{
-						$rows[] = 	$ubah;
-					}*/
-
-					/*
-					$rows[] = 	$ubah;*/
-					$rows[] =((($cek_jml_akademik==$cek_akademik) OR ($cek_jml_perustakaan==$cek_perustakaan) OR ($cek_jml_keuangan==$cek_keuangan) OR $cek_jml==$cek_jml2) ? '' : $hapus);
 				}
 
 				$cek_jdl = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$row->id_mahasiswa,'judul_tesis'=>$row->judul_tesis)))->row();
@@ -583,33 +617,15 @@ class Home extends CI_Controller {
 
 				if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"akad") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"perp") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"keua")) {
 
-
-
-			
-			
-
-			
-					$verifikasi1 = anchor(site_url($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_proposal_tesis'=>$row->id_proposal_tesis))),'<i class="fa fa-list"></i>', 'class="btn btn-xs btn-primary  btn-flat" act="" title="Verifikasi data..."');
-
-
-				
-
+					$verifikasi1 = anchor(site_url($this->dir.'/Proposal_tesis/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_proposal_tesis'=>$row->id_proposal_tesis))),'<i class="fa fa-list"></i>', 'class="btn btn-xs btn-primary  btn-flat" act="" title="Verifikasi data..."');
 
 					if($cek_jml==$cek_jml2){
 						$rows[] = array('data' => 'SELESAI','style'=>$warna);
-
-				
-						//$rows[] = 'SELESAI';
 					}else{
 						$rows[] = array('data'=>$cek_jml-$cek_jml2.' belum di verifikasi','style'=>''.$warna.';text-align:center','class'=>'blink_me');
 					}
-					/*$rows[] = 	((($cek_jml==$cek_jml2)) ? 'SELESAI' : $cek_jml-$cek_jml2.' belum di verifikasi');
-*/
+
 					$cek_pengajuan_judulx = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$row->id_mahasiswa,'status_n_pj'=>2)))->num_rows();
-
-
-
-					
 
 					if(@$cek_jdl->status_pj ==  1 AND @$cek_jdl->status_tesis == 1 AND @$cek_jdl->status_n_pj == 2){
 						
@@ -624,71 +640,28 @@ class Home extends CI_Controller {
 					}else{
 						$rows[] = 	$verifikasi1;
 					}
-
-
-					/*if($cek_pengajuan_judulx > 0){
-
-						$rows[] = 	'data sudah di non aktifkan';
-					}else{
-						$rows[] = 	$verifikasi1;
-					}*/
 				}
-
-					
-					
 				if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")) {
 
-
-
-			
-			
 				$cek_pengajuan_judulx = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$row->id_mahasiswa,'status_n_pj'=>2)))->num_rows();
 
-					if($cek_jml_akademik==$cek_akademik AND $cek_jml_perustakaan==$cek_perustakaan  AND $cek_jml_keuangan==$cek_keuangan){
+					if($selesai){
+						if(@$cek_jdl->status_pj ==  1 AND @$cek_jdl->status_tesis == 1 AND @$cek_jdl->status_n_pj == 2){
+
+							$verifikasi22 = anchor(site_url($this->dir.'/Proposal_tesis/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_proposal_tesis'=>$row->id_proposal_tesis))),'<i class="fa fa-list"></i> ubah status', 'class="btn btn-xs btn-primary btn-flat" act="" title="Verifikasi data..."');
 						
-
-
-
-
-
-					if(@$cek_jdl->status_pj ==  1 AND @$cek_jdl->status_tesis == 1 AND @$cek_jdl->status_n_pj == 2){
-
-						$verifikasi22 = anchor(site_url($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_proposal_tesis'=>$row->id_proposal_tesis))),'<i class="fa fa-list"></i> ubah status', 'class="btn btn-xs btn-primary btn-flat" act="" title="Verifikasi data..."');
-					
-							if(@$cek_jdl->status_pj ==  1 AND @$cek_jdl->status_tesis == 0 AND @$cek_jdl->status_n_pj == 1){
-						
-								$rows[] = 	$verifikasi22;
-								
-							}else{
-								$rows[] = 	'data sudah di non aktifkan';
-							}
-						
-					}else{
-						$verifikasi22 = anchor(site_url($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_proposal_tesis'=>$row->id_proposal_tesis))),'<i class="fa fa-list"></i> Selesai', 'class="btn btn-xs btn-primary btn-flat" act="" title="Verifikasi data..."');
-						$rows[] = 	$verifikasi22;
-					}
-
-
-
-/*
-
-							if($row->status_pj ==  1 AND $row->status_tesis == 1 AND $row->status_n_pj == 2){
-									$verifikasi22 = anchor(site_url($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_pengajuan_judul'=>$row->id_pengajuan_judul))),'<i class="fa fa-list"></i> ubah status', 'class="btn btn-xs btn-primary btn-flat" act="" title="Verifikasi data..."');
-					
-
-									if($row->status_pj ==  1 AND $row->status_tesis == 0 AND $row->status_n_pj == 1){
-								
-										$rows[] = 	$verifikasi22;
-										
-									}else{
-										$rows[] = 	'data sudah di non aktifkan '.$verifikasi22;
-									}
-								
-							}else{
-								$verifikasi2 = anchor(site_url($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_pengajuan_judul'=>$row->id_pengajuan_judul))),'<i class="fa fa-list"></i>', 'class="btn btn-xs btn-primary btn-flat" act="" title="Verifikasi data..."');
-					
-								$rows[] = 	$verifikasi2;
-							}*/
+								if(@$cek_jdl->status_pj ==  1 AND @$cek_jdl->status_tesis == 0 AND @$cek_jdl->status_n_pj == 1){
+							
+									$rows[] = 	$verifikasi22;
+									
+								}else{
+									$rows[] = 	'data sudah di non aktifkan';
+								}
+							
+						}else{
+							$verifikasi22 = anchor(site_url($this->dir.'/Proposal_tesis/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_proposal_tesis'=>$row->id_proposal_tesis))),'<i class="fa fa-list"></i> Selesai', 'class="btn btn-xs btn-primary btn-flat" act="" title="Verifikasi data..."');
+							$rows[] = 	$verifikasi22;
+						}
 					}else{
 						
 
@@ -698,19 +671,12 @@ class Home extends CI_Controller {
 				$no++;
 				$m += 1;
 			}
-			// cek($data_pt);
+			
 			$tabel_pt = $this->table->generate();
 		}else{
 			$tabel_pt = '<div class="alert">Data masih kosong ...</div>';
 		}
 		$data['tabel_pt'] = $tabel_pt;
-		//data proposal tesis mahasiswa
-
-
-
-
-		//data seminar hasil penelitian mahasiswa
-
 		$from_7 = array(
 			'seminar_hp a' => '',
 			'peg_pegawai b' => array('b.id_pegawai = a.id_mahasiswa','left'),
@@ -841,7 +807,7 @@ class Home extends CI_Controller {
 				
 				if (!in_array($offset,array("cetak","excel")) && $this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs")) {
 					$Verifikasi = anchor('#','<i class="fa fa-pencil"></i>', 'class="btn btn-xs btn-warning btn-edit btn-flat" act="'.site_url($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_seminar_hp'=>$row->id_seminar_hp))).'" title="Edit Data..."');
-					$ubah = anchor(site_url($this->dir.'/add_data/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_seminar_hp'=>$row->id_seminar_hp,'id_ref_semester'=>$row->id_ref_semester,'id_periode_pu'=>$row->id_periode_pu))),'<i class="fa fa-pencil"></i>', 'class="btn btn-xs btn-warning btn-editx btn-flat" act="" title="Edit Data..."');
+					$ubah = anchor(site_url($this->dir.'add_data/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_seminar_hp'=>$row->id_seminar_hp,'id_ref_semester'=>$row->id_ref_semester,'id_periode_pu'=>$row->id_periode_pu))),'<i class="fa fa-pencil"></i>', 'class="btn btn-xs btn-warning btn-editx btn-flat" act="" title="Edit Data..."');
 					$hapus = anchor('#','<i class="fa fa-trash"></i>','class="btn btn-xs btn-flat btn-danger btn-delete" act="'.site_url($this->dir.'/delete_data/'.in_de(array('id_seminar_hp'=>$row->id_seminar_hp))).'" msg="Apakah anda yakin ingin menghapus data ini ?" title="klik untuk menghapus data"');
 
 					$cek_pengajuan_judulx = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$id_pegawai,'status_n_pj'=>2)))->num_rows();
@@ -894,7 +860,7 @@ class Home extends CI_Controller {
 						$rows[] = array('data'=>$cek_jml-$cek_jml2.' belum di verifikasi','style'=>'text-align:center','class'=>'blink_me');
 					}/*
 					$rows[] = 	((($cek_jml==$cek_jml2)) ? 'SELESAI' : '<span class="blink_me">'.$cek_jml-$cek_jml2.'belum di verifikasi</div>');
-*/
+
 					$cek_pengajuan_judulx = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$row->id_mahasiswa,'status_n_pj'=>2)))->num_rows();
 
 
@@ -928,18 +894,10 @@ class Home extends CI_Controller {
 					
 				if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")) {
 
-
-
-			
-			
-				$cek_pengajuan_judulx = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$row->id_mahasiswa,'status_n_pj'=>2)))->num_rows();
+					$cek_pengajuan_judulx = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$row->id_mahasiswa,'status_n_pj'=>2)))->num_rows();
 
 					if($cek_jml_akademik==$cek_akademik AND $cek_jml_perustakaan==$cek_perustakaan  AND $cek_jml_keuangan==$cek_keuangan){
 						
-
-
-
-
 
 					if(@$cek_jdl->status_pj ==  1 AND @$cek_jdl->status_tesis == 1 AND @$cek_jdl->status_n_pj == 2){
 
@@ -960,25 +918,7 @@ class Home extends CI_Controller {
 
 
 
-/*
 
-							if($row->status_pj ==  1 AND $row->status_tesis == 1 AND $row->status_n_pj == 2){
-									$verifikasi22 = anchor(site_url($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_pengajuan_judul'=>$row->id_pengajuan_judul))),'<i class="fa fa-list"></i> ubah status', 'class="btn btn-xs btn-primary btn-flat" act="" title="Verifikasi data..."');
-					
-
-									if($row->status_pj ==  1 AND $row->status_tesis == 0 AND $row->status_n_pj == 1){
-								
-										$rows[] = 	$verifikasi22;
-										
-									}else{
-										$rows[] = 	'data sudah di non aktifkan '.$verifikasi22;
-									}
-								
-							}else{
-								$verifikasi2 = anchor(site_url($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_pengajuan_judul'=>$row->id_pengajuan_judul))),'<i class="fa fa-list"></i>', 'class="btn btn-xs btn-primary btn-flat" act="" title="Verifikasi data..."');
-					
-								$rows[] = 	$verifikasi2;
-							}*/
 					}else{
 						
 
@@ -994,13 +934,6 @@ class Home extends CI_Controller {
 		}
 
 		$data['tabel_shp'] = $tabel_shp;
-		//data seminar hasil penelitian mahasiswa
-
-
-
-
-
-		//data tesis mahasiswa
 		$from_8 = array(
 			'tesis a' => '',
 			'peg_pegawai b' => array('b.id_pegawai = a.id_mahasiswa','left'),
@@ -1018,13 +951,19 @@ class Home extends CI_Controller {
 		if ($data_t->num_rows() > 0) {
 			$heads = array('No','Judul Tesis','Mahasiswa','Kelas');
 
-			/*if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")){*/
-				$heads[] = array('data' => 'Akademik');
-				$heads[] = array('data' => 'Perpustakaan');
-				$heads[] = array('data' => 'Keuangan');
-				$heads[] = array('data' => 'Pimpinan');
+			$urutan_bidang = $this->general_model->datagrabs([
+				'tabel' => [
+					'ref_bidang_ujian_tesis a' => '',
+					'ref_bidang bidang' => 'a.id_ref_bidang = bidang.id_bidang'
+				],
+				'select' => 'bidang.id_bidang,bidang.nama_bidang',
+				'order' => 'a.urut ASC'
+			])->result();
 
-			/*}*/
+			foreach($urutan_bidang as $key => $bidang){
+				$id_bidang_tesis[] = $bidang->id_bidang;
+				$heads[] = array('data' => $bidang->nama_bidang);
+			}
 			if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs")){
 				$heads[] = array('data' => 'Aksi ','colspan' => 2);
 
@@ -1061,38 +1000,26 @@ class Home extends CI_Controller {
 				$cek_jml = $this->general_model->datagrab(array('tabel'=>'ref_tesis','where'=>array('id_bidang'=>@$id_bidang)))->num_rows();
 
 
-				$cek_jml_akademik = $this->general_model->datagrab(array('tabel'=>'ref_tesis','where'=>array('id_bidang'=>2)))->num_rows();
-
-
-				$cek_jml_perustakaan = $this->general_model->datagrab(array('tabel'=>'ref_tesis','where'=>array('id_bidang'=>3)))->num_rows();
-
-
-				$cek_jml_keuangan = $this->general_model->datagrab(array('tabel'=>'ref_tesis','where'=>array('id_bidang'=>4)))->num_rows();
-
-
 				$cek_jml2 = $this->general_model->datagrab(array('tabel'=>'veri_tesis','where'=>array('id_tesis'=>@$row->id_tesis,'id_bidang'=>@$id_bidang,'status_ver'=>1)))->num_rows();
-
-
-				$cek_akademik = $this->general_model->datagrab(array('tabel'=>'veri_tesis','where'=>array('id_tesis'=>@$row->id_tesis,'id_bidang'=>2,'status_ver'=>1)))->num_rows();
-
-
-				$cek_perustakaan = $this->general_model->datagrab(array('tabel'=>'veri_tesis','where'=>array('id_tesis'=>@$row->id_tesis,'id_bidang'=>3,'status_ver'=>1)))->num_rows();
-
-
-				$cek_keuangan = $this->general_model->datagrab(array('tabel'=>'veri_tesis','where'=>array('id_tesis'=>@$row->id_tesis,'id_bidang'=>4,'status_ver'=>1)))->num_rows();
-
 
 				$cek_status_t = $this->general_model->datagrab(array('tabel'=>'tesis','where'=>array('id_tesis'=>@$row->id_tesis)))->row();
 
-
-
-
 				$cek_jdl = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$row->id_mahasiswa,'judul_tesis'=>$row->judul_tesis)))->row();
+				$terakhir = 1;
+				$selesai = false;
+				foreach ($id_bidang_tesis as $id_bidang){
+					$cek_jmls = $this->general_model->datagrab(array('tabel'=>'ref_tesis','where'=>array('id_bidang'=>$id_bidang)))->num_rows();
+					$cek_bidang = $this->general_model->datagrab(array('tabel'=>'veri_tesis','where'=>array('id_tesis'=>@$row->id_tesis,'id_bidang'=>$id_bidang,'status_ver'=>1)))->num_rows();
+					$cek_bidang_tertolak = $this->general_model->datagrab(array('tabel'=>'veri_tesis','where'=>array('id_tesis'=>@$row->id_tesis,'id_bidang'=>$id_bidang,'status_ver'=>2)))->num_rows();
 
-					
-
-					
-				if($cek_jml_akademik==$cek_akademik AND $cek_jml_perustakaan==$cek_perustakaan  AND $cek_jml_keuangan==$cek_keuangan) {
+					if($cek_jmls-$cek_bidang <= 0 ){
+						$terakhir += 1;
+					}
+					if(sizeof($id_bidang_tesis) == $terakhir){
+						$selesai = true;
+					}
+				}
+				if($selesai) {
 					
 					$warna = 'background-color:#eee;color:#222;';
 				}elseif(@$cek_jdl->status_pj ==  1 AND @$cek_jdl->status_tesis == 0 AND @$cek_jdl->status_n_pj == 1){
@@ -1106,7 +1033,6 @@ class Home extends CI_Controller {
 				}
 
 				$rows[] = 	array('data'=>$no,'style'=>''.$warna.';text-align:center');
-				/*$rows[] = 	$row->kode_Seminar Hasil Penelitian;*/
 				$rows[] = array(
 					'data' => $row->judul_tesis,
 					'style'=>$warna);
@@ -1116,18 +1042,67 @@ class Home extends CI_Controller {
 				$rows[] = array(
 					'data' => $row->nama_program_konsentrasi,
 					'style'=>$warna);
-				/*if($this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")){*/
-					$rows[] = 	((($cek_jml_akademik-$cek_akademik) == 0) ? '<i class="fa fa-check" style="color:blue"></i>' : ' dalam Proses');
-				$rows[] = 	((($cek_jml_perustakaan-$cek_perustakaan) == 0) ? '<i class="fa fa-check" style="color:blue"></i>' : ' dalam Proses');
-				$rows[] = 	((($cek_jml_keuangan-$cek_keuangan) == 0) ? '<i class="fa fa-check" style="color:blue"></i>' : ' dalam Proses');
-				$rows[] = 	((($cek_jml_akademik==$cek_akademik) AND ($cek_jml_perustakaan==$cek_perustakaan) AND ($cek_jml_keuangan==$cek_keuangan) AND $cek_jml==$cek_jml2) ? (($cek_status_t->status_t != 1)? '<span class="blink_me">dalam proses</div>' : '<i class="fa fa-check" style="color:blue"></i>') : 'Belum di verifikasi semua bidang');
-				/*$rows[] = 	((($cek_jml_keuangan-$cek_keuangan) == 0) ? '<i class="fa fa-check" style="color:blue"></i>' : ' dalam Proses');*/
+				foreach($id_bidang_tesis as $id_bidang){
+					// $rows[] = $return;
 
-				// }
-				
+					$cek_jmls = $this->general_model->datagrab(array('tabel'=>'ref_tesis','where'=>array('id_bidang'=>$id_bidang)))->num_rows();
+					$cek_bidang = $this->general_model->datagrab(array('tabel'=>'veri_tesis','where'=>array('id_tesis'=>@$row->id_tesis,'id_bidang'=>$id_bidang,'status_ver'=>1)))->num_rows();
+					$cek_bidang_tertolak = $this->general_model->datagrab(array('tabel'=>'veri_tesis','where'=>array('id_tesis'=>@$row->id_tesis,'id_bidang'=>$id_bidang,'status_ver'=>2)))->num_rows();
+					
+					if(($cek_jmls-$cek_bidang) <= 0 ){
+						$return = '<i class="fa fa-check" style="color:blue"></i> Selesai';
+
+					}else if(($cek_jmls-$cek_bidang) != 0 && $cek_bidang_tertolak > 0){
+						$return = '<span class="badge badge-pill badge-danger"  style="background-color:red">Tertolak</span>';
+					}else{
+						if($this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs")){
+							$return = 'dalam Proses';
+						}else{
+							
+							//sudah upload
+							$sudah_upload = $this->general_model->datagrabs([
+								'tabel' => [
+									'mhs_tesis mhs' => '',
+									'ref_tesis syarat' => ['mhs.id_ref_tesis = syarat.id_ref_tesis','left'] ,
+								],'where' => [
+									'mhs.id_mahasiswa' => $row->id_mahasiswa,
+									'syarat.id_bidang' => $id_bidang
+								],
+								'select' => 'mhs.id_ref_tesis'
+							]);
+							$sudah_diverif = $this->general_model->datagrabs([
+								'tabel' => 'veri_tesis',
+								'where' => [
+									'id_mahasiswa' => $row->id_mahasiswa,
+									'id_bidang' => $id_bidang
+								],
+								'select' => 'distinct id_ref_tesis'
+							]);
+							
+							if($sudah_upload->num_rows() > 0 ){
+								if($this->general_model->check_bidang($this->session->userdata('id_pegawai'))->id_bidang == $id_bidang){
+									$menunggu = true;
+
+									$syarat_menunggu = $sudah_upload->num_rows()-$sudah_diverif->num_rows();
+								}
+								$return = $sudah_upload->num_rows()-$sudah_diverif->num_rows(). ' Syarat Menunggu';
+
+								if($sudah_upload->num_rows()-$sudah_diverif->num_rows() == 0){
+									$return = 'Menunggu';
+
+								}
+							}else{
+								$return = 'Menunggu Proses';
+							}
+						}
+					}
+					// $rows[] = $return . 'id_bidang : ' . $id_bidang ;
+					$rows[] = $return;
+
+				}
 				if (!in_array($offset,array("cetak","excel")) && $this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs")) {
-					$Verifikasi = anchor('#','<i class="fa fa-pencil"></i>', 'class="btn btn-xs btn-warning btn-edit btn-flat" act="'.site_url($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_tesis'=>$row->id_tesis))).'" title="Edit Data..."');
-					$ubah = anchor(site_url($this->dir.'/add_data/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_tesis'=>$row->id_tesis,'id_ref_semester'=>$row->id_ref_semester,'id_periode_pu'=>$row->id_periode_pu))),'<i class="fa fa-pencil"></i>', 'class="btn btn-xs btn-warning btn-editx btn-flat" act="" title="Edit Data..."');
+					$Verifikasi = anchor('#','<i class="fa fa-pencil"></i>', 'class="btn btn-xs btn-warning btn-edit btn-flat" act="'.site_url($this->dir.'/Tesis/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_tesis'=>$row->id_tesis))).'" title="Edit Data..."');
+					$ubah = anchor(site_url($this->dir.'/Tesis/add_data/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_tesis'=>$row->id_tesis,'id_ref_semester'=>$row->id_ref_semester,'id_periode_pu'=>$row->id_periode_pu))),'<i class="fa fa-pencil"></i>', 'class="btn btn-xs btn-warning btn-editx btn-flat" act="" title="Edit Data..."');
 					$hapus = anchor('#','<i class="fa fa-trash"></i>','class="btn btn-xs btn-flat btn-danger btn-delete" act="'.site_url($this->dir.'/delete_data/'.in_de(array('id_tesis'=>$row->id_tesis))).'" msg="Apakah anda yakin ingin menghapus data ini ?" title="klik untuk menghapus data"');
 
 					$cek_pengajuan_judulx = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$id_pegawai,'status_n_pj'=>2)))->num_rows();
@@ -1149,19 +1124,6 @@ class Home extends CI_Controller {
 					}else{
 						$rows[] = 	$ubah;
 					}
-
-					/*
-
-					if($cek_pengajuan_judulx > 0){
-
-						$rows[] = 	'data sudah di non aktifkan';
-					}else{
-						$rows[] = 	$ubah;
-					}*/
-
-					/*
-					$rows[] = 	$ubah;*/
-					$rows[] =((($cek_jml_akademik==$cek_akademik) OR ($cek_jml_perustakaan==$cek_perustakaan) OR ($cek_jml_keuangan==$cek_keuangan) OR $cek_jml==$cek_jml2) ? '' : $hapus);
 				}
 
 				$cek_jdl = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$row->id_mahasiswa,'judul_tesis'=>$row->judul_tesis)))->row();
@@ -1170,20 +1132,12 @@ class Home extends CI_Controller {
 
 				if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"akad") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"perp") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"keua")) {
 
-
-
-			
-			
-
-			
-					$verifikasi1 = anchor(site_url($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_tesis'=>$row->id_tesis))),'<i class="fa fa-list"></i>', 'class="btn btn-xs btn-primary  btn-flat" act="" title="Verifikasi data..."');
+					$verifikasi1 = anchor(site_url($this->dir.'/Tesis/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_tesis'=>$row->id_tesis))),'<i class="fa fa-list"></i>', 'class="btn btn-xs btn-primary  btn-flat" act="" title="Verifikasi data..."');
 					if($cek_jml==$cek_jml2){
 						$rows[] = 'SELESAI';
 					}else{
 						$rows[] = array('data'=>$cek_jml-$cek_jml2.' belum di verifikasi','style'=>'text-align:center','class'=>'blink_me');
-					}/*
-					$rows[] = 	((($cek_jml==$cek_jml2)) ? 'SELESAI' : $cek_jml-$cek_jml2.' belum di verifikasi');
-*/
+					}
 					$cek_pengajuan_judulx = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$row->id_mahasiswa,'status_n_pj'=>2)))->num_rows();
 
 
@@ -1223,51 +1177,23 @@ class Home extends CI_Controller {
 			
 				$cek_pengajuan_judulx = $this->general_model->datagrab(array('tabel'=>'pengajuan_judul','where'=>array('id_mahasiswa'=>@$row->id_mahasiswa,'status_n_pj'=>2)))->num_rows();
 
-					if($cek_jml_akademik==$cek_akademik AND $cek_jml_perustakaan==$cek_perustakaan  AND $cek_jml_keuangan==$cek_keuangan){
+					if($selesai){
+						if(@$cek_jdl->status_pj ==  1 AND @$cek_jdl->status_tesis == 1 AND @$cek_jdl->status_n_pj == 2){
+
+							$verifikasi22 = anchor(site_url($this->dir.'/Tesis/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_tesis'=>$row->id_tesis))),'<i class="fa fa-list"></i> ubah status', 'class="btn btn-xs btn-primary btn-flat" act="" title="Verifikasi data..."');
 						
-
-
-
-
-
-					if(@$cek_jdl->status_pj ==  1 AND @$cek_jdl->status_tesis == 1 AND @$cek_jdl->status_n_pj == 2){
-
-						$verifikasi22 = anchor(site_url($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_tesis'=>$row->id_tesis))),'<i class="fa fa-list"></i> ubah status', 'class="btn btn-xs btn-primary btn-flat" act="" title="Verifikasi data..."');
-					
-							if(@$cek_jdl->status_pj ==  1 AND @$cek_jdl->status_tesis == 0 AND @$cek_jdl->status_n_pj == 1){
-						
-								$rows[] = 	$verifikasi22;
-								
-							}else{
-								$rows[] = 	'data sudah di non aktifkan';
-							}
-						
-					}else{
-						$verifikasi22 = anchor(site_url($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_tesis'=>$row->id_tesis))),'<i class="fa fa-list"></i> Selesai', 'class="btn btn-xs btn-primary btn-flat" act="" title="Verifikasi data..."');
-						$rows[] = 	$verifikasi22;
-					}
-
-
-
-/*
-
-							if($row->status_pj ==  1 AND $row->status_tesis == 1 AND $row->status_n_pj == 2){
-									$verifikasi22 = anchor(site_url($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_pengajuan_judul'=>$row->id_pengajuan_judul))),'<i class="fa fa-list"></i> ubah status', 'class="btn btn-xs btn-primary btn-flat" act="" title="Verifikasi data..."');
-					
-
-									if($row->status_pj ==  1 AND $row->status_tesis == 0 AND $row->status_n_pj == 1){
-								
-										$rows[] = 	$verifikasi22;
-										
-									}else{
-										$rows[] = 	'data sudah di non aktifkan '.$verifikasi22;
-									}
-								
-							}else{
-								$verifikasi2 = anchor(site_url($this->dir.'/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_pengajuan_judul'=>$row->id_pengajuan_judul))),'<i class="fa fa-list"></i>', 'class="btn btn-xs btn-primary btn-flat" act="" title="Verifikasi data..."');
-					
-								$rows[] = 	$verifikasi2;
-							}*/
+								if(@$cek_jdl->status_pj ==  1 AND @$cek_jdl->status_tesis == 0 AND @$cek_jdl->status_n_pj == 1){
+							
+									$rows[] = 	$verifikasi22;
+									
+								}else{
+									$rows[] = 	'data sudah di non aktifkan';
+								}
+							
+						}else{
+							$verifikasi22 = anchor(site_url($this->dir.'/Tesis/verifikasi/'.in_de(array('id_mahasiswa'=>$row->id_mahasiswa,'id_tesis'=>$row->id_tesis))),'<i class="fa fa-list"></i> Selesai', 'class="btn btn-xs btn-primary btn-flat" act="" title="Verifikasi data..."');
+							$rows[] = 	$verifikasi22;
+						}
 					}else{
 						
 

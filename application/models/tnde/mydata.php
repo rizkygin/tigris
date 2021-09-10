@@ -220,7 +220,7 @@
             $q=$this->db->get_where($tname,$where);
             $dt['td']=$q->result('array');
         }*/
-        $dt['fl']=array_replace($dt['th'],!empty(=$this->da_listr($no,'ff')?$this->da_listr($no,'ff'):array()));
+        $dt['fl']=array_replace($dt['th'],!empty($this->da_listr($no,'ff')?$this->da_listr($no,'ff'):array()));
         $dt['atr']=$this->get_attr($nod);
         return $dt;
     }
@@ -314,7 +314,7 @@
     }
 
     public function get_cmtbl($nod,$flt='11',$where="",$pilihawal=''){
-        $adacmb=!empty(= $this->get_da('cmb',$nod));
+        $adacmb=!empty($this->get_da('cmb',$nod));
         if($adacmb)$flt=$this->get_da('cmb',$nod);
         if($td0=$this->get_tabel($nod,$flt,$where)){
             $td2=array();

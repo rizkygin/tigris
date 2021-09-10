@@ -3,6 +3,7 @@
 class Penjadwalan_tesis extends CI_Controller {
 	var $dir = 'tigris/Penjadwalan_tesis';
 	function __construct() {
+		
 		parent::__construct();
 		$this->load->helper('cmd');
 		if (not_login(uri_string()))redirect('login');
@@ -18,6 +19,12 @@ class Penjadwalan_tesis extends CI_Controller {
 		}else{
 			$this->where = array();
 		}
+		$this->db->query('SET SESSION sql_mode =
+		                  REPLACE(REPLACE(REPLACE(
+		                  @@sql_mode,
+		                  "ONLY_FULL_GROUP_BY,", ""),
+		                  ",ONLY_FULL_GROUP_BY", ""),
+		                  "ONLY_FULL_GROUP_BY", "")');
 	}
 
 	function cr($e) {
@@ -893,7 +900,12 @@ die();*/
     }
 
     function save_verifikasi(){
-    	if($this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")){
+		$bidang_yang_menangani_syarat_terakhir  = $this->general_model->datagrabs([
+			'tabel' => 'ref_bidang_ujian_tesis',
+			'limit' => 1,
+			'order' => 'urut DESC',
+		])->row();
+    	if($this->general_model->check_bidang($this->session->userdata('id_pegawai'))->id_bidang == $bidang_yang_menangani_syarat_terakhir->id_bidang){
 
 			$id_tesis = $this->input->post('id_tesis');
 			$id_penguji_1 = $this->input->post('id_penguji_1');

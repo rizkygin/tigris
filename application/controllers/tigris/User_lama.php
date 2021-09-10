@@ -22,6 +22,7 @@ class User extends CI_Controller {
 
 	function __construct() {
 	
+		
 		parent::__construct();
 		login_check($this->session->userdata('login_state'));
 		
@@ -30,6 +31,12 @@ class User extends CI_Controller {
 		))->row();
 		$this->in_app = !empty($app_std->nama_aplikasi) ? $app_std->nama_aplikasi : 'Root';
 
+		$this->db->query('SET SESSION sql_mode =
+		                  REPLACE(REPLACE(REPLACE(
+		                  @@sql_mode,
+		                  "ONLY_FULL_GROUP_BY,", ""),
+		                  ",ONLY_FULL_GROUP_BY", ""),
+		                  "ONLY_FULL_GROUP_BY", "")');
 	}
 	
 	public function index(){

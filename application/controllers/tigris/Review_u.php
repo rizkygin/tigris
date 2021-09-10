@@ -5,10 +5,17 @@ Class Review_u extends CI_Controller{
     var $dir = 'tigris/Review_u';
 
     function __construct() {
+        
         parent::__construct();
         $this->load->helper('cmd');
         if (not_login(uri_string()))redirect('login');
         date_default_timezone_set('Asia/Jakarta');
+        $this->db->query('SET SESSION sql_mode =
+		                  REPLACE(REPLACE(REPLACE(
+		                  @@sql_mode,
+		                  "ONLY_FULL_GROUP_BY,", ""),
+		                  ",ONLY_FULL_GROUP_BY", ""),
+		                  "ONLY_FULL_GROUP_BY", "")');
        
     }
     function index(){

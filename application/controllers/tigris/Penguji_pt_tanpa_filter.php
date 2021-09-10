@@ -4,6 +4,12 @@ class Penguji_pt extends CI_Controller{
     var $dir = 'tigris/Penguji_pt';
 	function __construct() {
 		parent::__construct();
+		$this->db->query('SET SESSION sql_mode =
+		                  REPLACE(REPLACE(REPLACE(
+		                  @@sql_mode,
+		                  "ONLY_FULL_GROUP_BY,", ""),
+		                  ",ONLY_FULL_GROUP_BY", ""),
+		                  "ONLY_FULL_GROUP_BY", "")');
 		$this->load->helper('cmd');
 		if (not_login(uri_string()))redirect('login');
 		date_default_timezone_set('Asia/Jakarta');

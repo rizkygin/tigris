@@ -7,12 +7,19 @@ class unit extends CI_Controller {
 
 	function __construct() {
 	
+		
 		parent::__construct();
 		login_check($this->session->userdata('login_state'));
 		
 		$this->in_app = $this->general_model->datagrab(array(
 			'tabel' => 'ref_aplikasi','where' => array('folder' => $this->uri->segment(1))
 		))->row()->nama_aplikasi;
+		$this->db->query('SET SESSION sql_mode =
+		                  REPLACE(REPLACE(REPLACE(
+		                  @@sql_mode,
+		                  "ONLY_FULL_GROUP_BY,", ""),
+		                  ",ONLY_FULL_GROUP_BY", ""),
+		                  "ONLY_FULL_GROUP_BY", "")');
 	
 	}
 	

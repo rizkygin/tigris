@@ -3,11 +3,18 @@
 class Pengajuan_judul extends CI_Controller {
 	var $dir = 'tigris/Pengajuan_judul';
 	function __construct() {
+		
 		parent::__construct();
 		$this->load->helper('cmd');
 		if (not_login(uri_string()))redirect('login');
 		date_default_timezone_set('Asia/Jakarta');
 		$id_pegawai = $this->session->userdata('id_pegawai');
+		$this->db->query('SET SESSION sql_mode =
+		                  REPLACE(REPLACE(REPLACE(
+		                  @@sql_mode,
+		                  "ONLY_FULL_GROUP_BY,", ""),
+		                  ",ONLY_FULL_GROUP_BY", ""),
+		                  "ONLY_FULL_GROUP_BY", "")');
 	}
 
 	function cr($e) {
