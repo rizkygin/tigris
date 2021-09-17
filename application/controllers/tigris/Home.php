@@ -85,7 +85,7 @@ class Home extends CI_Controller {
 		$from_1 = array(
 			'pengajuan_judul a' => '',
 			'peg_pegawai b' => array('b.id_pegawai = a.id_mahasiswa','left'),
-			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_program_studi','left')
+			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_konsentrasi','left')
 		);
 		$select = 'a.*,a.id_ref_program_konsentrasi as s,a.judul_tesis as xx,b.*,c.*,c.id_ref_program_konsentrasi as ss,c.nama_program_konsentrasi';
 		$data['jmlh_pj'] = $this->general_model->datagrab(array('tabel'=>$from_1,'select'=>$select,'where'=>array('a.status_n_pj'=>1),'order'=>'a.id_pengajuan_judul DESC'));
@@ -94,7 +94,7 @@ class Home extends CI_Controller {
 		$from_2 = array(
 			'proposal_tesis a' => '',
 			'peg_pegawai b' => array('b.id_pegawai = a.id_mahasiswa','left'),
-			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_program_studi','left')
+			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_konsentrasi','left')
 		);
 		$select = 'a.*,a.id_ref_program_konsentrasi as s,a.judul_tesis as xx,b.*,c.*,c.id_ref_program_konsentrasi as ss,c.nama_program_konsentrasi';
 		$data['jmlh_pt'] = $this->general_model->datagrab(array('tabel'=>$from_2,'select'=>$select,'where'=>array('a.status_n_pt'=>1)));
@@ -102,7 +102,7 @@ class Home extends CI_Controller {
 		$from_3 = array(
 			'seminar_hp a' => '',
 			'peg_pegawai b' => array('b.id_pegawai = a.id_mahasiswa','left'),
-			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_program_studi','left')
+			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_konsentrasi','left')
 		);
 		$select = 'a.*,a.id_ref_program_konsentrasi as s,a.judul_tesis as xx,b.*,c.*,c.id_ref_program_konsentrasi as ss,c.nama_program_konsentrasi';
 		$data['jmlh_shp'] = $this->general_model->datagrab(array('tabel'=>$from_3,'select'=>$select,'where'=>array('a.status_n_shp'=>1)));
@@ -110,7 +110,7 @@ class Home extends CI_Controller {
 		$from_4 = array(
 			'tesis a' => '',
 			'peg_pegawai b' => array('b.id_pegawai = a.id_mahasiswa','left'),
-			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_program_studi','left')
+			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_konsentrasi','left')
 		);
 		$select = 'a.*,a.id_ref_program_konsentrasi as s,a.judul_tesis as xx,b.*,c.*,c.id_ref_program_konsentrasi as ss,c.nama_program_konsentrasi';
 		$data['jmlh_t'] = $this->general_model->datagrab(array('tabel'=>$from_4,'select'=>$select,'where'=>array('a.status_n_t'=>1)));
@@ -125,7 +125,7 @@ class Home extends CI_Controller {
 		$from_1 = array(
 			'pengajuan_judul a' => '',
 			'peg_pegawai b' => array('b.id_pegawai = a.id_mahasiswa','left'),
-			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_program_studi','left')
+			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_konsentrasi','left')
 		);
 		$select = 'a.*,a.id_ref_program_konsentrasi as s,a.judul_tesis as xx,b.*,c.*,c.id_ref_program_konsentrasi as ss,c.nama_program_konsentrasi';
 		$data['jmlh_p_pj'] = $this->general_model->datagrab(array('tabel'=>$from_1,'select'=>$select,'where'=>array('a.status_n_pj'=>NULL),'order'=>'a.id_pengajuan_judul DESC'));
@@ -134,7 +134,7 @@ class Home extends CI_Controller {
 		$from_2 = array(
 			'proposal_tesis a' => '',
 			'peg_pegawai b' => array('b.id_pegawai = a.id_mahasiswa','left'),
-			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_program_studi','left')
+			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_konsentrasi','left')
 		);
 		$select = 'a.*,a.id_ref_program_konsentrasi as s,a.judul_tesis as xx,b.*,c.*,c.id_ref_program_konsentrasi as ss,c.nama_program_konsentrasi';
 		$data['jmlh_p_pt'] = $this->general_model->datagrab(array('tabel'=>$from_2,'select'=>$select,'where'=>array('a.status_n_pt'=>0)));
@@ -142,7 +142,7 @@ class Home extends CI_Controller {
 		$from_3 = array(
 			'seminar_hp a' => '',
 			'peg_pegawai b' => array('b.id_pegawai = a.id_mahasiswa','left'),
-			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_program_studi','left')
+			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_konsentrasi','left')
 		);
 		$select = 'a.*,a.id_ref_program_konsentrasi as s,a.judul_tesis as xx,b.*,c.*,c.id_ref_program_konsentrasi as ss,c.nama_program_konsentrasi';
 		$data['jmlh_p_shp'] = $this->general_model->datagrab(array('tabel'=>$from_3,'select'=>$select,'where'=>array('a.status_n_shp'=>0)));
@@ -150,7 +150,7 @@ class Home extends CI_Controller {
 		$from_4 = array(
 			'tesis a' => '',
 			'peg_pegawai b' => array('b.id_pegawai = a.id_mahasiswa','left'),
-			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_program_studi','left')
+			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_konsentrasi','left')
 		);
 		$select = 'a.*,a.id_ref_program_konsentrasi as s,a.judul_tesis as xx,b.*,c.*,c.id_ref_program_konsentrasi as ss,c.nama_program_konsentrasi';
 		$data['jmlh_p_t'] = $this->general_model->datagrab(array('tabel'=>$from_4,'select'=>$select,'where'=>array('a.status_n_t'=>0)));
@@ -163,7 +163,7 @@ class Home extends CI_Controller {
 		 $from_5 = array(
 			'pengajuan_judul a' => '',
 			'peg_pegawai b' => array('b.id_pegawai = a.id_mahasiswa','left'),
-			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_program_studi','left')
+			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_konsentrasi','left')
 		);
 		$select = 'a.*,a.id_ref_program_konsentrasi as s,a.judul_tesis as xx,b.*,c.*,c.id_ref_program_konsentrasi as ss,c.nama_program_konsentrasi';
 		if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs")){
@@ -449,7 +449,7 @@ class Home extends CI_Controller {
 		$from_6 = array(
 			'proposal_tesis a' => '',
 			'peg_pegawai b' => array('b.id_pegawai = a.id_mahasiswa','left'),
-			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_program_studi','left')
+			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_konsentrasi','left')
 		);
 		$select = 'a.*,a.id_ref_program_konsentrasi as s,a.judul_tesis as xx,b.*,c.*,c.id_ref_program_konsentrasi as ss,c.nama_program_konsentrasi';
 		if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs")){
@@ -680,7 +680,7 @@ class Home extends CI_Controller {
 		$from_7 = array(
 			'seminar_hp a' => '',
 			'peg_pegawai b' => array('b.id_pegawai = a.id_mahasiswa','left'),
-			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_program_studi','left')
+			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_konsentrasi','left')
 		);
 		$select = 'a.*,a.id_ref_program_konsentrasi as s,a.judul_tesis as xx,b.*,c.*,c.id_ref_program_konsentrasi as ss,c.nama_program_konsentrasi';
 		if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs")){
@@ -937,7 +937,7 @@ class Home extends CI_Controller {
 		$from_8 = array(
 			'tesis a' => '',
 			'peg_pegawai b' => array('b.id_pegawai = a.id_mahasiswa','left'),
-			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_program_studi','left')
+			'ref_program_konsentrasi c' => array('c.id_ref_program_konsentrasi = b.id_konsentrasi','left')
 		);
 		$select = 'a.*,a.id_ref_program_konsentrasi as s,a.judul_tesis as xx,b.*,c.*,c.id_ref_program_konsentrasi as ss,c.nama_program_konsentrasi';
 		if ($this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs")){

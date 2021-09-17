@@ -120,6 +120,29 @@ else echo form_open($form_link,'id="form_data" role="form"');
 				if(judul_mirip.length == 1 ){
 					console.log('yeay');
 					console.log(judul_mirip[0]);
+					// console.log($id_mahasiswa);
+					let ubah_judul = function (){
+						change = false;
+						$.ajax({
+							url :"<?php echo base_url().'tigris/Pengajuan_judul/ubah_judul_sendiri';?>",
+							type :  "GET",
+							datatype : "json",
+							data : {
+								id : judul_mirip[0].id,
+							},
+							async:false,
+							success : function(res){
+								change = res;
+							}
+
+
+						})
+						return change;
+					}();
+					console.log(ubah_judul);
+					if(ubah_judul){
+						$('#similiar_hidden').val(0);
+					}
 				}
 				$('#judul_mirip').html(text);
 			}

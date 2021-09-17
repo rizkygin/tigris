@@ -377,6 +377,15 @@ class Tesis extends CI_Controller {
 
 
 		if($this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs")){
+			$sudah_upload_ba_proposal = $this->general_model->datagrabs([
+				'tabel' => 'review_ujian',
+				'where' => [
+					'jenis_review' => 1,
+					'id_mahasiswa' => $this->session->userdata('id_pegawai')
+				]
+			])->row();
+			// cek($sudah_upload_ba_proposal);
+			// die();
 			if($cek_pengajuan_judul2 == 1){
 				if($cek_tanggal->row('start_date') == NULL AND $cek_tanggal->row('end_date') == NULL){
 					$btn_tambah = '';
@@ -388,9 +397,15 @@ class Tesis extends CI_Controller {
 
 							$btn_tambah ='';
 						}else{
-							if($cek_pengajuan_judul3 == 1){
+							if($cek_pengajuan_judul3 == 1 && !empty($sudah_upload_ba_proposal)){
+								
 								$btn_tambah = anchor(site_url($this->dir.'/pendaftaran_ujian/'.$cek_tanggal->row('id_periode_pu').'/'.$cek_tanggal->row('id_ref_semester')),'<i class="fa fa-plus fa-btn"></i> Tambah Tesis', 'class="btn btn-success btn-editx btn-flat" act="" title="Klik untuk tambah data"');
-							}else{
+							}
+							elseif(empty($sudah_upload_ba_proposal)){
+								$btn_tambah = '<div class="alert alert-danger blink btn-editx btn-flat col-lg-6"><i class="fa fa-warning fa-btn"></i> Belum Upload Berita Acara Proposal </div>';
+
+							}
+							else{
 
 							$btn_tambah ='';
 							}
@@ -411,10 +426,15 @@ class Tesis extends CI_Controller {
 					}else{
 						if($cek_peproposal_tesis3 == 1){
 							
-								if($cek_petesis2 == 0){
+								if($cek_petesis2 == 0 && !empty($sudah_upload_ba_proposal)){
 									$btn_tambah = anchor(site_url($this->dir.'/pendaftaran_ujian/'.$cek_tanggal->row('id_periode_pu').'/'.$cek_tanggal->row('id_ref_semester')),'<i class="fa fa-plus fa-btn"></i> Tambah Tesis', 'class="btn btn-success btn-editx btn-flat" act="" title="Klik untuk tambah data"');
 
-								}else{
+								}
+								elseif(empty($sudah_upload_ba_proposal)){
+									$btn_tambah = '<div class="alert alert-danger blink btn-editx btn-flat col-lg-6"><i class="fa fa-warning fa-btn"></i> Belum Upload Berita Acara Proposal </div>';
+	
+								}
+								else{
 										
 									$btn_tambah = '';
 								}
@@ -427,8 +447,6 @@ class Tesis extends CI_Controller {
 				}else{
 						$btn_tambah = '';
 				}
-					
-
 			}
 		}else{
 			$btn_tambah = '';

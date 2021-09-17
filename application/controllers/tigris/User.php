@@ -124,7 +124,7 @@ class User extends CI_Controller {
 				}
 			
 				$link1 = '<a href="#" act="'.site_url($this->dir.'/User/add_operator/'.$row->id_pegawai).'" class="btn btn-xs btn-warning btn-edit"><i class="fa fa-pencil"></i></a>';
-				$link2= ' <a href="'.site_url($this->dir.'/User/reset_operator/'.$row->id_pegawai).'" class="btn btn-xs btn-primary btn-reset" title="Reset Password" msg="Yakin untuk mereset password User? <br>(Password standar adalah <b>qwerty</b>)"><i class="fa fa-repeat"></i></a>';
+				$link2= ' <a href="'.site_url($this->dir.'/User/reset_operator/'.$row->id_pegawai).'" class="btn btn-xs btn-primary btn-reset" title="Reset Password" msg="Yakin untuk mereset password User? <br>(Password standar adalah <b>boncel</b>)"><i class="fa fa-repeat"></i></a>';
 				
 				$rows = array(array('data'=>$no,'style'=>'text-align:center'),
 					$row->nama,
@@ -285,7 +285,7 @@ class User extends CI_Controller {
 			$this->general_model->save_data('peg_pegawai',$s,'id_pegawai',$id_pegawai);
 			$id_peg = $id_pegawai;
 		} else {
-			$s['password'] = md5('qwerty');
+			$s['password'] = md5('boncel');
 			$id_peg = $this->general_model->save_data('peg_pegawai',$s);
 		}
 		if (count($role) > 0) {
@@ -297,7 +297,7 @@ class User extends CI_Controller {
 			}
 		
 			$g = (!empty($id_pegawai)) ? 'Ubah' : 'Tambah';
-			$stat = !empty($id_pegawai) ? null : '<br>Password standard adalah (qwerty)';
+			$stat = !empty($id_pegawai) ? null : '<br>Password standard adalah (boncel)';
 			$this->session->set_flashdata('ok',$g.' operator berhasil dilakukan'.$stat);
 		} else {
 		

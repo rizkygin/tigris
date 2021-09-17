@@ -378,13 +378,16 @@ class Pengajuan_judul extends CI_Controller {
 						'id_pegawai' => $user_id
 					]
 				])->row()->id_ref_semester;
-				// cek(date('Y-m-d') >= $cek_tanggal->row('start_date'));
-				// cek(date('Y-m-d') <= $cek_tanggal->row('end_date'));
-				// cek("punya mahasiswa " . $id_ref_semester_mahasiswa);
-				// cek($cek_tanggal->row('id_ref_semester'));
+
+				$tahun_mahasiswa = $this->general_model->datagrabs([
+					'tabel' => 'peg_pegawai',
+					'where' => [
+						'id_pegawai' => $user_id
+					]
+				])->row()->id_ref_tahun;
+				$boleh_mengajukan_judul = $this->mahasiswa_semester_3($tahun_mahasiswa);
 				//jika dalam periode pengajuan ujian dan semester mahasiswa sama dengan periodenya? maka bisa mengajukan judul
-				if(date('Y-m-d') >= $cek_tanggal->row('start_date') AND date('Y-m-d') <= $cek_tanggal->row('end_date') && ($id_ref_semester_mahasiswa == $cek_tanggal->row('id_ref_semester'))){
-					// cek('yeay');
+				if(date('Y-m-d') >= $cek_tanggal->row('start_date') AND date('Y-m-d') <= $cek_tanggal->row('end_date') && ($boleh_mengajukan_judul)){
 
 					$btn_tambah = anchor(site_url($this->dir.'/add_data/'.$cek_tanggal->row('id_periode_pu').'/'.$cek_tanggal->row('id_ref_semester')),'<i class="fa fa-plus fa-btn"></i> Tambah Pengajuan Judul', 'class="btn btn-success btn-editx btn-flat" act="" title="Klik untuk tambah data"');
 					
@@ -454,6 +457,23 @@ class Pengajuan_judul extends CI_Controller {
 		}
 	}
 
+	public function mahasiswa_semester_3($id_ref_tahun){
+		$tahun = $this->general_model->datagrabs([
+			'tabel' => 'ref_tahun',
+			'where'=> [
+				'id_ref_tahun' => $id_ref_tahun
+			]
+		])->row('nama_tahun');
+
+		$tahun_masuk = date_create('01-06-'.$tahun);
+		$today = date_create(date('d-m-Y'));
+		$diff = date_diff($today,$tahun_masuk)->format('%a');
+		$return = false;
+		if($diff > 365){
+			$return  = true;
+		}
+		return $return;
+	}
 
 	function on($par) {
 		$o = un_de($par);
@@ -558,6 +578,8 @@ class Pengajuan_judul extends CI_Controller {
 		$data['form_data'] .= '</div>';
 		$data['form_data'] .= '<div class="col-lg-6">';
 		if(!empty($id)){
+			$data['id_mahasiswa'] = $o['id_mahasiswa'];
+			// cek($data['id_mahasiswa']);
 			$data['edit_data_sendiri'] = 1;
 			if($data['edit_data_sendiri']){
 				$data['form_data'] .= '<span class ="badge badge-primary" id="tampil_cek" style="cursor: pointer; background: orange;" >Ubah Judul</span>';
@@ -1139,20 +1161,8 @@ class Pengajuan_judul extends CI_Controller {
 		);
 		
     	$this->load->library('upload');
-		// $CI->load->helper('file');
 		$this->upload->initialize($config);
 		$this->upload->do_upload('tes');
-
-			// $this->upload->do_upload('tes');
-					// $data_upload = $this->upload->data();
-					// cek($data_upload);
-
-    	// $fi = $_FILES['tes'];
-    	// cek($fi);
-    	// die();
-		// $in = $this->input->post();
-		// var_dump($in);
-		// die();
 
 		if($this->input->post('similiar_hidden') > 50){
 			$this->session->set_flashdata('fail', 'Mohon untuk mengganti judul, karena judul tersebut telah digunakan !');
@@ -1208,18 +1218,22 @@ class Pengajuan_judul extends CI_Controller {
 	                $this->session->set_flashdata('fail', 'Nama Pengajuan Judul sudah ada...');
 	            }
             }
-			elseif(empty($_FILES)){
-				// cek($_FILES);
-				// // display_error();
-				// var_dump($this->upload->display_errors());
-				// die();
+			elseif(empty($_FILES) && $this->input->post('similiar_hidden') == 100){
+				
 				$this->session->set_flashdata('fail', 'Data gagal tersimpan');
 
 			}
 			else{
             	
+				$judul_tesis_sebelum_simpan = $this->general_model->datagrabs([
+					'tabel' => 'pengajuan_judul',
+					'where' => array('id_pengajuan_judul'=>$id_pengajuan_judul),
+					'select' => 'judul_tesis'
+				])->row()->judul_tesis;
+				
             	$par = array(
 					'tabel'=>'pengajuan_judul',
+					'where' => array('id_pengajuan_judul'=>$id_pengajuan_judul),
 					'data'=>array(
 						'judul_tesis'=>$judul_tesis,
 						'id_ref_semester' => $id_ref_semester,
@@ -1227,121 +1241,140 @@ class Pengajuan_judul extends CI_Controller {
 						),
 					);
 
-					$par['where'] = array('id_pengajuan_judul'=>$id_pengajuan_judul);
-
 				$sim = $this->general_model->save_data($par);
-				// simpan berkas
-
-			/*if(count($_FILES) > 0) $this->general_model->delete_data('mhs_pengajuan_judul', 'id_pengajuan_judul', $id_pengajuan_judul);
-				*/
-			// cek($berkas);
-			// die();
-
-
-			
-			// cek($_FILES);
-			// die();
-			foreach ($berkas as $key => $value) {
-				# code...
-				// cek($value);
-				// cek($key);
-				// cek($value);
-
-				$mahasiswa = $this->general_model->datagrab([
-					'tabel' => 'peg_pegawai',
-					'where'=> [
-						'id_pegawai' => $id_mahasiswa
-					]
-				])->row();
-				if(isset($_FILES['berkas']['name'][$value])){
-					$_FILES['file'] = array(
-						'name'=>$mahasiswa->username ."-". $_FILES['berkas']['name'][$value],
-						'type'=>$_FILES['berkas']['type'][$value],
-						'tmp_name'=>$_FILES['berkas']['tmp_name'][$value],
-						'error'=>$_FILES['berkas']['error'][$value],
-						'size'=>$_FILES['berkas']['size'][$value],
-					);
-				}
-					
-				else $_FILES['file'] = array();
-
-				
-				// cek(@$_FILES['file']['size']);
-				// var_dump($_FILES['berkas']);
-				// var_dump($_FILES['file']);
+				// cek($this->db->last_query());
+				// cek($judul_tesis_sebelum_simpan);
 				// die();
-				if(@$_FILES['file']['size'] > 0) {
+				//simpan judul proposal
+				$this->general_model->save_data([
+					'tabel' => 'proposal_tesis',
+					'where' => [
+						'id_mahasiswa' => $id_mahasiswa,
+						'id_ref_semester' => $id_ref_semester,
+						'id_periode_pu' => $id_periode_pu,
+						'judul_tesis' => $judul_tesis_sebelum_simpan
+					],
+					'data'=>array(
+						'judul_tesis'=>$judul_tesis,
+					)
+				]);
+
+				//simpan judul tesis
+				$this->general_model->save_data([
+					'tabel' => 'tesis',
+					'where' => [
+						'id_mahasiswa' => $id_mahasiswa,
+						'id_ref_semester' => $id_ref_semester,
+						'id_periode_pu' => $id_periode_pu,
+						'judul_tesis' => $judul_tesis_sebelum_simpan
+
+					],
+					'data'=>array(
+						'judul_tesis'=>$judul_tesis,
+					)
+				]);
+				// simpan berkas
+				foreach ($berkas as $key => $value) {
+					# code...
+					// cek($value);
+					// cek($key);
+					// cek($value);
+
+					$mahasiswa = $this->general_model->datagrab([
+						'tabel' => 'peg_pegawai',
+						'where'=> [
+							'id_pegawai' => $id_mahasiswa
+						]
+					])->row();
+					if(isset($_FILES['berkas']['name'][$value])){
+						$_FILES['file'] = array(
+							'name'=>$mahasiswa->username ."-". $_FILES['berkas']['name'][$value],
+							'type'=>$_FILES['berkas']['type'][$value],
+							'tmp_name'=>$_FILES['berkas']['tmp_name'][$value],
+							'error'=>$_FILES['berkas']['error'][$value],
+							'size'=>$_FILES['berkas']['size'][$value],
+						);
+					}
+						
+					else $_FILES['file'] = array();
+
 					
-					$this->upload->do_upload('file');
-					$data_upload = $this->upload->data();
-					// cek($this->upload->display_errors());
+					// cek(@$_FILES['file']['size']);
+					// var_dump($_FILES['berkas']);
+					// var_dump($_FILES['file']);
 					// die();
-					$this->general_model->save_data('mhs_pengajuan_judul', array(
-						'id_pengajuan_judul'=>$id_pengajuan_judul,
-						'id_mahasiswa'=>$id_mahasiswa,
-						'id_ref_pengajuan_judul'=>$value,
-						'berkas'=>$data_upload['file_name'],
-					));
-					
-				
-
-					$cek_linkx = $this->general_model->datagrabs(array('tabel'=>'veri_pengajuan_judul','where'=>array('id_pengajuan_judul'=>$id_pengajuan_judul,'id_mahasiswa'=>$id_mahasiswa,'id_ref_pengajuan_judul'=>$value)))->row();
-
-					if($cek_linkx == null){
-						$this->general_model->save_data('veri_pengajuan_judul',
-						[
+					if(@$_FILES['file']['size'] > 0) {
+						
+						$this->upload->do_upload('file');
+						$data_upload = $this->upload->data();
+						// cek($this->upload->display_errors());
+						// die();
+						$this->general_model->save_data('mhs_pengajuan_judul', array(
 							'id_pengajuan_judul'=>$id_pengajuan_judul,
 							'id_mahasiswa'=>$id_mahasiswa,
-							'id_ref_pengajuan_judul'=>$value
+							'id_ref_pengajuan_judul'=>$value,
+							'berkas'=>$data_upload['file_name'],
+						));
+						
+					
 
-						]);
 						$cek_linkx = $this->general_model->datagrabs(array('tabel'=>'veri_pengajuan_judul','where'=>array('id_pengajuan_judul'=>$id_pengajuan_judul,'id_mahasiswa'=>$id_mahasiswa,'id_ref_pengajuan_judul'=>$value)))->row();
 
+						if($cek_linkx == null){
+							$this->general_model->save_data('veri_pengajuan_judul',
+							[
+								'id_pengajuan_judul'=>$id_pengajuan_judul,
+								'id_mahasiswa'=>$id_mahasiswa,
+								'id_ref_pengajuan_judul'=>$value
+
+							]);
+							$cek_linkx = $this->general_model->datagrabs(array('tabel'=>'veri_pengajuan_judul','where'=>array('id_pengajuan_judul'=>$id_pengajuan_judul,'id_mahasiswa'=>$id_mahasiswa,'id_ref_pengajuan_judul'=>$value)))->row();
+
+						}
+						$cek_linkxx = $this->general_model->datagrabs(array('tabel'=>'veri_pengajuan_judul','where'=>array('id_pengajuan_judul'=>$cek_linkx->id_pengajuan_judul,'id_mahasiswa'=>$cek_linkx->id_mahasiswa,'id_ref_pengajuan_judul'=>$cek_linkx->id_ref_pengajuan_judul)))->num_rows();
+						
+						if($cek_linkxx > 0) 
+							$this->general_model->delete_data(array(
+							'tabel' => 'veri_pengajuan_judul',
+							'where' => array(
+								'id_pengajuan_judul' => $id_pengajuan_judul,'id_mahasiswa' => $id_mahasiswa,'id_ref_pengajuan_judul' => $value)));
 					}
-					$cek_linkxx = $this->general_model->datagrabs(array('tabel'=>'veri_pengajuan_judul','where'=>array('id_pengajuan_judul'=>$cek_linkx->id_pengajuan_judul,'id_mahasiswa'=>$cek_linkx->id_mahasiswa,'id_ref_pengajuan_judul'=>$cek_linkx->id_ref_pengajuan_judul)))->num_rows();
+				}
+
+				foreach (@$link as $key => $value) {
+					$pars = array(
+						'tabel'=>'mhs_pengajuan_judul',
+						'data'=>array(
+							'id_pengajuan_judul'=>$id_pengajuan_judul,
+							'id_mahasiswa' => $id_mahasiswa,
+							'id_ref_pengajuan_judul' => $key,
+							'link' => $value
+							),
+						);
+
+					$cek_link = $this->general_model->datagrabs(array('tabel'=>'mhs_pengajuan_judul','where'=>array('id_pengajuan_judul'=>$id_pengajuan_judul,'id_mahasiswa'=>$id_mahasiswa,'id_ref_pengajuan_judul'=>$key)))->num_rows();
 					
-					if($cek_linkxx > 0) 
+					if($cek_link > 0) $pars['where'] = array('id_pengajuan_judul'=>$id_pengajuan_judul,'id_mahasiswa'=>$id_mahasiswa,'id_ref_pengajuan_judul'=>$key);
+
+
+						
+					$sim = $this->general_model->save_data($pars);
+					/*
+						cek($id_pengajuan_judul);
+						cek($id_mahasiswa);*/
+						/*cek($key);
+						die();*/
+					$cek_linkx = $this->general_model->datagrabs(array('tabel'=>'veri_pengajuan_judul','where'=>array('id_pengajuan_judul'=>$id_pengajuan_judul,'id_mahasiswa'=>$id_mahasiswa,'id_ref_pengajuan_judul'=>$key)))->num_rows();
+					
+					if($cek_linkx > 0) 
 						$this->general_model->delete_data(array(
 						'tabel' => 'veri_pengajuan_judul',
 						'where' => array(
-							'id_pengajuan_judul' => $id_pengajuan_judul,'id_mahasiswa' => $id_mahasiswa,'id_ref_pengajuan_judul' => $value)));
+							'id_pengajuan_judul' => $id_pengajuan_judul,'id_mahasiswa' => $id_mahasiswa,'id_ref_pengajuan_judul' => $key)));
+
 				}
-			}
-
-			foreach (@$link as $key => $value) {
-				$pars = array(
-					'tabel'=>'mhs_pengajuan_judul',
-					'data'=>array(
-						'id_pengajuan_judul'=>$id_pengajuan_judul,
-						'id_mahasiswa' => $id_mahasiswa,
-						'id_ref_pengajuan_judul' => $key,
-						'link' => $value
-						),
-					);
-
-				$cek_link = $this->general_model->datagrabs(array('tabel'=>'mhs_pengajuan_judul','where'=>array('id_pengajuan_judul'=>$id_pengajuan_judul,'id_mahasiswa'=>$id_mahasiswa,'id_ref_pengajuan_judul'=>$key)))->num_rows();
-				
-				if($cek_link > 0) $pars['where'] = array('id_pengajuan_judul'=>$id_pengajuan_judul,'id_mahasiswa'=>$id_mahasiswa,'id_ref_pengajuan_judul'=>$key);
-
-
-					
-				$sim = $this->general_model->save_data($pars);
-				/*
-					cek($id_pengajuan_judul);
-					cek($id_mahasiswa);*/
-					/*cek($key);
-					die();*/
-				$cek_linkx = $this->general_model->datagrabs(array('tabel'=>'veri_pengajuan_judul','where'=>array('id_pengajuan_judul'=>$id_pengajuan_judul,'id_mahasiswa'=>$id_mahasiswa,'id_ref_pengajuan_judul'=>$key)))->num_rows();
-				
-				if($cek_linkx > 0) 
-					$this->general_model->delete_data(array(
-					'tabel' => 'veri_pengajuan_judul',
-					'where' => array(
-						'id_pengajuan_judul' => $id_pengajuan_judul,'id_mahasiswa' => $id_mahasiswa,'id_ref_pengajuan_judul' => $key)));
-
-			}
-			$this->session->set_flashdata('ok', 'Data Berhasil Disimpan...');
-    	}
+				$this->session->set_flashdata('ok', 'Data Berhasil Disimpan...');
+    		}
             redirect($this->dir);
 	}
 
@@ -1914,8 +1947,6 @@ class Pengajuan_judul extends CI_Controller {
 
     function form_pengesahan($param=NULL) {
         $o=un_de($param);
-        /*cek($o);
-        die();*/
 
     	$id_pengajuan_judul= $o['id_pengajuan_judul'];
     	$id_mahasiswa= $o['id_mahasiswa'];
@@ -1930,56 +1961,11 @@ class Pengajuan_judul extends CI_Controller {
 				'kaprodi.status' => 1 
 			]
 			])->row();
-    	//$id= $o['id_tesis'];
-        /*die();*/
         $offset = !empty($offset) ? $offset : null;
-        //$pengajar = $this->input->post('pengajar');
         $st = get_stationer();
          
-        $data['h_title_left'] = '
-        <div class="col-lg-5" style="padding: 10px 0px 0px 0px;">
-
-        <img src="'.base_url()."uploads/logo/logo_yes.png".'" style="height: 40px;float:left; margin-right:10px;"/>
-
-        <h5 style="font-size: 24px;border-top:3px solid #4271B7;border-bottom:3px solid #4271B7;float:left;color:#4271B7;margin-top:5px;"><b>YOGYA EXECUTIVE SCHOOL "YES"</b></h5>
-                </div>
-        ';
-        $data['h_title_right'] = '
-        
-        ';
-        $data['h_sub_center'] = '';
-        $data['tgl_cetak'] = date('d-M-Y');
-        $data['company_address'] = '<div class="col-lg-6"  style="padding: 10px 0px 0px 0px;">
-
-        <div style="text-align:right;color: #4271B7;margin-top:-20px;">
-        <h6 style="font-size:10px;">Jl. Taman Siswa No. 89 Telp/Fax. (0274) 376 623 Yogyakarta 55151<br>
-        Website : www.yesjogja.com<br>E-mail : info@yesjogja.com, info_yes@yahoo.co.id</h6></div>';
-        $data['company_country'] = 'City-Country';
-        /*$data['company_logo'] = base_url('assets/logo/brand.png');*/
-
-        // **** BEDO SAMBUNGAN
-        // $start = 0;
-        // $anjab_alat = $this->general_model->datagrabs(array(
-        //     'tabel'=>'catatan', 
-        //     'select'=>'*'));
-        // $data = array(
-        //     'h_title_left'=> 'pesis',
-        //     'h_title_center'=> '<span>Laporan</span><br/> Data ',
-        //     'h_sub_center'=> '',
-        //     'tgl_cetak'=> date('d-M-Y'),
-        //     'company_address'=>'Company Address',        
-        //     'company_country'=>'City-Country',        
-        //     'company_logo'=>base_url('assets/logo/brand.png'),        
-        //    // 'company_logo'=>$logo_instansi      
-        //     );
-
-
-
-         ini_set('memory_limit', '512M');
-       // $html = $this->load->view('anjab_alat_pdf', $data, true);
-        // $html = $this->load->view('tigris/pdf', $data, true);
+       
         $this->load->library('fpdf/fpdf');
-        /*die();*/
 
 
 		$from = array(
@@ -1993,22 +1979,16 @@ class Pengajuan_judul extends CI_Controller {
         $dt_row = $this->general_model->datagrab(array('tabel'=>$from,'select'=>$select,'where'=>array('a.id_pengajuan_judul'=>$id_pengajuan_judul)))->row();
          
 
+		// cek($dt_row);
 
- 			$from_pem = array(
-					'mhs_pembimbing a' => '',
-					'peg_pegawai d' => array('d.id_pegawai = a.id_pembimbing','left')
-				);
+		$from_pem = array(
+			'mhs_pembimbing a' => '',
+			'peg_pegawai d' => array('d.id_pegawai = a.id_pembimbing','left')
+		);
 
-				$pemb = $this->general_model->datagrab(array(
-						'tabel' => $from_pem,
-						'where' => array('a.id_pengajuan_judul' => $dt_row->id_pengajuan_judul)));
-				
-         $data['title']      = 'berita_acara'.@$dt_row->kode;
-         $data['no_uji']         = @$dt_row->kode;
-
-
-
-
+		$pemb = $this->general_model->datagrab(array(
+			'tabel' => $from_pem,
+			'where' => array('a.id_pengajuan_judul' => $dt_row->id_pengajuan_judul)));
         $parameters= array(
                 'mode' => 'utf-8',
                 'format' => 'A4-L',    // A4 for portrait
@@ -2022,26 +2002,7 @@ class Pengajuan_judul extends CI_Controller {
                 'margin_footer' => 10,
                 'orientation' => 'L' // For some reason setting orientation to "L" alone doesn't work (it should), you need to also set format to "A4-L" for landscape
             );
-        $tabelx = '
-        <table>
-        <tr>
-        <tr>
-        </table>
-
-
 		
-        ';
-		$kaprodi = $this->general_model->datagrabs([
-			'select' => 'kaprodi.*, mahasiswa.id_pegawai',
-			'tabel' => [
-				'ref_kaprodi kaprodi' => '',
-				'peg_pegawai mahasiswa' => ['mahasiswa.id_program_studi = kaprodi.id_ref_prodi', 'left'],
-			],
-			'where' => [
-				'mahasiswa.id_pegawai' => $id_mahasiswa,
-				'kaprodi.status' => 1 
-			]
-		])->row();
 		$prodi = $this->general_model->datagrabs([
 			'select' => 'prodi.*',
 			'tabel' => [
@@ -2052,209 +2013,179 @@ class Pengajuan_judul extends CI_Controller {
 				'mahasiswa.id_pegawai' => $id_mahasiswa
 			]
 		])->row();
-        //$pdf = $this->fpdf->load($parameters);
-        // setting
         $pdf = new FPDF('P','mm','A4');
-        $pdf->AliasNbPages();
         $pdf->AddPage();
-        $pdf->SetFont('Times','B',50);
+		// ------------------------------------------------ P A G E 1 NOTA DINAS ------------------------------------------------------------------------------------------
+       //nomor nota dinas
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'Nomor');
+			$pdf->setX(45);
+			$pdf->setFont('Times','',12);
+			$pdf->Cell(20,5,':');
+			$pdf->SetX(47);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(210,5,'Nota Dinas');
 
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'Hal');
+			$pdf->setX(45);
+			$pdf->setFont('Times','',12);
+			$pdf->Cell(20,5,':');
+			$pdf->SetX(47);
+			$pdf->SetFont('Times','B',12);
+			$pdf->Cell(210,5,'Penunjukan Dosen Pembimbing Tesis');
 
-         //$pdf->Image('assets/logo/brand.png',10,6,60,0);
-		// Times bold 15
+			$pdf->Ln(15);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'Yth');
+
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'Program Studi Magister Kenotariatan ');
+
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'Fakultas Hukum Universitas Diponegoro ');
+
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'Semarang  ');
+
+			$pdf->Ln(15);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->MultiCell(170,5,'Dengan ini kami beritahukan bahwa berdasarkan keputusan rapat penentuan Dosen Pembimbing usulan Tesis, kami telah menunjuk Saudara sebagai Pembimbing Tesis mahasiswa  Program Studi Magister Kenotariatan Fakultas Hukum UNDIP ,');
 		
-		// Move to the right
-			$pdf->Cell(60);
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'Nama Mahasiswa');
+			$pdf->setX(70);
+			$pdf->setFont('Times','',12);
+			$pdf->Cell(20,5,':');
+			$pdf->SetX(75);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(210,5,''.$dt_row->nama.'');
 
-		// Line break
-        // logo
-        $pdf->SetLineWidth(1);
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'NIM');
+			$pdf->setX(70);
+			$pdf->setFont('Times','',12);
+			$pdf->Cell(20,5,':');                               
+			$pdf->SetX(75);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(200,5,''.$dt_row->nip.'');
+
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'Judul');
+			$pdf->setX(70);
+			$pdf->setFont('Times','',12);
+			$pdf->Cell(20,5,':');                               
+			$pdf->SetX(75);
+			$pdf->SetFont('Times','',12);
+			$pdf->MultiCell(120,5,''.$dt_row->judul_tesis.'');
+
+			$pdf->Ln(10);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->MultiCell(170,5,'Untuk memperlancar proses bimbingan dan memberikan hasil yang baik, perlu kami sampaikan beberapa hal sebagai berikut : ');
+
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'1. ');
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(30);
+			$pdf->SetFont('Times','',12);
+			$pdf->MultiCell(170,5,'Mohon kiranya Dosen Pembimbing berkenan menyediakan waktu khusus untuk mahasiswa bimbingan yang berasal dari kelas A maupun kelas B, untuk kelas B mengingat aktifitas perkuliahan  hanya dilakukan pada hari Sabtu dan Minggu');
+		
+
+			$pdf->Ln(0);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'2. ');
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(30);
+			$pdf->SetFont('Times','',12);
+			$pdf->MultiCell(170,5,'Teknis bimbingan kami serahkan sepenuhnya pada pembimbing termasuk mahasiswa yang berasal dari kelas B (mohon diperkenankan bimbingan melalui e-mail, pos atau yang lain)');
+		
+			$pdf->Ln(0);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'3. ');
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(30);
+			$pdf->SetFont('Times','',12);
+			$pdf->MultiCell(170,5,'Dosen Pembimbing diberikan kewenangan sepenuhnya untuk merubah judul karena pertimbangan akademik, namun demikian diharapkan tidak terlampau jauh merubah substansi awal.');
+		
+			$pdf->Ln(0);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'4. ');
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(30);
+			$pdf->SetFont('Times','',12);
+			$pdf->MultiCell(170,5,'Bila ada perubahan judul dimohon menghubungi bagian Akademik.');
+
+			// Atas perhatian dan kerjasama Saudara diucapkan terima kasih
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'Atas perhatian dan kerjasama Saudara diucapkan terima kasih');
+
+			$pdf->SetFont('Times','',12);
+			$pdf->Ln(15);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(140);
+			$pdf->Cell(20,5,'Ketua Program Studi');
+
+			$pdf->SetFont('Times','',12);
+			$pdf->Ln(20);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(140);
+			$pdf->Cell(20,5,$kaprodi->nama_kaprodi);
 
 
-        // $pdf->SetX(-105);
-        // $pdf->SetTextColor(900,900,900);
-        //  $pdf->Image('assets/images/corp/header.png',0,0,210,0);
+			$pdf->SetFont('Times','',12);
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(140);
+			$pdf->Cell(20,5,'NIP. '.$kaprodi->nip);
 
-        $pdf->SetFont('Times','',16.4);
-        $pdf->Ln(10);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->Image('assets/images/corp/penetapan_dosen_pembimbing.png',60,40,100,0);
+		
 
-        $pdf->SetFont('Times','',12);
-        $pdf->Ln(10);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-         $pdf->MultiCell(170,8,'Ketua Program Studi '.$prodi->nama_prodi.', Fakultas Hukum Universitas Diponegoro Semarang menetapkan Dosen Pembimbing :');
-        $pdf->SetFont('Times','',12);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-				$nox=1;
-				$bc=array();
-				foreach ($pemb->result() as $xx) {
-					$bc[]= 
-			        $pdf->SetTextColor(0,0,0);
-       				$pdf->Ln(8);
-			        $pdf->SetX(25);
-			        $pdf->SetFont('Times','',12);
-			        $pdf->Cell(20,8,$nox.'.    '.@$xx->nama);
+		// ------------------------------------------------ LEMBAR KONSULTASI BIMBINGAN --------------------------------------------------------------------------------------------------------------------------------------------------
 
-			        ;
-				$nox++;
-				}
-		$pdf->MultiCell(170,8,implode(@$bc));
-        	
- 		
-
- 		$pdf->SetFont('Times','',12);
-        $pdf->Ln(5);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-         $pdf->MultiCell(170,8,'Sebagai Dosen Pembimbing Proposal Tesis dan Tesis untuk mahasiswa  :');
-
-        $pdf->Ln(5);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->SetFont('Times','',12);
-        $pdf->Cell(20,8,'Nama                       : ');
-        $pdf->SetX(64);
-        $pdf->SetFont('Times','',12);
-        $pdf->MultiCell(210,8,''.$dt_row->nama.'');
-
-
-
+		$pdf->AddPage();
         $pdf->Ln(0);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->SetFont('Times','',12);
-        $pdf->Cell(20,8,'NIM                         : ');
-        $pdf->SetX(64);
-        $pdf->SetFont('Times','',12);
-        $pdf->MultiCell(200,8,''.$dt_row->nip.'');
-
-
-
-        $pdf->Ln(0);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->SetFont('Times','',12);
-        $pdf->Cell(20,8,'Program Kajian       : ');
-        $pdf->SetX(64);
-        $pdf->SetFont('Times','',12);
-        $pdf->MultiCell(120,8,''.$dt_row->nama_program_konsentrasi.'');
-
-
-
-
- 		$pdf->SetFont('Times','',12);
-        $pdf->Ln(5);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->MultiCell(170,8,'Untuk menyelesaikan penulisan Proposal Tesis dan Tesis dengan judul  :');
-
- 		$pdf->SetFont('Times','',12);
-        $pdf->Ln(0);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->MultiCell(170,8,$dt_row->judul_tesis);
-
-
-
-        
-        $pdf->SetFont('Times','',12);
-        $pdf->Ln(10);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->Cell(20,8,'Mengetahui,');
-
-
-        $pdf->SetFont('Times','',12);
-        $pdf->Ln(5);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->Cell(20,8,'Dosen Pembimbing');
-
-
-
-
-        $pdf->SetFont('Times','',12);
-        $pdf->Ln(30);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->Cell(20,8,'(...............................)');
-
-
-
-
-        $pdf->SetFont('Times','',12);
-        $pdf->Ln(-37);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(140);
-        $pdf->Cell(20,8,'Semarang, '.tanggal_indo(date("Y-m-d")).'');
-
-
-        $pdf->SetFont('Times','',12);
-        $pdf->Ln(5);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(140);
-        $pdf->Cell(20,8,'Ketua Program Studi');
-
-		$pdf->SetFont('Times','',12);
-        $pdf->Ln(5);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(140);
-        $pdf->Cell(20,8,$prodi->nama_prodi);
-
-
-
-        $pdf->SetFont('Times','',12);
-        $pdf->Ln(30);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(140);
-        $pdf->Cell(20,8,$kaprodi->nama_kaprodi);
-
-
-        $pdf->SetFont('Times','',12);
-        $pdf->Ln(5);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(140);
-        $pdf->Cell(20,8,'NIP. '.$kaprodi->nip);
-
-
-
-
-        $pdf->SetFont('Times','',12);
-        $pdf->Ln(0);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-         $pdf->MultiCell(590,8,'Tim Penguji Proposal dan Tesis');
-
-        $pdf->SetFont('Times','',12);
-        $pdf->Ln(0);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->MultiCell(210,8,'1.	Dosen Pembimbing Proposal dan Tesis');
-
-
-
-        $pdf->SetFont('Times','',12);
-        $pdf->Ln(0);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->MultiCell(210,8,'    Anggota Tim Penguji');
-
-
-        $pdf->SetFont('Times','',12);
-        $pdf->Ln(0);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->MultiCell(210,8,'2. ...............................................................');
-
-
-
-
-
-        $pdf->Ln(20);
         $pdf->SetTextColor(0,0,0);
         $pdf->SetX(55);
         $pdf->SetFont('Times','',12);
@@ -2448,5 +2379,23 @@ class Pengajuan_judul extends CI_Controller {
 		// 	'persen' => $persen
 		// ];
 		// return die(json_encode($res));
+	}
+	function ubah_judul_sendiri(){
+		$id_pengajuan_judul = $this->input->get('id');
+		$id_user = $this->session->userdata('id_pegawai');
+
+		$true= $this->general_model->datagrabs([
+			'tabel' => 'pengajuan_judul',
+			'where' => [
+				'id_mahasiswa' => $id_user,
+				'id_pengajuan_judul' => $id_pengajuan_judul,
+			]
+		])->row();
+
+		if(!empty($true)){
+			die(true); 
+		}else{
+			die(false);
+		}
 	}
 }

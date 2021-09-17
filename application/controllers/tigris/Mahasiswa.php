@@ -97,7 +97,7 @@ class Mahasiswa extends CI_Controller {
 
 
 		if ($dtjnsoutput->num_rows() > 0) {
-			$heads = array('No','Nama','Nomor Induk Mahasiwa','Semester','Program Studi','Tahun','Program Konsentrasi','Keterangan');
+			$heads = array('No','Nama','Nomor Induk Mahasiwa','Program Studi','Tahun','Kelas','Keterangan');
 			if (!in_array($offset,array("cetak","excel")))
 				// $heads[] = array('data' => ' ','colspan' => 2);
 				$heads[] = array('data' => ' Aksi ','colspan' => 3);
@@ -143,13 +143,13 @@ class Mahasiswa extends CI_Controller {
 
 
 				$link1 = '<a href="#" act="'.site_url($this->dir.'/Mahasiswa/add_operator/'.$row->id_pegawai).'" class="btn btn-xs btn-warning btn-edit"><i class="fa fa-pencil"></i></a>';
-				$link2= ' <a href="'.site_url($this->dir.'/Mahasiswa/reset_operator/'.$row->id_pegawai).'" class="btn btn-xs btn-primary btn-reset" title="Reset Password" msg="Yakin untuk mereset password User? <br>(Password standar adalah <b>qwerty</b>)"><i class="fa fa-repeat"></i></a>';
+				$link2= ' <a href="'.site_url($this->dir.'/Mahasiswa/reset_operator/'.$row->id_pegawai).'" class="btn btn-xs btn-primary btn-reset" title="Reset Password" msg="Yakin untuk mereset password User? <br>(Password standar adalah <b>boncel</b>)"><i class="fa fa-repeat"></i></a>';
 				
 				$rows = array(array('data'=>$no,'style'=>'text-align:center'),
 					$row->nama,
 					$row->nip);
 					
-				$rows[] = $row->nama_semester;
+				// $rows[] = $row->nama_semester;
 				$rows[] = $row->nama_prodi;
 				$rows[] = $row->nama_tahun;
 				$rows[] = $row->nama_program_konsentrasi;
@@ -359,7 +359,7 @@ class Mahasiswa extends CI_Controller {
 		
 			$g = (!empty($id_pegawai)) ? 'Ubah' : 'Tambah';
 			$stat = !empty($id_pegawai) ? null : '<br>Password standard adalah (NIM)';
-			$this->session->set_flashdata('ok',$g.' operator berhasil dilakukan'.$stat);
+			$this->session->set_flashdata('ok',$g.' MAHASISWA berhasil dilakukan'.$stat);
 		
 		
 		redirect('tigris/Mahasiswa');
@@ -367,15 +367,15 @@ class Mahasiswa extends CI_Controller {
 	}
 	
 	function reset_operator($id=null){
-		$this->general_model->save_data('peg_pegawai',array('password' => md5('qwerty'),'status' => '1'),'id_pegawai',$id);
-		$this->session->set_flashdata('ok', 'Password operator berhasil di reset');
+		$this->general_model->save_data('peg_pegawai',array('password' => md5('boncel'),'status' => '1'),'id_pegawai',$id);
+		$this->session->set_flashdata('ok', 'Password MAHASISWA berhasil di reset');
 		redirect('tigris/Mahasiswa');
 	}
 	
 	function delete_data($id) {
 		
 		$this->general_model->delete_data('peg_pegawai','id_pegawai',$id);
-		$this->session->set_flashdata('ok','Data Operator berhasil dihapus');
+		$this->session->set_flashdata('ok','Data MAHASISWA berhasil dihapus');
 		
 		redirect('tigris/Mahasiswa');
 		

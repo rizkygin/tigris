@@ -105,7 +105,6 @@ class Ref_bidang_pengajuan_judul extends CI_Controller{
 					$status = anchor('tigris/Ref_bidang_pengajuan_judul/on/'.in_de(array('id_bidang_pengajuan_judul' => $row->id_bidang_pengajuan_judul,'status' =>0)),'<i class="fa fa-fw fa-toggle-on text-aqua" style="font-size:20px;"></i>');
 				}else{
 					$status = anchor('tigris/Ref_bidang_pengajuan_judul/on/'.in_de(array('id_bidang_pengajuan_judul' => $row->id_bidang_pengajuan_judul,'status' =>1)),'<i class="fa fa-fw fa-toggle-off text-default" style="font-size:20px;"></i>');
-
 				}
 				//cek($row->id_ref_bidang_pengajuan_judul);
 				$btn_down = ($m+1 < $nav->num_rows()) ? anchor('tigris/Ref_bidang_pengajuan_judul/urut/'.in_de(array('id1' => $row->id_bidang_pengajuan_judul,'no1' => $row->urut,'id2' => $awal[$m+1][0],'no2' =>  $awal[$m+1][1])),'<i class="fa fa-arrow-down"></i>') : ' &nbsp; ';
@@ -115,18 +114,21 @@ class Ref_bidang_pengajuan_judul extends CI_Controller{
 
 				$rows[] = 	array('data'=>$no,'style'=>'text-align:center');
 				/*$rows[] = 	$row->kode_Syarat Pengajuan Judul;*/
+				// cek($row);
+				//simpan sesuai urutan 
+				$this->general_model->save_data('ref_bidang_pengajuan_judul',[
+					'urut' => $no
+				],
+				'id_bidang_pengajuan_judul', $row->id_bidang_pengajuan_judul
+				);
+				// cek($this->db->last_query());
 				$rows[] = 	$row->nama_bidang;
 				$rows[] = 	@$status;
 				$rows[] = array('class' => 'text-center','width' => '35','data' => $btn_down);
 				$rows[] = array('class' => 'text-center','width' => '35','data' => $btn_up);
 
 				if (!in_array($offset,array("cetak","excel"))) {
-					//$ubah = anchor(site_url($this->dir.'/add_data/'.in_de(array('id_ref_pengajuan_judul'=>$row->id_ref_pengajuan_judul))), '<i class="fa fa-pencil"></i>', 'class="btn btn-xs btn-flat btn-warning" ');
-					// $ubah = anchor('#','<i class="fa fa-pencil"></i>', 'class="btn btn-xs btn-warning btn-edit btn-flat" act="'.site_url($this->dir.'/add_data/'.in_de(array('id_bidang_pengajuan_judul'=>$row->id_bidang_pengajuan_judul))).'" title="Edit Data Agenda Kegiatan..."');
-					
-					/*$ubah = anchor('#','<i class="fa fa-pencil"></i>','class="btn btn-xs btn-flat btn-warning btn-edit" act="'.site_url($this->dir.'/add_data/'.in_de(array('id_bidang_pengajuan_judul'=>$row->id_bidang_pengajuan_judul))).'" title="Klik untuk edit data"');*/
 					$hapus = anchor('#','<i class="fa fa-trash"></i>','class="btn btn-xs btn-flat btn-danger btn-delete" act="'.site_url($this->dir.'/delete_data/'.in_de(array('id_bidang_pengajuan_judul'=>$row->id_bidang_pengajuan_judul))).'" msg="Apakah anda yakin ingin menghapus data ini ?" title="klik untuk menghapus data"');
-					// $rows[] = 	$ubah;
 					$rows[] = 	$hapus;
 				}
 				$this->table->add_row($rows);
@@ -137,10 +139,6 @@ class Ref_bidang_pengajuan_judul extends CI_Controller{
 		}else{
 			$tabel = '<div class="alert">Data masih kosong ...</div>';
 		}
-		/*
-		$btn_tambah = anchor('#','<i class="fa fa-plus fa-btn"></i>Nama Syarat Pengajuan Judul', 'class="btn btn-success btn-edit btn-flat" act="'.site_url($this->dir.'/add_data').'" title="Klik untuk tambah data"');*/
-		//$btn_tambah = anchor(site_url($this->dir.'/add_data'), '<i class="fa fa-plus"></i> Nama Syarat Pengajuan Judul', 'class="btn btn-md btn-success btn-flat"');
-		
 		$btn_tambah = anchor('#','<i class="fa fa-plus fa-btn"></i> Tambah Bidang', 'class="btn btn-success btn-edit btn-flat" act="'.site_url($this->dir.'/add_data/').'" title="Klik untuk tambah data"');
 		
 		$btn_cetak =

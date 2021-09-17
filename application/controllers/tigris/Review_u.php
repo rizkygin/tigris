@@ -142,7 +142,7 @@ Class Review_u extends CI_Controller{
 
         // var_dump($dtjnsoutput->result());
 		if ($dtjnsoutput->num_rows() > 0) {
-			$heads = array('No','Mahasiswa','Nomor Induk Mahasiswa','Program Konsentrasi','Jenis Review','Berkas','Tanggal Upload');
+			$heads = array('No','Mahasiswa','Nomor Induk Mahasiswa','Kelas','Jenis Review','Berkas','Tanggal Upload');
 
 			$classy = (in_array($offset,array("cetak","excel"))) ? 'class="tabel_print" border=1' : 'class="table table-striped table-bordered table-condensed table-nonfluid"';
 			$this->table->set_template(array('table_open'=>'<table '.$classy.'>'));

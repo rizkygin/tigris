@@ -87,7 +87,7 @@ class Penjadwalan_tesis extends CI_Controller {
 				$heads[] = array('data' => 'Tgl Ujian dan Jam');
 				$heads[] = array('data' => 'Ruang');
 				$heads[] = array('data' => 'Berita Acara Ujian');
-				/*$heads[] = array('data' => 'Undangan Ujian');*/
+				$heads[] = array('data' => 'Undangan Ujian');
 				$heads[] = array('data' => 'Aksi');
 
 
@@ -164,10 +164,7 @@ class Penjadwalan_tesis extends CI_Controller {
 
 				$tambah_jadwal = anchor('#','<i class="fa fa-calendar"></i>', 'class="btn btn-xs btn-primary btn-edit btn-flat" act="'.site_url($this->dir.'/tambah_jadwal/'.in_de(array('id_jadwal_ujian'=>@$row->id_jadwal_ujian,'id_mahasiswa'=>$row->id_mahasiswa,'id_tesis'=>$row->id_tesis))).'" title="Tambah Jadwal Ujian..."');
 				$berita_acara = anchor(site_url($this->dir.'/berita_acara/'.in_de(array('id_jadwal_ujian'=>@$row->id_jadwal_ujian,'id_mahasiswa'=>$row->id_mahasiswa,'id_tesis'=>$row->id_tesis))),'<i class="fa fa-file-pdf-o"></i>', 'class="btn btn-xs btn-success btn-flat" act=" title="berita acara..." target="_blank"');
-				$undangan = anchor(site_url($this->dir.'/undangan/'.in_de(array('id_jadwal_ujian'=>@$row->id_jadwal_ujian,'id_mahasiswa'=>$row->id_mahasiswa,'id_tesis'=>$row->id_tesis))),'<i class="fa fa-file-pdf-o"></i>', 'class="btn btn-xs btn-warning btn-flat" act=" title="undangan..." target="_blank"');
-
-
-
+				$undangan = anchor(site_url($this->dir.'/undangan/'.in_de(array('id_jadwal_ujian'=>@$row->id_jadwal_ujian,'id_mahasiswa'=>$row->id_mahasiswa,'id_tesis'=>$row->id_tesis))),'<i class="fa fa-file"></i>', 'class="btn btn-xs btn-primary btn-flat" act=" title="undangan..." target="_blank"');
 
 				$cek_jadwal = $this->general_model->datagrab(array('tabel'=>'jadwal_ujian','where'=>array('id_ujian'=>@$row->id_tesis,'tipe_ujian'=>3)))->num_rows();
 
@@ -191,16 +188,6 @@ class Penjadwalan_tesis extends CI_Controller {
 				$nox++;
 				}*/
 
-/*
-				$rows[] = 	array('data'=>$no,'style'=>'text-align:center');
-				$rows[] = 	$row->kode_Pengajuan Judul;
-				$rows[] = 	$row->nama_mahasiswa;
-				$rows[] = 	'Penguji 1 : '.@$row->xx.'<br> Penguji 2 : '.@$row->xxx;
-				$rows[] = 	(($cek_jadwal > 0)?@$cek_data_jadwal->tgl_mulai:'');
-				$rows[] = 	(($cek_jadwal > 0)?@$cek_data_jadwal->ruang:'');
-				$rows[] = 	(($cek_jadwal > 0)?@$berita_acara:'');
-				$rows[] = 	(($cek_jadwal > 0)?@$undangan:'');
-				$rows[] = 	@$tambah_jadwal;*/
 
 
 				$cek_judul_tesis = $this->general_model->datagrab(array(
@@ -261,6 +248,7 @@ class Penjadwalan_tesis extends CI_Controller {
 
 				$rows[] = 	(($cek_jadwal > 0)?@$cek_data_jadwal->ruang:'');
 				$rows[] = 	array('data'=>(($cek_jadwal > 0)?@$berita_acara:''),'style'=>'text-align:center');
+				$rows[] = 	array('data'=>(($cek_jadwal > 0)?@$undangan:''),'style'=>'text-align:center');
 				$rows[] = 	(($cek_jadwal > 0)?
 					(($cek_data_jadwal->ket == NUll OR $cek_data_jadwal->ket == 1)?$set_selesai.'<p><p>'.@$ubah_jadwal:'Ujian Selesai'):@$tambah_jadwal);
 				if($this->general_model->check_role($this->session->userdata('id_pegawai'),"mhs") OR $this->general_model->check_role($this->session->userdata('id_pegawai'),"pimp")){
@@ -425,11 +413,6 @@ class Penjadwalan_tesis extends CI_Controller {
 			$param2['where'] = array('id_tesis'=>$o['id2']);
 			 $this->general_model->simpan_data($param2);
 
-
-
-
-		//$this->general_model->save_data('tesis',array('urut' => $o['no2']),'id_tesis',$o['id1']);
-		//$this->general_model->save_data('tesis',array('urut' => $o['no1']),'id_tesis',$o['id2']);
 		redirect($this->dir);
 
 	}
@@ -787,7 +770,7 @@ die();*/
 						'id_mahasiswa'=>$id_mahasiswa,
 						'id_pegawai'=>$id_pegawai,
 						'id_bidang'=>$id_bidang,
-						//'id_ref_proposal_tesis'=>$value,
+						//'id_ref_tesis'=>$value,
 						'status'=>1,
 						'status_ver'=>$value
 					));
@@ -811,8 +794,6 @@ die();*/
 			$tgl_mulai = $this->input->post('tgl_mulai');
 			$ruang = $this->input->post('ruang');
 			$ket = $this->input->post('ket');
-/*cek($tgl_mulai);
-die();*/
 			
 			$tgl_mulai = $this->input->post('tgl_mulai');
 
@@ -993,6 +974,17 @@ die();*/
 			]
 		])->row();
 
+		$sekprodi = $this->general_model->datagrabs([
+			'select' => 'sekprodi.*, mahasiswa.id_pegawai',
+			'tabel' => [
+				'ref_sekretaris sekprodi' => '',
+				'peg_pegawai mahasiswa' => ['mahasiswa.id_program_studi = sekprodi.id_ref_prodi', 'left'],
+			],
+			'where' => [
+				'mahasiswa.id_pegawai' => $id_mahasiswa,
+				'sekprodi.status' => 1 
+			]
+		])->row();
 		$prodi = $this->general_model->datagrabs([
 			'select' => 'prodi.*',
 			'tabel' => [
@@ -1105,92 +1097,146 @@ die();*/
 
 
          //$pdf->Image('assets/logo/brand.png',10,6,60,0);
-    // Times bold 15
+    	// Times bold 15
        
-    // Move to the right
+    	// Move to the right
         $pdf->Cell(60);
 
-    // Line break
+    	// Line break
         // logo
         $pdf->SetLineWidth(1);
 
 
 
         $pdf->SetFont('Times','',16.4);
-        $pdf->Ln(10);
+        $pdf->Ln(1);
+        $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(80);
+        //  $pdf->Image('assets/images/corp/beritalogo.png',60,40,100,0);
+		$pdf->Cell(55,7,'SIDANG PROPOSAL',"B",0,"C");
+
+
+        // $pdf->SetFont('Times','',12);
+        // $pdf->Ln(10);
+        // $pdf->SetTextColor(0,0,0);
+        // $pdf->SetX(25);
+        // $pdf->Cell(20,5,'Pada hari ini,    '.konversi_tanggal('D',substr($dt_row->tgl_mulai,0,10)).'  Tanggal    '.konversi_tanggal('j',substr($dt_row->tgl_mulai,0,10)).'   Bulan    '.konversi_tanggal('M',substr($dt_row->tgl_mulai,0,10)).'  Tahun    '.konversi_tanggal('Y',substr($dt_row->tgl_mulai,0,10)).'    telah dilaksanakan');
+
+
+        // $pdf->SetFont('Times','',12);
+        // $pdf->Ln(5);
+        // $pdf->SetTextColor(0,0,0);
+        // $pdf->SetX(25);
+        // $pdf->Cell(20,5,'Ujian REVIEW PROPOSAL TESIS, untuk Mahasiswa :');
+
+
+
+        $pdf->Ln(16);
         $pdf->SetTextColor(0,0,0);
         $pdf->SetX(25);
-         $pdf->Image('assets/images/corp/ba-tesis.png',10,40,180,0);
-
-
-        $pdf->SetFont('Times','',13);
-        $pdf->Ln(10);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->MultiCell(170,5,'Pada hari ini, '.konversi_tanggal('D',substr($dt_row->tgl_mulai,0,10)).'  tanggal '.konversi_tanggal('j',substr($dt_row->tgl_mulai,0,10)).' '.konversi_tanggal('M',substr($dt_row->tgl_mulai,0,10)).' '.konversi_tanggal('Y',substr($dt_row->tgl_mulai,0,10)).' telah dilaksanakan ujian TESIS, untuk Mahasiswa');
-
-/*
         $pdf->SetFont('Times','',12);
-        $pdf->Ln(10);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->Cell(20,5,'Ujian REVIEW PROPOSAL TESIS, untuk Mahasiswa :');
-
-*/
-
-        $pdf->Ln(5);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(35);
-        $pdf->SetFont('Times','',12);
-        $pdf->Cell(20,5,'Nama                : ');
-        $pdf->SetX(64);
+        $pdf->Cell(20,5,'NAMA MAHASISWA');
+		$pdf->setX(70);
+		$pdf->setFont('Times','',12);
+		$pdf->Cell(20,5,':');
+        $pdf->SetX(75);
         $pdf->SetFont('Times','',12);
         $pdf->MultiCell(210,5,''.$dt_row->nama_mahasiswa.'');
 
 
 
-        $pdf->Ln(0);
+        $pdf->Ln(6);
         $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(35);
+        $pdf->SetX(25);
         $pdf->SetFont('Times','',12);
-        $pdf->Cell(20,5,'NIM                  : ');
-        $pdf->SetX(64);
+        $pdf->Cell(20,5,'N I M');
+		$pdf->setX(70);
+		$pdf->setFont('Times','',12);
+		$pdf->Cell(20,5,':');                               
+        $pdf->SetX(75);
         $pdf->SetFont('Times','',12);
         $pdf->MultiCell(200,5,''.$dt_row->nip.'');
 
 
 
-        $pdf->Ln(0);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(35);
-        $pdf->SetFont('Times','',12);
-        $pdf->Cell(20,5,'Bidang Kajian  : ');
-        $pdf->SetX(64);
-        $pdf->SetFont('Times','',12);
-        $pdf->MultiCell(200,5,''.$dt_row->nama_program_konsentrasi.'');
-
-
-        $pdf->Ln(0);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(35);
-        $pdf->SetFont('Times','',9);
-        $pdf->Cell(20,5,'Judul Tesis       : ');
-        $pdf->SetX(64);
-        $pdf->SetFont('Times','',9);
-        $pdf->MultiCell(120,5,''.$dt_row->judul_tesis.'');
-
-        $pdf->Ln(5);
+        $pdf->Ln(6);
         $pdf->SetTextColor(0,0,0);
         $pdf->SetX(25);
-        $pdf->SetFont('Times','',13);
-        $pdf->MultiCell(170,5,'Ujian TESIS telah dilaksanakan dengan tertib dan lancar. Setelah mengadakan evaluasi atas TESIS dari Mahasiswa yang bersangkutan, para penguji yang tersebut di bawah ini, memberikan penilaian sebagai berikut :');
+        $pdf->SetFont('Times','',12);
+        $pdf->Cell(20,5,'HARI / TANGGAL');
+		$pdf->setX(70);
+		$pdf->setFont('Times','',12);
+		$pdf->Cell(20,5,':');         
+        $pdf->SetX(75);
+        $pdf->SetFont('Times','',12);
+        $pdf->MultiCell(200,5,''.konversi_tanggal('D',substr($dt_row->tgl_mulai,0,10)).', Tanggal '.konversi_tanggal('j',substr($dt_row->tgl_mulai,0,10)).' '.konversi_tanggal('M',substr($dt_row->tgl_mulai,0,10)).' '.konversi_tanggal('Y',substr($dt_row->tgl_mulai,0,10)).'');
+
+
+		$pdf->Ln(6);
+        $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(25);
+        $pdf->SetFont('Times','',12);
+        $pdf->Cell(20,5,'JAM');
+		$pdf->setX(70);
+		$pdf->setFont('Times','',12);
+		$pdf->Cell(20,5,':');                                 
+        $pdf->SetX(75);
+        $pdf->SetFont('Times','',12);
+        $pdf->MultiCell(200,5,''.date('H:i', strtotime($dt_row->tgl_mulai)).' - '. date('H:i', strtotime($dt_row->tgl_selesai)). ' WIB');
+
+
+        $pdf->Ln(6);
+        $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(25);
+        $pdf->SetFont('Times','',12);
+        $pdf->Cell(20,5,'JUDUL');
+		$pdf->setX(70);
+		$pdf->setFont('Times','',12);
+		$pdf->Cell(20,5,':');                             
+        $pdf->SetX(75);
+        $pdf->SetFont('Times','',12);
+        $pdf->MultiCell(120,5,''.$dt_row->judul_tesis.'');
+
+        $pdf->Ln(10);
+        $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(25);
+        $pdf->SetFont('Times','',12);
+        $pdf->Cell(20,5,'SUSUNAN TIM PANITIA');
+		$pdf->setX(75);
+		$pdf->setFont('Times','',12);
+		$pdf->Cell(20,5,':');
         $pdf->SetX(64);
-        $pdf->SetFont('Times','',9);
+        $pdf->SetFont('Times','',12);
         $pdf->MultiCell(120,5,'');
 
 
-       
+		//jarak
 
+		$pdf->Ln(6);
+        $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(25);
+		$pdf->SetFont('Times','',12);
+        $pdf->Cell(20,5,'KETUA');
+		$pdf->setX(75);
+		$pdf->setFont('Times','',12);
+		$pdf->Cell(20,5,':');
+        $pdf->SetX(80);
+		$pdf->SetFont('Times','',12);
+        $pdf->MultiCell(120,5,$kaprodi->nama_kaprodi);
+
+		$pdf->Ln(6);
+        $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(25);
+		$pdf->SetFont('Times','',12);
+        $pdf->Cell(20,5,'SEKRETARIS');
+		$pdf->setX(75);
+		$pdf->setFont('Times','',12);
+		$pdf->Cell(20,5,':');
+        $pdf->SetX(80);
+		$pdf->SetFont('Times','',12);
+        $pdf->MultiCell(120,5,$sekprodi->nama);
+
+		
 				$cek_judul_tesis = $this->general_model->datagrab(array(
 						'tabel' => 'pengajuan_judul',
 						'where' => array('judul_tesis' => $dt_row->judul_tesis)))->row();
@@ -1206,16 +1252,20 @@ die();*/
 						'where' => array('a.id_pengajuan_judul' => $cek_judul_tesis->id_pengajuan_judul)));
 				
 				$nox=1;
-				$bc=array();
+				$pembimbing=array();
 				foreach ($pemb->result() as $xx) {
-					$bc[]= '<tr><td width="320" height="60" bgcolor="#cccccc">'.$xx->nama.'</td>';
-					$bc[].= '<td width="150" height="60" bgcolor="#cccccc">Pembimbing</td>';
-					$bc[].= '<td width="50" height="60" bgcolor="#cccccc">.</td>';
-					$bc[].= '<td width="150" height="60" bgcolor="#cccccc">.............................</td></tr>';
-				$nox++;
+					$pembimbing[]= '<tr><td width="370" height="60">'.$xx->nama.'</td>';
+					$pembimbing[].= '<td width="150" height="60">Pembimbing</td>';
+					if($nox%2 == 1){
+						$pembimbing[].= '<td width="150" height="60">'.$nox.'...................</td></tr>';
+
+					}else{
+						$pembimbing[].= '<td width="150" height="60">'.'          '.$nox.'...................</td></tr>';
+
+					}
+					$nox++;
+
 				}
-
-
 
 				$cek_judul_peng = $this->general_model->datagrab(array(
 						'tabel' => 'tesis',
@@ -1230,79 +1280,66 @@ die();*/
 				$peng = $this->general_model->datagrab(array(
 						'tabel' => $from_peng,
 						'where' => array('a.id_pendaftaran_ujian' => $cek_judul_peng->id_tesis,'a.tipe_ujian' => 3)));
-				//cek($peng->num_rows());
 				$noxx=1;
-				$bx=array();
+				if($nox > 1){
+					$noxx=$nox;
+
+				}
+				$dosen_penguji=array();
+				$banyak_penguji = 1;
+				$ketua = '<tr><td width="370" height="60">'.$kaprodi->nama_kaprodi.'</td>';
+				$ketua .= '<td width="150" height="60">Ketua </td>';
+				
+				$ketua .= '<td width="150" height="60">'.$banyak_penguji.'...................</td></tr>';
+				$nom = 2;
 				foreach ($peng->result() as $xx) {
-					$bx[]= '<tr><td width="320" height="60" bgcolor="#f9f9f9">'.$xx->nama.'</td>';
-					$bx[].= '<td width="150" height="60" bgcolor="#f9f9f9">Anggota</td>';
-					$bx[].= '<td width="50" height="60" bgcolor="#f9f9f9"><span  style="color:#fff !Important">.</span></td>';
-					$bx[].= '<td width="150" height="60" bgcolor="#f9f9f9">.............................</td></tr>';
-				$noxx++;
+					$dosen_penguji[]= '<tr><td width="370" height="60">'.$xx->nama.'</td>';
+					$dosen_penguji[].= '<td width="150" height="60">Penguji '.numberToRoman($banyak_penguji).'</td>';
+
+					if($noxx%2 == 0){
+						$dosen_penguji[].= '<td width="150" height="60">'.$nom.'...................</td></tr>';
+
+					}else{
+						$dosen_penguji[].= '<td width="150" height="60">'.'          '.$nom.'...................</td></tr>';
+
+					}
+					$noxx++;
+					$nom += 1;
+					$banyak_penguji++;
 				}
 				
-
-        $html='<table border="1">
-<tr>
-<td width="320" height="40" bgcolor="#9b9b9b">Nama Penguji</td>
-<td width="150" height="40" bgcolor="#9b9b9b">Jabatan</td>
-<td width="50" height="40" bgcolor="#9b9b9b">Nilai</td>
-<td width="150" height="40" bgcolor="#9b9b9b">Tanda Tangan</td>
-</tr>		
-'.implode(@$bc).''.implode(@$bx).'
-</table>'; 
-$pdf->SetLeftMargin(26);
-$pdf->WriteHTML($html);
-
-        $pdf->Ln(5);
-        $pdf->SetFont('Times','',12);
+		$pdf->Ln(6);
         $pdf->SetTextColor(0,0,0);
         $pdf->SetX(25);
-        $pdf->MultiCell(170,5,'Setelah mempertimbangkan hasil evaluasi atas Ujian TESIS tersebut di atas, maka
-Mahasiswa yang bersangkutan dinyatakan :');
-
-        $pdf->Ln(0);
-        $pdf->SetFont('Times','',12);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(35);
-        $pdf->MultiCell(170,5,'
-a. LULUS -> Tanpa perbaikan.
-b. LULUS -> Dengan perbaikan & persetujuan Dosen Pembimbing.
-c. LULUS -> Dengan perbaikan & persetujuan Dosen Penguji.
-d. TIDAK LULUS.
-');
-        $pdf->Ln(5);
-        $pdf->SetFont('Times','',12);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->MultiCell(170,5,'Demikian Berita Acara ini dibuat dengan sebenar-benarnya dan dapat digunakan
-sebagaimana mestinya. 
-');
-
-        $pdf->SetFont('Times','',12);
-        $pdf->Ln(0);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(140);
-		$pdf->MultiCell(180,5,'Semarang, '.konversi_tanggal('j',substr($dt_row->tgl_mulai,0,10)).' '.konversi_tanggal('M',substr($dt_row->tgl_mulai,0,10)).' '.konversi_tanggal('Y',substr($dt_row->tgl_mulai,0,10)));
-
-
-        $pdf->SetFont('Times','',12);
-        $pdf->Ln(0);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(140);
-        $pdf->Cell(20,5,'Ketua Program Studi');
-
 		$pdf->SetFont('Times','',12);
+        $pdf->Cell(20,5,'ANGGOTA');
+		$pdf->setX(75);
+		$pdf->setFont('Times','',12);
+		$pdf->Cell(20,5,':');
+		$anggota = 1;
+		foreach($peng->result() as $xx){
+			$pdf->SetX(80);
+			$pdf->SetFont('Times','',12);
+       		$pdf->Cell(120,5,$anggota++.'. ');
+			$pdf->SetX(85);
+			$pdf->SetFont('Times','',12);
+       		$pdf->MultiCell(120,5,$xx->nama);
+		}
+
+        $pdf->Ln(4*6);
+        $pdf->SetFont('Times','',12);
+        $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(140);
+        $pdf->Cell(20,5,'Semarang, '.konversi_tanggal('j').' '.konversi_tanggal('M').' '.konversi_tanggal('Y').'');
+
+        $pdf->SetFont('Times','',12);
         $pdf->Ln(5);
         $pdf->SetTextColor(0,0,0);
         $pdf->SetX(140);
-        $pdf->Cell(20,5,$prodi->nama_prodi);
-
-
-
+        $pdf->Cell(20,5,'KETUA');
 
         $pdf->SetFont('Times','',12);
-        $pdf->Ln(25);
+        $pdf->Ln(30);
         $pdf->SetTextColor(0,0,0);
         $pdf->SetX(140);
         $pdf->Cell(20,5,$kaprodi->nama_kaprodi);
@@ -1312,460 +1349,390 @@ sebagaimana mestinya.
         $pdf->Ln(5);
         $pdf->SetTextColor(0,0,0);
         $pdf->SetX(140);
-        $pdf->Cell(20,5,'NIP. '. $kaprodi->nip);
+        $pdf->Cell(20,5,'NIP. '.$kaprodi->nip);
 
 
         $pdf->Ln(20);
-         $htmlx= '';
+		$htmlx= '';
 
-$pdf->SetLeftMargin(26);
-$pdf->WriteHTML($htmlx);
+		// ------------------------------------------------------------------ P A G E 2 ----------------------------------------------------------------------------------------------------
+		$pdf->AddPage();
+		
 
+		//penguji
+		$from_peng = array(
+			'mhs_penguji a' => '',
+			'peg_pegawai d' => array('d.id_pegawai = a.id_pembimbing','left')
+		);
 
-//penguji
-		 		$from_peng = array(
-					'mhs_penguji a' => '',
-					'peg_pegawai d' => array('d.id_pegawai = a.id_pembimbing','left')
-				);
-
-				$peng = $this->general_model->datagrab(array(
-						'tabel' => $from_peng,
-						'where' => array('a.id_pendaftaran_ujian' => $cek_judul_peng->id_tesis,'a.tipe_ujian' => 3)));
+		$peng = $this->general_model->datagrab(array(
+				'tabel' => $from_peng,
+				'where' => array('a.id_pendaftaran_ujian' => $cek_judul_peng->id_tesis,'a.tipe_ujian' => 3)));
 				//cek($peng->num_rows());
 
-				$noxx=1;
-				$bx=array();
-				foreach ($peng->result() as $xx) {
-					$bx[]= 
-		$pdf->SetFont('Times','',16.4);
-        $pdf->Ln(60);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(59);
-        // $pdf->Image('assets/images/corp/beritalogo.png",60,40,100,0);
-        $pdf->Image('assets/images/corp/lampiran_tesis.png',20,NULL,180,0);
+		$noxx=1;
+		$bx=array();
 
-
-        $pdf->Ln(10);
+		$pdf->Ln(0);
+		$pdf->SetFont('Times','',14);
         $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(67);
+        $pdf->MultiCell('',5,'BERITA ACARA UJIAN  TESIS ');
+
+		$pdf->Ln(5);
+		$pdf->SetFont('Times','',12);
+        $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(25);
+        $pdf->MultiCell(170,5,'Tim Penguji Penulisan Hukum (Tesis) Fakultas Hukum Program Magister Kenotariatan Universitas Diponegoro Pada :');
+
+		$pdf->Ln(0);
+		$pdf->SetFont('Times','',12);
+        $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(25);
+        $pdf->Cell('',5,'Hari/Tanggal');
+		$pdf->SetFont('Times','',12);
+        $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(70);
+        $pdf->Cell('',5,':');
+		$pdf->SetX(75);
         $pdf->SetFont('Times','',12);
-        $pdf->Cell(20,5,'Nama                : ');
-        $pdf->SetX(55);
+        $pdf->Cell(200,5,''.konversi_tanggal('D',substr($dt_row->tgl_mulai,0,10)).', '.konversi_tanggal('j',substr($dt_row->tgl_mulai,0,10)).' '.konversi_tanggal('M',substr($dt_row->tgl_mulai,0,10)).' '.konversi_tanggal('Y',substr($dt_row->tgl_mulai,0,10)).'');
+
+
+		$pdf->Ln(5);
+		$pdf->SetFont('Times','',12);
+        $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(25);
+        $pdf->Cell('',5,'Jam');
+		$pdf->SetFont('Times','',12);
+        $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(70);
+        $pdf->Cell('',5,':');
+		$pdf->SetX(75);
+        $pdf->SetFont('Times','',12);
+
+
+		$pdf->Ln(5);
+		$pdf->SetFont('Times','',12);
+        $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(25);
+        $pdf->Cell('',5,'Tempat');
+		$pdf->SetFont('Times','',12);
+        $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(70);
+        $pdf->Cell('',5,':');
+		$pdf->SetX(75);
+        $pdf->SetFont('Times','',12);
+        $pdf->Cell(200,5,$dt_row->ruang);
+
+
+		// Telah menyelenggarakan Ujian Tesis Secara Majelis dan Konprehensif 
+		$pdf->Ln(10);
+		$pdf->SetX(25);
+        $pdf->SetFont('Times','',12);
+        $pdf->Cell(200,5,'Telah menyelenggarakan Ujian Tesis Secara Majelis dan Konprehensif');
+
+
+		$pdf->Ln(12);
+        $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(25);
+        $pdf->SetFont('Times','',12);
+        $pdf->Cell(20,5,'Nama Mahasiswa');
+		$pdf->setX(70);
+		$pdf->setFont('Times','',12);
+		$pdf->Cell(20,5,':');
+        $pdf->SetX(75);
         $pdf->SetFont('Times','',12);
         $pdf->MultiCell(210,5,''.$dt_row->nama_mahasiswa.'');
 
-
-
-        $pdf->Ln(0);
+		$pdf->Ln(3);
         $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(25);
         $pdf->SetFont('Times','',12);
-        $pdf->Cell(20,5,'NIM                  : ');
-        $pdf->SetX(55);
+        $pdf->Cell(20,5,'N I M');
+		$pdf->setX(70);
+		$pdf->setFont('Times','',12);
+		$pdf->Cell(20,5,':');                               
+        $pdf->SetX(75);
         $pdf->SetFont('Times','',12);
         $pdf->MultiCell(200,5,''.$dt_row->nip.'');
 
 
-
-        $pdf->Ln(0);
+		$pdf->Ln(3);
         $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(25);
         $pdf->SetFont('Times','',12);
-        $pdf->Cell(20,5,'Judul Tesis       : ');
-        $pdf->SetX(55);
+        $pdf->Cell(20,5,'JUDUL');
+		$pdf->setX(70);
+		$pdf->setFont('Times','',12);
+		$pdf->Cell(20,5,':');                             
+        $pdf->SetX(75);
         $pdf->SetFont('Times','',12);
         $pdf->MultiCell(120,5,''.$dt_row->judul_tesis.'');
 
-
-
-
-
-        $pdf->Ln(10);
+		$pdf->Ln(10);
         $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(25);
+        $pdf->MultiCell(160,5,'Setelah mengadakan evaluasi atas Tesis dari mahasiswa yang bersangkutan, para penguji yang tersebut dibawah ini memberikan penilaian sebagai berikut :',0,'J');
+		
+
+		foreach($pemb->result() as $pemb){
+			$dataT = $pemb->nama;
+		}
+		$html='<table border="1">
+			<tr>
+			<td width="370" height="40" >Nama Penguji</td>
+			<td width="150" height="40" >Jabatan</td>
+			<td width="150" height="40" >Tanda Tangan</td>
+			</tr>		
+		'
+		// .implode(@$pembimbing)
+		.@$ketua
+		.''.implode(@$dosen_penguji).'
+		<tr>
+			<td width="670"  height="60">
+				Nilai Rata Rata 
+			</td>
+		</tr>
+		</table>'; 
+		// $pdf->Cell->
+		$pdf->SetLeftMargin(26);
+		$pdf->WriteHTML($html);
+
+		$pdf->Ln(0);
+        $pdf->SetFont('Times','',11);
+        $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(25);
+        $pdf->MultiCell(170,5,'Setelah mempertimbangkan hasil evaluasi atas ujian Tesis tersebut diatas, yang bersangkutan dinyatakan LULUS tanpa / dengan berkewajiban  memperbaiki atau TIDAK  LULUS (coret yang tidak perlu).',0,'J');
+		
+		
+		$pdf->Ln(3);
         $pdf->SetFont('Times','',12);
-        $pdf->Cell(20,5,'Dosen Penguji  : ');
-        $pdf->SetX(55);
-        $pdf->SetFont('Times','',10);
-        $pdf->MultiCell(60,5,''.$xx->nama.'');
-
-
-
-        $pdf->SetFont('Times','',12);
-        $pdf->Ln(-15);
         $pdf->SetTextColor(0,0,0);
         $pdf->SetX(140);
-        $pdf->Cell(10,5,'Tanda Tangan Dosen');
+        $pdf->Cell(20,5,'Semarang, '.konversi_tanggal('j').' '.konversi_tanggal('M').' '.konversi_tanggal('Y').'');
 
         $pdf->SetFont('Times','',12);
         $pdf->Ln(5);
         $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(149);
-        $pdf->Cell(10,5,'Penguji');
+        $pdf->SetX(140);
+        $pdf->Cell(20,5,'KETUA');
 
-
-        $pdf->SetFont('Times','',9);
+        $pdf->SetFont('Times','',12);
         $pdf->Ln(20);
         $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(135);
-        $pdf->MultiCell(55,4,''.$xx->nama.'');
-
-
-
-
-
-        $pdf->Ln(10);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetFont('Times','',18);
-        $pdf->MultiCell(200,5,'Review Dosen Penguji
-');
-
-
-        $pdf->Ln(5);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetFont('Times','',18);
-        $pdf->MultiCell(155,5,'...............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................');
-
-        $pdf->Ln(55);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetFont('Times','',18);
-        $pdf->MultiCell(200,5,'Review Dosen Penguji
-');
-
-
-        $pdf->Ln(5);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetFont('Times','',18);
-        $pdf->MultiCell(155,5,'................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................');
-
-
-;
-				$noxx++;
-				}
-
-
-
-
-
-				$cek_judul_tesis = $this->general_model->datagrab(array(
-						'tabel' => 'pengajuan_judul',
-						'where' => array('judul_tesis' => $dt_row->judul_tesis)))->row();
-
-		
-		 		$from_pem = array(
-					'mhs_pembimbing a' => '',
-					'peg_pegawai d' => array('d.id_pegawai = a.id_pembimbing','left')
-				);
-
-				$pemb = $this->general_model->datagrab(array(
-						'tabel' => $from_pem,
-						'where' => array('a.id_pengajuan_judul' => $cek_judul_tesis->id_pengajuan_judul)));
-				
-				$nox=1;
-				$bc=array();
-				foreach ($pemb->result() as $yy) {
-					$bc[]= 
-					$pdf->SetFont('Times','',16.4);
-			        $pdf->Ln(60);
-			        $pdf->SetTextColor(0,0,0);
-			        $pdf->SetX(59);
-			        // $pdf->Image('assets/images/corp/beritalogo.png",60,40,100,0);
-			        $pdf->Image('assets/images/corp/lampiran_tesis.png',20,NULL,180,0);
-
-			        $pdf->Ln(10);
-			        $pdf->SetTextColor(0,0,0);
-			        $pdf->SetFont('Times','',12);
-			        $pdf->Cell(20,5,'Nama                       : ');
-			        $pdf->SetX(63);
-			        $pdf->SetFont('Times','',12);
-			        $pdf->MultiCell(210,5,''.$dt_row->nama_mahasiswa.'');
-
-
-
-			        $pdf->Ln(0);
-			        $pdf->SetTextColor(0,0,0);
-			        $pdf->SetFont('Times','',12);
-			        $pdf->Cell(20,5,'NIM                         : ');
-			        $pdf->SetX(63);
-			        $pdf->SetFont('Times','',12);
-			        $pdf->MultiCell(200,5,''.$dt_row->nip.'');
-
-
-
-			        $pdf->Ln(0);
-			        $pdf->SetTextColor(0,0,0);
-			        $pdf->SetFont('Times','',12);
-			        $pdf->Cell(20,5,'Judul Tesis              : ');
-			        $pdf->SetX(63);
-			        $pdf->SetFont('Times','',12);
-			        $pdf->MultiCell(120,5,''.$dt_row->judul_tesis.'');
-
-
-
-
-
-			        $pdf->Ln(10);
-			        $pdf->SetTextColor(0,0,0);
-			        $pdf->SetFont('Times','',12);
-			        $pdf->Cell(20,5,'Dosen Pembimbing : ');
-			        $pdf->SetX(63);
-			        $pdf->SetFont('Times','',10);
-			        $pdf->MultiCell(60,5,''.$yy->nama.'');
-
-
-
-			        $pdf->SetFont('Times','',12);
-			        $pdf->Ln(-20);
-			        $pdf->SetTextColor(0,0,0);
-			        $pdf->SetX(140);
-			        $pdf->Cell(10,5,'Tanda Tangan Dosen');
-
-			        $pdf->SetFont('Times','',12);
-			        $pdf->Ln(5);
-			        $pdf->SetTextColor(0,0,0);
-			        $pdf->SetX(149);
-			        $pdf->Cell(10,5,'Pembimbing');
-
-
-			        $pdf->SetFont('Times','',9);
-			        $pdf->Ln(20);
-			        $pdf->SetTextColor(0,0,0);
-			        $pdf->SetX(135);
-			        $pdf->MultiCell(50,4,''.$yy->nama.'');
-
-
-
-
-
-			        $pdf->Ln(20);
-			        $pdf->SetTextColor(0,0,0);
-			        $pdf->SetFont('Times','',18);
-			        $pdf->MultiCell(200,5,'Review Dosen Pembimbing
-			');
-
-
-        $pdf->Ln(5);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetFont('Times','',18);
-        $pdf->MultiCell(155,5,'................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................');
-
-        $pdf->Ln(30);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetFont('Times','',18);
-        $pdf->MultiCell(200,5,'Review Dosen Pembimbing
-');
-
-
-        $pdf->Ln(5);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetFont('Times','',18);
-        $pdf->MultiCell(155,5,'................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................');
-        ;
-				$nox++;
-				}
-
-
-
-
-
-       
-
-				$cek_judul_tesis = $this->general_model->datagrab(array(
-						'tabel' => 'pengajuan_judul',
-						'where' => array('judul_tesis' => $dt_row->judul_tesis)))->row();
-
-		
-		 		$from_pem = array(
-					'mhs_pembimbing a' => '',
-					'peg_pegawai d' => array('d.id_pegawai = a.id_pembimbing','left')
-				);
-
-				$pemb = $this->general_model->datagrab(array(
-						'tabel' => $from_pem,
-						'where' => array('a.id_pengajuan_judul' => $cek_judul_tesis->id_pengajuan_judul)));
-				
-				$nox=1;
-				$bc=array();
-				foreach ($pemb->result() as $xx) {
-					$bc[]= '- '.$xx->nama;
-				$nox++;
-				}
-
-
-
-
-					$pdf->SetFont('Times','',16.4);
-			        $pdf->Ln(150);
-			        $pdf->SetTextColor(0,0,0);
-			        $pdf->SetX(59);
-			        // $pdf->Image('assets/images/corp/beritalogo.png",60,40,100,0);
-			        $pdf->Image('assets/images/corp/panitia-sidang-tesis.png',20,NULL,180,0);
-
-			        $pdf->Ln(10);
-			        $pdf->SetTextColor(0,0,0);
-			        $pdf->SetFont('Times','',13);
-			        $pdf->Cell(20,8,'Ketua                       : ');
-			        $pdf->SetX(63);
-			        $pdf->SetFont('Times','',13);
-			        $pdf->MultiCell(210,8,'Dr. Joko Setiyono, S.H., M.Hum.');
-
-
-
-			        $pdf->Ln(0);
-			        $pdf->SetTextColor(0,0,0);
-			        $pdf->SetFont('Times','',13);
-			        $pdf->Cell(20,8,'Sekretaris                : ');
-			        $pdf->SetX(63);
-			        $pdf->SetFont('Times','',13);
-			        $pdf->MultiCell(210,8,'Dr. Ratna Herawati, S.H., M.H.');
-
-
-
-			        $pdf->Ln(0);
-			        $pdf->SetTextColor(0,0,0);
-			        $pdf->SetFont('Times','',13);
-			        $pdf->Cell(20,8,'Anggota                  : ');
-			        $pdf->SetX(63);
-			        $pdf->SetFont('Times','',13);
-			        $pdf->MultiCell(120,8,implode(@$bc));
-
-
-
-				$cek_judul_peng = $this->general_model->datagrab(array(
-						'tabel' => 'tesis',
-						'where' => array('judul_tesis' => $dt_row->judul_tesis)))->row();
-
-		
-		 		$from_peng = array(
-					'mhs_penguji a' => '',
-					'peg_pegawai d' => array('d.id_pegawai = a.id_pembimbing','left')
-				);
-
-				$peng = $this->general_model->datagrab(array(
-						'tabel' => $from_peng,
-						'where' => array('a.id_pendaftaran_ujian' => $cek_judul_peng->id_tesis,'a.tipe_ujian' => 3)));
-				//cek($peng->num_rows());
-				$noxx=1;
-				$bx=array();
-				foreach ($peng->result() as $xx) {
-					$bx[]= 
-			        $pdf->SetFont('Times','',13);
-			        $pdf->Ln(2);
-			        $pdf->SetTextColor(0,0,0);
-			        $pdf->SetX(63);
-			        $pdf->MultiCell(100,5,'- '.$xx->nama.'');
-
-				$noxx++;
-				}
-
-
-
-
-
-        $pdf->SetFont('Times','',13);
-        $pdf->Ln(50);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(135);
-        $pdf->Cell(20,5,'Semarang, '.konversi_tanggal('j',substr($dt_row->tgl_mulai,0,10)).' '.konversi_tanggal('M',substr($dt_row->tgl_mulai,0,10)).' '.konversi_tanggal('Y',substr($dt_row->tgl_mulai,0,10)));
-
-        $pdf->SetFont('Times','',13);
-        $pdf->Ln(5);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(135);
-        $pdf->Cell(20,5,'Ketua Program Studi');
-
-		$pdf->SetFont('Times','',12);
-        $pdf->Ln(5);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(135);
-        $pdf->Cell(20,5,$prodi->nama_prodi);
-
-
-
-
-        $pdf->SetFont('Times','',13);
-        $pdf->Ln(25);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(135);
+        $pdf->SetX(140);
         $pdf->Cell(20,5,$kaprodi->nama_kaprodi);
 
 
-        $pdf->SetFont('Times','',13);
+        $pdf->SetFont('Times','',12);
         $pdf->Ln(5);
         $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(135);
-        $pdf->Cell(20,5,'NIP. '. $kaprodi->nip);
+        $pdf->SetX(140);
+        $pdf->Cell(20,5,'NIP. '.$kaprodi->nip);
+
+		$pdf->SetFont('Times','B',12);
+        $pdf->Ln(5);
+        $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(25);
+        $pdf->Cell(20,5,'Catatan : ');
+		$pdf->SetFont('Times','B',12);
+        $pdf->Ln(5);
+        $pdf->SetTextColor(0,0,0);
+        $pdf->SetX(25);
+        $pdf->Cell(20,5,'Mahasiswa dinyatakan Lulus dengan Nilai minimal B');
+
+		// ----------------------------------------------------------------------------P A G E 3 REVIEW DOSEN PENGUJI--------------------------------------------------------------------------------------------------------------------
+
+		foreach ($peng->result() as $xx) {
+			$pdf->AddPage();
+
+			$pdf->SetFont('Times','',16.4);
+			$pdf->Ln(0);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(59);
+			$pdf->Image('assets/images/corp/lampiran_tesis.png',60,NULL,100,0);
+
+			$pdf->Ln(3);
+			$pdf->SetFont('Arial','B',10);
+			$pdf->SetX(26);
+			$pdf->Cell(40,10,'Nama Mahasiswa',1);
+
+			$pdf->SetFont('Arial','',10);
+			$pdf->SetX(66);
+			$pdf->Cell(120,10,$dt_row->nama_mahasiswa,1);
+
+			$pdf->Ln(10);
+			$pdf->SetFont('Arial','B',10);
+			$pdf->SetX(26);
+			$pdf->Cell(40,10,'NIM',1);
+
+			$pdf->SetFont('Arial','',10);
+			$pdf->SetX(66);
+			$pdf->Cell(120,10,$dt_row->nip,1);
+
+			$pdf->Ln(10);
+			$pdf->SetFont('Arial','B',10);
+			$pdf->SetX(26);
+			$pdf->Cell(40,25,'Judul',1);
+
+			$pdf->SetFont('Arial','',10);
+			$pdf->SetX(66);
+			$pdf->MultiCell(120,5,$dt_row->judul_tesis);
+			//gambar border
+
+			$pdf->setY(97.3);
+			$pdf->SetX(66);
+			$pdf->Cell(120,25,'', 1);
+
+			//selesai gambar border
+
+			$pdf->Ln(25);
+			$pdf->SetFont('Arial','B',10);
+			$pdf->SetX(26);
+			$pdf->Cell(40,20,'Dosen',1);
+
+			$pdf->SetFont('Arial','',10);
+			$pdf->SetX(66);
+			$pdf->Cell(120,20,$xx->nama,1);
+
+			$pdf->SetFont('Arial','',10);
+			$pdf->SetX(146);
+			$pdf->Cell(40,20,'',1);
+
+			$pdf->SetFont('Arial','',10);
+			$pdf->SetY(115);	
+			$pdf->SetX(154);
+			$pdf->Cell(40,20,'Tanda Tangan');
+
+			$pdf->Ln(40);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetFont('Times','',18);
+			$pdf->MultiCell(200,5,'Review Dosen Penguji
+			');
 
 
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetFont('Times','',18);
+			$pdf->MultiCell(155,5,'...............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................');
+			$noxx++;
+			// $pdf->AddPage();
+		}
 
-       // $pdf->Cell(0,10,'Page '.$pdf->PageNo().'/{nb}',0,0,'R');
+		// cek($pembimbing);
+		$from_pem = array(
+			'mhs_pembimbing a' => '',
+			'peg_pegawai d' => array('d.id_pegawai = a.id_pembimbing','left')
+		);
+
+		$pemb = $this->general_model->datagrab(array(
+				'tabel' => $from_pem,
+				'where' => array('a.id_pengajuan_judul' => $cek_judul_tesis->id_pengajuan_judul)));
+		// ----------------------------------------------------------------------------P A G E 3 REVIEW DOSEN PEMBIMBING--------------------------------------------------------------------------------------------------------------------
+		
+		foreach ($pemb->result() as $yy) {
+			$pdf->AddPage();
+
+			$pdf->SetFont('Times','',16.4);
+			$pdf->Ln(0);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(59);
+			$pdf->Image('assets/images/corp/lampiran-masukkan-proposal.png',60,NULL,100,0);
+
+			$pdf->Ln(3);
+			$pdf->SetFont('Arial','B',10);
+			$pdf->SetX(26);
+			$pdf->Cell(40,10,'Nama Mahasiswa',1);
+
+			$pdf->SetFont('Arial','',10);
+			$pdf->SetX(66);
+			$pdf->Cell(120,10,$dt_row->nama_mahasiswa,1);
+
+			$pdf->Ln(10);
+			$pdf->SetFont('Arial','B',10);
+			$pdf->SetX(26);
+			$pdf->Cell(40,10,'NIM',1);
+
+			$pdf->SetFont('Arial','',10);
+			$pdf->SetX(66);
+			$pdf->Cell(120,10,$dt_row->nip,1);
+
+			$pdf->Ln(10);
+			$pdf->SetFont('Arial','B',10);
+			$pdf->SetX(26);
+			$pdf->Cell(40,25,'Judul',1);
+
+			$pdf->SetFont('Arial','',10);
+			$pdf->SetX(66);
+			$pdf->MultiCell(120,5,$dt_row->judul_tesis);
+			//gambar border
+
+			$pdf->setY(97.3);
+			$pdf->SetX(66);
+			$pdf->Cell(120,25,'', 1);
+
+			//selesai gambar border
+
+			$pdf->Ln(25);
+			$pdf->SetFont('Arial','B',10);
+			$pdf->SetX(26);
+			$pdf->Cell(40,20,'Dosen',1);
+
+			$pdf->SetFont('Arial','',10);
+			$pdf->SetX(66);
+			$pdf->Cell(120,20,$yy->nama,1);
+
+			$pdf->SetFont('Arial','',10);
+			$pdf->SetX(146);
+			$pdf->Cell(40,20,'',1);
+
+			$pdf->SetFont('Arial','',10);
+			$pdf->SetY(115);	
+			$pdf->SetX(154);
+			$pdf->Cell(40,20,'Tanda Tangan');
+
+			$pdf->Ln(40);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetFont('Times','',18);
+			$pdf->MultiCell(200,5,'Review Dosen Pembimbing
+			');
 
 
-    // Line break
-        $pdf->Output('Penjadwalan__tesis.pdf', 'I'); 
-        // $pdf->Output(); 
-
-        //  }
-
-        }
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetFont('Times','',18);
+			$pdf->MultiCell(155,5,'...............................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................................');
+			$noxx++;
+		}
+		
+			$pdf->Output('Penjadwalan__tesis.pdf', 'I'); 
+	}
 
 
 
     function undangan($param=NULL) {
         $o=un_de($param);
-        //cek($p);
+
     	$id_jadwal_ujian= $o['id_jadwal_ujian'];
     	$id_mahasiswa= $o['id_mahasiswa'];
     	$id= $o['id_tesis'];
-        /*die();*/
         $offset = !empty($offset) ? $offset : null;
-        //$pengajar = $this->input->post('pengajar');
         $st = get_stationer();
-         
-        $data['h_title_left'] = '
-        <div class="col-lg-5" style="padding: 10px 0px 0px 0px;">
-
-        <img src="'.base_url()."uploads/logo/logo_yes.png".'" style="height: 40px;float:left; margin-right:10px;"/>
-
-        <h5 style="font-size: 24px;border-top:3px solid #4271B7;border-bottom:3px solid #4271B7;float:left;color:#4271B7;margin-top:5px;"><b>YOGYA EXECUTIVE SCHOOL "YES"</b></h5>
-                </div>
-        ';
-        $data['h_title_right'] = '
         
-        ';
-        $data['h_sub_center'] = '';
-        $data['tgl_cetak'] = date('d-M-Y');
-        $data['company_address'] = '<div class="col-lg-6"  style="padding: 10px 0px 0px 0px;">
-
-        <div style="text-align:right;color: #4271B7;margin-top:-20px;">
-        <h6 style="font-size:10px;">Jl. Taman Siswa No. 89 Telp/Fax. (0274) 376 623 Yogyakarta 55151<br>
-        Website : www.yesjogja.com<br>E-mail : info@yesjogja.com, info_yes@yahoo.co.id</h6></div>';
-        $data['company_country'] = 'City-Country';
-        /*$data['company_logo'] = base_url('assets/logo/brand.png');*/
-
-        // **** BEDO SAMBUNGAN
-        // $start = 0;
-        // $anjab_alat = $this->general_model->datagrabs(array(
-        //     'tabel'=>'catatan', 
-        //     'select'=>'*'));
-        // $data = array(
-        //     'h_title_left'=> 'pesis',
-        //     'h_title_center'=> '<span>Laporan</span><br/> Data ',
-        //     'h_sub_center'=> '',
-        //     'tgl_cetak'=> date('d-M-Y'),
-        //     'company_address'=>'Company Address',        
-        //     'company_country'=>'City-Country',        
-        //     'company_logo'=>base_url('assets/logo/brand.png'),        
-        //    // 'company_logo'=>$logo_instansi      
-        //     );
-
-
-
-         ini_set('memory_limit', '512M');
-       // $html = $this->load->view('anjab_alat_pdf', $data, true);
-        $html = $this->load->view('tigris/pdf', $data, true);
+		$kaprodi = $this->general_model->datagrabs([
+			'select' => 'kaprodi.*, mahasiswa.id_pegawai',
+			'tabel' => [
+				'ref_kaprodi kaprodi' => '',
+				'peg_pegawai mahasiswa' => ['mahasiswa.id_program_studi = kaprodi.id_ref_prodi', 'left'],
+			],
+			'where' => [
+				'mahasiswa.id_pegawai' => $id_mahasiswa,
+				'kaprodi.status' => 1 
+			]
+		])->row();
         $this->load->library('fpdf/fpdf');
-        /*die();*/
-
-
-
-         $from = array(
+		$from = array(
 			'jadwal_ujian d' => '',
 			'tesis a' => array('a.id_tesis = d.id_ujian','left'),
 			'peg_pegawai b' => array('b.id_pegawai = a.id_mahasiswa','left'),
@@ -1777,239 +1744,212 @@ $pdf->WriteHTML($htmlx);
 		);
 		$select = 'd.*,a.*,b.nama as nama_mahasiswa,b.nip,e.nama as xx,f.nama as xxx,,g.nama as zz,h.nama as zzz,c.nama_program_konsentrasi';
         
-          $dt_row = $this->general_model->datagrab(array('tabel'=>$from,'select'=>$select,'offset'=>$offset,'where'=>array('d.id_ujian'=>$id)))->row();
-         
-
-         
-
-
-         $data['title']      = 'berita_acara'.@$dt_row->kode;
-         $data['no_uji']         = @$dt_row->kode;
-
-
-
-
-        $parameters= array(
-                'mode' => 'utf-8',
-                'format' => 'A4-L',    // A4 for portrait
-                'default_font_size' => '12',
-                'default_font' => '',
-                'margin_left' => 20,
-                'margin_right' => 15,
-                'margin_top' => 40,
-                'margin_bottom' => 30,
-                'margin_header' => 20,
-                'margin_footer' => 10,
-                'orientation' => 'L' // For some reason setting orientation to "L" alone doesn't work (it should), you need to also set format to "A4-L" for landscape
-            );
-        $tabelx = '
-        <table>
-        <tr>
-        <tr>
-        </table>
-
-
-        ';
-        //$pdf = $this->fpdf->load($parameters);
-        // setting
+        $dt_row = $this->general_model->datagrab(array(
+			'tabel'=>$from,
+			'select'=>$select,
+			'offset'=>$offset,
+			'where'=>array('d.id_ujian'=>$id)
+			)
+		)->row();
+        
         $pdf = new FPDF('P','mm','A4');
-        $pdf->AliasNbPages();
-        $pdf->AddPage();
-        $pdf->SetFont('Arial','B',50);
+		$cek_judul_peng = $this->general_model->datagrab(array(
+			'tabel' => 'tesis',
+			'where' => array('judul_tesis' => $dt_row->judul_tesis)))->row();
 
+		$from_peng = array(
+			'mhs_penguji a' => '',
+			'peg_pegawai d' => array('d.id_pegawai = a.id_pembimbing','left')
+		);
 
-         //$pdf->Image('assets/logo/brand.png',10,6,60,0);
-    // Arial bold 15
-       
-        $pdf->SetFont('Arial','B',37.5);
-        $pdf->Ln(5);
-        $pdf->SetTextColor(220,50,10);
-        $pdf->Cell(0,10,'MALCOM');
-    // Move to the right
-        $pdf->Cell(60);
+		$peng = $this->general_model->datagrab(array(
+				'tabel' => $from_peng,
+				'where' => array('a.id_pendaftaran_ujian' => $cek_judul_peng->id_tesis,'a.tipe_ujian' => 3)));
+		$number= 1 ;
+		foreach ($peng->result() as $xx) {
+			$pdf->AddPage();
+			//line on header 
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetY(36);
+			$pdf->SetX(10);
+			$pdf->Cell(190,1.5,'','B','','',true);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetY(38);
+			$pdf->SetX(10);
+			$pdf->Cell(190,0.5,'','B','','',true);
 
-    // Line break
-        $pdf->Ln(10);
-        // logo
-        $pdf->SetTitle('Berita Acara');
-        $pdf->SetLineWidth(1);
+			//nomor nota dinas
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'Nomor');
+			$pdf->setX(45);
+			$pdf->setFont('Times','',12);
+			$pdf->Cell(20,5,':');
+			$pdf->SetX(47);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(210,5,'Nota Dinas');
 
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'Lampiran');
+			$pdf->setX(45);
+			$pdf->setFont('Times','',12);
+			$pdf->Cell(20,5,':');
+			$pdf->SetX(47);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(210,5,'1(satu) Exp');
 
-        $pdf->SetX(-105);
-        $pdf->SetTextColor(900,900,900);
-         $pdf->Image('assets/images/corp.png',0,0,210,0);
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'Hal');
+			$pdf->setX(45);
+			$pdf->setFont('Times','',12);
+			$pdf->Cell(20,5,':');
+			$pdf->SetX(47);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(210,5,'Undangan Ujian Tesis');
 
-        $pdf->SetFont('Arial','i',12);
-        $pdf->Ln(5);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(75);
-        $pdf->Cell(10,10,'Bismillahir-Rahmaanir-Rahiim');
+			$pdf->Ln(15);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'Yth Sdr.');
 
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'Anggota Tim Penguji '.numberToRoman($number).' Tesis');
 
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'Program Studi Magister Kenotariatan');
 
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'Universitas Diponegoro');
 
-        $pdf->SetFont('Arial','',10);
-        $pdf->Ln(10);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->Cell(20,10,'Nomor      : ');
+			$pdf->Ln(20);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->MultiCell(150,5,'Bersama ini dimohon dengan hormat, kesediaannya untuk bertindak sebagai Tim Penguji I Tesis   , Mahasiswa atas nama :');
+		
+			$pdf->Ln(12);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'Nama Mahasiswa');
+			$pdf->setX(70);
+			$pdf->setFont('Times','',12);
+			$pdf->Cell(20,5,':');
+			$pdf->SetX(75);
+			$pdf->SetFont('Times','',12);
+			$pdf->MultiCell(210,5,''.$dt_row->nama_mahasiswa.'');
 
+			$pdf->Ln(3);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'N I M');
+			$pdf->setX(70);
+			$pdf->setFont('Times','',12);
+			$pdf->Cell(20,5,':');                               
+			$pdf->SetX(75);
+			$pdf->SetFont('Times','',12);
+			$pdf->MultiCell(200,5,''.$dt_row->nip.'');
 
+			$pdf->Ln(10);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'yang akan diselenggarakan pada :');
 
+			$pdf->Ln(12);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'Hari / Tanggal');
+			$pdf->setX(70);
+			$pdf->setFont('Times','',12);
+			$pdf->Cell(20,5,':');
+			$pdf->SetX(75);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(210,5,konversi_tanggal('D',substr($dt_row->tgl_mulai,0,10)).', '.konversi_tanggal('j',substr($dt_row->tgl_mulai,0,10)).' '.konversi_tanggal('M',substr($dt_row->tgl_mulai,0,10)).' '.konversi_tanggal('Y',substr($dt_row->tgl_mulai,0,10)));
+		
+		
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'Jam');
+			$pdf->setX(70);
+			$pdf->setFont('Times','',12);
+			$pdf->Cell(20,5,':');
+			$pdf->SetX(75);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(200,5,''.date('H:i', strtotime($dt_row->tgl_mulai)).' - '. date('H:i', strtotime($dt_row->tgl_selesai)). ' WIB');
 
-        $pdf->SetFont('Arial','',10);
-        $pdf->Ln(0);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(135);
-        $pdf->Cell(20,10,'Yogyakarta, '.date('d-M-Y').'');
+			$pdf->Ln(5);
+			$pdf->SetFont('Times','',12);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->Cell('',5,'Tempat');
+			$pdf->SetFont('Times','',12);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(70);
+			$pdf->Cell('',5,':');
+			$pdf->SetX(75);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(200,5,$dt_row->ruang);
 
+			$pdf->Ln(10);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(25);
+			$pdf->SetFont('Times','',12);
+			$pdf->Cell(20,5,'Demikian atas kesediaan Saudara diucapkan terimakasih.');
+		
+			$pdf->Ln(16);
+			$pdf->SetFont('Times','',12);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(120);
+			$pdf->Cell(20,5,'Semarang, '.konversi_tanggal('j').' '.konversi_tanggal('M').' '.konversi_tanggal('Y').'');
+	
+			$pdf->SetFont('Times','',12);
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(120);
+			$pdf->Cell(20,5,'Ketua program');
+	
+			$pdf->SetFont('Times','',12);
+			$pdf->Ln(20);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(120);
+			$pdf->Cell(20,5,$kaprodi->nama_kaprodi);
+	
+	
+			$pdf->SetFont('Times','',12);
+			$pdf->Ln(5);
+			$pdf->SetTextColor(0,0,0);
+			$pdf->SetX(120);
+			$pdf->Cell(20,5,'NIP. '.$kaprodi->nip);
 
+			$number++;
+		}
+        $pdf->Output('undangan_ujian_tesis.pdf', 'I');
 
-        $pdf->SetFont('Arial','',10);
-        $pdf->Ln(10);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->Cell(20,10,'Lampiran  : 1 berkas');
+	}
 
-        $pdf->SetFont('Arial','',10);
-        $pdf->Ln(10);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->Cell(20,10,'Perihal 	    : Ujian Proposal/Tesis : ');
-
-
-
-
-        $pdf->SetFont('Arial','',10);
-        $pdf->Ln(10);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->Cell(20,10,'Kepada Yth.');
-
-
-        $pdf->SetFont('Arial','',10);
-        $pdf->Ln(10);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->Cell(20,10,'Tim Penguji');
-
-        $pdf->SetFont('Arial','',10);
-        $pdf->Ln(10);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->Cell(20,10,'Penguji I    : '.$dt_row->xx.'');
-
-
-        $pdf->SetFont('Arial','',10);
-        $pdf->Ln(10);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->Cell(20,10,'Penguji II   : '.$dt_row->xxx.'');
-
-
-        $pdf->SetFont('Arial','i',10);
-        $pdf->Ln(20);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->Cell(20,10,'Assalamualaikum. W.W ');
-
-        $pdf->SetFont('Arial','',10);
-        $pdf->Ln(20);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->Cell(20,10,'Di mohon kesediaan dan kehadiran Bapak/Ibu pada "ujian proposal/tesis" bagi mahasiswa');
-
-        $pdf->SetFont('Arial','',10);
-        $pdf->Ln(10);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->Cell(20,10,'Prodi '.$dt_row->nama_program_konsentrasi.' Fakultas yang akan diselenggarakan pada :');
-
-        $pdf->SetFont('Arial','',10);
-        $pdf->Ln(12);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(55);
-        $pdf->Cell(20,10,'Hari/Tanggal  : '.tanggal($dt_row->tgl_mulai).' Fakultas yang akan diselenggarakan pada :');
-
-        $pdf->SetFont('Arial','',10);
-        $pdf->Ln(7);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(55);
-        $pdf->Cell(20,10,'Pukul              : '.tanggal($dt_row->tgl_mulai).' - selesai WIB');
-
-
-        $pdf->SetFont('Arial','',10);
-        $pdf->Ln(7);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(55);
-        $pdf->Cell(20,10,'Tempat           : '.$dt_row->ruang.'');
-
-        $pdf->SetFont('Arial','',10);
-        $pdf->Ln(7);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(55);
-        $pdf->Cell(20,10,'Pembimbing   : '.$dt_row->zz.'');
-
-
-        $pdf->Ln(7);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(55);
-        $pdf->SetFont('Arial','',10);
-        $pdf->Cell(20,10,'Judul              : ');
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(80);
-        $pdf->SetFont('Arial','',6);
-        $pdf->Cell(20,10,''.$dt_row->judul_tesis.'');
-
-
-        $pdf->SetFont('Arial','',10);
-        $pdf->Ln(10);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->Cell(20,10,'Atas perhatian Bapak/Ibu, diucapkan terima kasih');
-        $pdf->SetFont('Arial','',10);
-        $pdf->Ln(10);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(25);
-        $pdf->Cell(20,10,'Wassalamualaikum. W.W');
-
-
-
-        $pdf->SetFont('Arial','',10);
-        $pdf->Ln(10);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(160);
-        $pdf->Cell(20,10,'Sekretaris Prodi');
-
-
-
-
-        $pdf->SetFont('Arial','',10);
-        $pdf->Ln(30);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(160);
-        $pdf->Cell(20,10,'.................................');
-
-
-        $pdf->SetFont('Arial','',10);
-        $pdf->Ln(5);
-        $pdf->SetTextColor(0,0,0);
-        $pdf->SetX(160);
-        $pdf->Cell(20,10,'NIP');
-
-
-
-
-       // $pdf->Cell(0,10,'Page '.$pdf->PageNo().'/{nb}',0,0,'R');
-
-
-    // Line break
-        $pdf->Output('invoice.pdf', 'I'); 
-        // $pdf->Output(); 
-
-        //  }
-
-        }
 
 
 
@@ -2036,7 +1976,7 @@ $pdf->WriteHTML($htmlx);
 		$o= un_de($id);
     	$id_ujian= $o['id_ujian'];
     	$tipe_ujian= $o['tipe_ujian'];
-    	/*cek($id_proposal_tesis);
+    	/*cek($id_tesis);
     	cek($tipe_ujian);
 		die();*/
 		

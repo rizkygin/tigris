@@ -115,6 +115,16 @@ class Ref_bidang_ujian_tesis extends CI_Controller{
 
 				$rows[] = 	array('data'=>$no,'style'=>'text-align:center');
 				/*$rows[] = 	$row->kode_Syarat Pengajuan Judul;*/
+
+				//simpan urutan
+				//simpan urutan 
+				$this->general_model->save_data('ref_bidang_ujian_tesis',[
+					'urut' => $no
+				],
+				'id_bidang_ujian_tesis', $row->id_bidang_ujian_tesis
+				);
+				// cek($this->db->last_query());
+
 				$rows[] = 	$row->nama_bidang;
 				$rows[] = 	@$status;
 				$rows[] = array('class' => 'text-center','width' => '35','data' => $btn_down);
